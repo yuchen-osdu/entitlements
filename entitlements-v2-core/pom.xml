@@ -7,7 +7,8 @@
         <maven.compiler.target>${java.version}</maven.compiler.target>
         <maven.compiler.source>${java.version}</maven.compiler.source>
         <openapi.version>2.8.14</openapi.version>
-        <os-core-common.version>5.1.1</os-core-common.version>
+        <os-core-common.version>5.4.1</os-core-common.version>
+        <jackson.version>2.21.1</jackson.version>
     </properties>
 
     <parent>
@@ -19,6 +20,20 @@
     <artifactId>entitlements-v2-core</artifactId>
     <name>entitlements-v2-core</name>
     <description>Entitlements V2 service core</description>
+
+    <dependencyManagement>
+        <dependencies>
+            <!-- Jackson override: Spring Boot 3.5.9 and other artifacts provides 2.19.4, we need 2.21.1 for GHSA-72hv-8253-57qq -->
+            <!-- Maybe remove this override when Spring Boot BOM updates to Jackson >= 2.21.1 -->
+            <dependency>
+                <groupId>com.fasterxml.jackson</groupId>
+                <artifactId>jackson-bom</artifactId>
+                <version>${jackson.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
     <dependencies>
         <dependency>
