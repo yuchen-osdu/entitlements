@@ -43,10 +43,21 @@
     <!-- Plugin Versions -->
     <surefire-plugin.version>3.0.0</surefire-plugin.version>
     <jacoco-plugin.version>0.8.12</jacoco-plugin.version>
+    <jackson.version>2.21.1</jackson.version>
   </properties>
 
   <dependencyManagement>
     <dependencies>
+      <!-- Jackson override: Spring Boot 3.5.9 and other artifacts provides 2.19.4, we need 2.21.1 for GHSA-72hv-8253-57qq -->
+      <!-- Maybe remove this override when Spring Boot BOM updates to Jackson >= 2.21.1  or core lib 2.5.2 migration (requires  additional refactoring-->
+      <dependency>
+        <groupId>com.fasterxml.jackson</groupId>
+        <artifactId>jackson-bom</artifactId>
+        <version>${jackson.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+
       <!-- BOMs listed in the order of their dependency hierarchy or importance.  -->
       <dependency>
         <groupId>org.opengroup.osdu</groupId>
@@ -121,11 +132,30 @@
       <groupId>org.apache.tinkerpop</groupId>
       <artifactId>gremlin-driver</artifactId>
       <version>${gremlin.version}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>org.apache.tinkerpop</groupId>
+          <artifactId>gremlin-shaded</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>org.apache.tinkerpop</groupId>
       <artifactId>gremlin-util</artifactId>
       <version>${gremlin.version}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>org.apache.tinkerpop</groupId>
+          <artifactId>gremlin-shaded</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <!-- Drop-in replacement for gremlin-shaded with jackson updated to fix GHSA-72hv-8253-57qq.
+         Remove when TinkerPop releases gremlin-shaded with jackson >= 2.21.1 -->
+    <dependency>
+      <groupId>org.opengroup.osdu.entitlements.v2</groupId>
+      <artifactId>gremlin-shaded-fix</artifactId>
+      <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
@@ -175,6 +205,12 @@
       <artifactId>tinkergraph-gremlin</artifactId>
       <version>${gremlin.version}</version>
       <scope>test</scope>
+      <exclusions>
+        <exclusion>
+          <groupId>org.apache.tinkerpop</groupId>
+          <artifactId>gremlin-shaded</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>org.mockito</groupId>

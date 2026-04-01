@@ -178,6 +178,8 @@
       <modules>
         <module>entitlements-v2-core</module>
         <module>entitlements-v2-core-plus</module>
+        <!-- Remove once TinkerPop releases gremlin-shaded with jackson >= 2.21.1 -->
+        <module>gremlin-shaded-fix</module>
       </modules>
     </profile>
     <profile>
@@ -189,6 +191,7 @@
     <profile>
       <id>azure</id>
       <modules>
+        <module>gremlin-shaded-fix</module>
         <module>provider/entitlements-v2-azure</module>
       </modules>
     </profile>
