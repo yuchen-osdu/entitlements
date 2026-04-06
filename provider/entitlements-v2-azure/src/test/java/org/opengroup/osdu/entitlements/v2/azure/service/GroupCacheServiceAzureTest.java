@@ -92,7 +92,7 @@ public class GroupCacheServiceAzureTest {
     @MockBean
     private HitsNMissesMetricService metricService;
     @MockBean
-    private RedisAzureCache<String, ParentReferences> redisGroupCache;
+    private RedisAzureCache<ParentReferences> redisGroupCache;
     @MockBean
     private JaxRsDpsLog log;
     @MockBean

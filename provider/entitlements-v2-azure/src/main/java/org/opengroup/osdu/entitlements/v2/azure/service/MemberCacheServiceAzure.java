@@ -40,7 +40,7 @@ public class MemberCacheServiceAzure implements MemberCacheService {
 
     private final JaxRsDpsLog log;
     private final RetrieveGroupRepo retrieveGroupRepo;
-    private final RedisAzureCache<String, ChildrenReferences> redisMemberCache;
+    private final RedisAzureCache<ChildrenReferences> redisMemberCache;
     private final HitsNMissesMetricService metricService;
     private final Retry retry;
     private static final String REDIS_KEY_FORMAT = "%s-%s";
@@ -54,8 +54,6 @@ public class MemberCacheServiceAzure implements MemberCacheService {
     @Value("${app.redis.ttl.seconds}")
     private int cacheTtl;
 
-
-
     public List<ChildrenReference> getFromPartitionCache(String groupId, String partitionId){
         String cacheKey = String.format(REDIS_KEY_FORMAT, groupId, partitionId);
         ChildrenReferences childrenReferences= redisMemberCache.get(cacheKey);
@@ -67,7 +65,6 @@ public class MemberCacheServiceAzure implements MemberCacheService {
             metricService.sendHitsMetric();
             return childrenReferences.getChildReferencesOfGroup();
         }
-
     }
 
     /**

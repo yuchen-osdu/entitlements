@@ -99,9 +99,9 @@ public class CreateMembershipsWorkflowSinglePartitionTest {
     @MockBean
     private AuthorizationService authService;
     @MockBean
-    private RedisAzureCache<String, ParentReferences> redisGroupCache;
+    private RedisAzureCache<ParentReferences> redisGroupCache;
     @MockBean
-    private RedisAzureCache<String, ChildrenReferences> redisMemberCache;
+    private RedisAzureCache<ChildrenReferences> redisMemberCache;
     @MockBean
     private CacheConfig cacheConfig;
     @Mock

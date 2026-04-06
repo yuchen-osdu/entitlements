@@ -42,7 +42,7 @@ public class ListMemberRepoGremlinTest {
     private AddMemberRepoGremlin addMemberRepoGremlin;
 
     @MockBean
-    private RedisAzureCache<String, ChildrenReferences> redisMemberCache;
+    private RedisAzureCache<ChildrenReferences> redisMemberCache;
 
     @MockBean
     private HitsNMissesMetricService metricService;
