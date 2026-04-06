@@ -25,7 +25,7 @@ import java.util.concurrent.TimeUnit;
 public class GroupCacheServiceAzure implements GroupCacheService {
     private final JaxRsDpsLog log;
     private final RetrieveGroupRepo retrieveGroupRepo;
-    private final RedisAzureCache<String, ParentReferences> redisGroupCache;
+    private final RedisAzureCache<ParentReferences> redisGroupCache;
     private final HitsNMissesMetricService metricService;
     private final Retry retry;
     private static final String REDIS_KEY_FORMAT = "%s-%s";

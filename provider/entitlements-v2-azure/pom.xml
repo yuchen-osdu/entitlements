@@ -31,7 +31,7 @@
   </parent>
 
   <properties>
-    <core-lib-azure.version>2.5.0</core-lib-azure.version>
+    <core-lib-azure.version>2.5.7</core-lib-azure.version>
     <slf4j.version>2.0.17</slf4j.version>
     <gremlin.version>3.8.0</gremlin.version>
     <commons-configuration2.version>2.13.0</commons-configuration2.version>

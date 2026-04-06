@@ -49,7 +49,7 @@ public class HealthServiceAzureTest {
 
     @Before
     public void setup() {
-        Mockito.when(redisClientFactory.getClient(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(redisCache);
+        Mockito.when(redisClientFactory.getClient(Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(redisCache);
     }
 
     @Test

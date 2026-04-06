@@ -34,10 +34,10 @@ public class CacheConfigTest {
     private CacheConfig cacheConfig;
 
     @Mock
-    private IRedisClientFactory<String, ParentReferences> groupRedisClientFactory;
+    private IRedisClientFactory<ParentReferences> groupRedisClientFactory;
 
     @Mock
-    private IRedisClientFactory<String, ChildrenReferences> memberRedisClientFactory;
+    private IRedisClientFactory<ChildrenReferences> memberRedisClientFactory;
 
     @Mock
     private IRedisCache<String, ParentReferences> mockParentRedisCache;
@@ -76,15 +76,15 @@ public class CacheConfigTest {
         ReflectionTestUtils.setField(cacheConfig, "applicationName", "test-app");
         ReflectionTestUtils.setField(cacheConfig, "redisPrincipalId", principalId);
 
-        when(groupRedisClientFactory.getClient(any(), any(), any(), any())).thenReturn(mockParentRedisCache);
+        when(groupRedisClientFactory.getClient(any(), any(), any())).thenReturn(mockParentRedisCache);
         when(groupRedisClientFactory.getRedissonClient(any(), any())).thenReturn(mockRedissonClient);
-        when(memberRedisClientFactory.getClient(any(), any(), any(), any())).thenReturn(mockChildrenRedisCache);
+        when(memberRedisClientFactory.getClient(any(), any(), any())).thenReturn(mockChildrenRedisCache);
         when(memberRedisClientFactory.getRedissonClient(any(), any())).thenReturn(mockRedissonClient);
     }
 
     @Test
     public void testCacheCanBeCreated() {
-        RedisAzureCache<?, ?> cache = valueClass == ParentReferences.class
+        RedisAzureCache<?> cache = valueClass == ParentReferences.class
             ? cacheConfig.groupCacheRedis(groupRedisClientFactory)
             : cacheConfig.memberCacheRedis(memberRedisClientFactory);
 

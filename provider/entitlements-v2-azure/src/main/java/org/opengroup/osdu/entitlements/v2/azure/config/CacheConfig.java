@@ -31,6 +31,9 @@ public class CacheConfig {
     @Value("${redis.principal.id:#{null}}")
     private String redisPrincipalId;
 
+    @Value("${redis.hostname:#{null}}")
+    private String redisHostname;
+
     @Value("${spring.application.name}")
     private String applicationName;
 
@@ -40,28 +43,29 @@ public class CacheConfig {
      */
     @Bean
     @Lazy(false)
-    public RedisAzureCache<String, ParentReferences> groupCacheRedis(IRedisClientFactory<String, ParentReferences> redisClientFactory) {
+    public RedisAzureCache<ParentReferences> groupCacheRedis(IRedisClientFactory<ParentReferences> redisClientFactory) {
         return createRedisCache(ParentReferences.class, redisClientFactory);
     }
 
     @Bean
-    public RedisAzureCache<String, ChildrenReferences> memberCacheRedis(IRedisClientFactory<String, ChildrenReferences> redisClientFactory) {
+    public RedisAzureCache<ChildrenReferences> memberCacheRedis(IRedisClientFactory<ChildrenReferences> redisClientFactory) {
         return createRedisCache(ChildrenReferences.class, redisClientFactory);
     }
 
-    private <T> RedisAzureCache<String, T> createRedisCache(Class<T> valueClass, IRedisClientFactory<String, T> redisClientFactory) {
+    private <T> RedisAzureCache<T> createRedisCache(Class<T> valueClass, IRedisClientFactory<T> redisClientFactory) {
         RedisAzureConfiguration redisConfig = new RedisAzureConfiguration(
             redisDatabase,
             redisExpiration,
             redisPort,
             redisTtlSeconds,
             commandTimeout,
-            redisPrincipalId);
+            redisPrincipalId,
+            redisHostname);
 
         // Forcing the Redis client creation + connection establishment at service startup
-        redisClientFactory.getClient(String.class, valueClass, redisConfig, null);
+        redisClientFactory.getClient(valueClass, redisConfig, null);
         redisClientFactory.getRedissonClient(this.applicationName, redisConfig);
 
-        return new RedisAzureCache<>(String.class, valueClass, redisConfig);
+        return new RedisAzureCache<>(valueClass, redisConfig);
     }
 }

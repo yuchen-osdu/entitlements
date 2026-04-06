@@ -40,7 +40,7 @@ class MemberCacheServiceAzureTest {
     private RetrieveGroupRepo retrieveGroupRepo;
 
     @Mock
-    private RedisAzureCache<String, ChildrenReferences> redisMemberCache;
+    private RedisAzureCache<ChildrenReferences> redisMemberCache;
 
     @Mock
     private HitsNMissesMetricService metricService;
