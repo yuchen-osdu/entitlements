@@ -24,7 +24,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.opengroup.osdu.entitlements.v2.util.TokenTestUtils;
-import org.springframework.http.HttpStatus;
+
 
 
 public class ListGroupOnBehalfOfTest extends AcceptanceBaseTest {
@@ -123,7 +123,7 @@ public class ListGroupOnBehalfOfTest extends AcceptanceBaseTest {
 
         CloseableHttpResponse closeableHttpResponse = httpClientService.send(requestData);
 
-        assertEquals(HttpStatus.BAD_REQUEST.value(), closeableHttpResponse.getCode());
+        assertEquals(400, closeableHttpResponse.getCode());
     }
 
     @Override

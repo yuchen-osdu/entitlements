@@ -18,7 +18,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import org.opengroup.osdu.entitlements.v2.util.TokenTestUtils;
-import org.springframework.http.HttpStatus;
+
 
 public class UpdateGroupTest extends AcceptanceBaseTest {
 
@@ -121,6 +121,6 @@ public class UpdateGroupTest extends AcceptanceBaseTest {
 
         CloseableHttpResponse closeableHttpResponse = httpClientService.send(requestData);
 
-        assertEquals(HttpStatus.BAD_REQUEST.value(), closeableHttpResponse.getCode());
+        assertEquals(400, closeableHttpResponse.getCode());
     }
 }

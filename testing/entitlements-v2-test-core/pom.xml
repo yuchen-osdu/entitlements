@@ -21,12 +21,20 @@
         <jersey-client.version>1.19.4</jersey-client.version>
         <junit.version>4.13.2</junit.version>
         <pact-jvm-provider-junit_2.12.version>3.5.5</pact-jvm-provider-junit_2.12.version>
-        <lombok.version>1.18.28</lombok.version>
+        <lombok.version>1.18.42</lombok.version>
         <jackson.version>2.21.1</jackson.version>
+        <spring-framework.version>6.2.17</spring-framework.version>
     </properties>
 
     <dependencyManagement>
         <dependencies>
+            <!-- Jackson override: Spring Boot 3.5.9 and other artifacts provides 2.19.4, we need 2.21.1 for GHSA-72hv-8253-57qq -->
+            <!-- Maybe remove this override when Spring Boot BOM updates to Jackson >= 2.21.1 -->
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-web</artifactId>
+                <version>${spring-framework.version}</version>
+            </dependency>
             <!-- Jackson override: Spring Boot 3.5.9 and other artifacts provides 2.19.4, we need 2.21.1 for GHSA-72hv-8253-57qq -->
             <!-- Maybe remove this override when Spring Boot BOM updates to Jackson >= 2.21.1 -->
             <dependency>
@@ -81,7 +89,11 @@
         <dependency>
             <groupId>org.opengroup.osdu</groupId>
             <artifactId>os-core-common</artifactId>
-            <version>0.26.0</version>
+            <version>6.0.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-web</artifactId>
         </dependency>
     </dependencies>
 
@@ -91,6 +103,15 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.11.0</version>
+                <configuration>
+                    <annotationProcessorPaths>
+                        <path>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                            <version>${lombok.version}</version>
+                        </path>
+                    </annotationProcessorPaths>
+                </configuration>
             </plugin>
         </plugins>
     </build>

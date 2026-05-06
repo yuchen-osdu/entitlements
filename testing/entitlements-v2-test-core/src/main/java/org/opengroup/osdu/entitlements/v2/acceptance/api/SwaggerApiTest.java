@@ -2,7 +2,7 @@ package org.opengroup.osdu.entitlements.v2.acceptance.api;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
-import org.apache.http.HttpStatus;
+import org.apache.hc.core5.http.HttpStatus;
 import org.junit.Test;
 import org.opengroup.osdu.entitlements.v2.acceptance.AcceptanceBaseTest;
 import org.opengroup.osdu.entitlements.v2.acceptance.model.request.RequestData;

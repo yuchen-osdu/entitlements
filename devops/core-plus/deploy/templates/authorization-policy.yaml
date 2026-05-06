@@ -28,3 +28,6 @@ spec:
         - GET
         paths:
         - /api/entitlements/v2/info
+        - /api/entitlements/v2/swagger
+        - /api/entitlements/v2/swagger-ui*
+        - /api/entitlements/v2/api-docs*

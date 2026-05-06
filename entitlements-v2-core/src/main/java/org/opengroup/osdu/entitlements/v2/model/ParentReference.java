@@ -5,6 +5,7 @@ import com.dslplatform.json.JsonAttribute;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -28,10 +29,14 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@Schema(description = "Represents a Group reference")
 public class ParentReference {
     @JsonProperty("email")
+    @Schema(description = "Email of the group")
     private String id;
+    @Schema(description = "Name of the group")
     private String name;
+    @Schema(description = "Description of the group")
     private String description;
     @JsonIgnore
     private String dataPartitionId;
@@ -40,6 +45,7 @@ public class ParentReference {
     private Set<String> appIds = new HashSet<>();
 
     @JsonInclude(JsonInclude.Include.NON_ABSENT)
+    @Schema(description = "Role of the caller in the group")
     private String role;
 
     @JsonAttribute(index = 3)
