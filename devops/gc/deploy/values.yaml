@@ -5,6 +5,7 @@ global:
   logLevel: "ERROR"
   tier: ""
   autoscalingMode: "cpu"
+  otelJavaagentEnabled: "true"
 
 data:
   # Configmaps
@@ -13,7 +14,6 @@ data:
   logLevel: ""
   partitionHost: "http://partition"
   projectId: ""
-  otelJavaagentEnabled: "true"
   otelExporterEndpoint: "http://opentelemetry-collector.opentelemetry.svc.cluster.local:4318"
   # redis connection. Change it if you want to use external redis
   redisEntHost: ""
