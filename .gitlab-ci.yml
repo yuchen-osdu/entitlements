@@ -13,12 +13,6 @@ variables:
   AWS_DEPLOY_TARGET: TF
   AWS_EKS_DEPLOYMENT_NAME: os-entitlements
 
-  IBM_BUILD_SUBDIR: provider/entitlements-v2-ibm
-  IBM_INT_TEST_SUBDIR: testing/entitlements-v2-test-ibm
-  IBM_HELM_CONFIG_PATH: devops/ibm/ibm-entitlement-config
-  IBM_HELM_DEPLOY_PATH: devops/ibm/ibm-entitlement-deploy
-  IBM_HELM_BOOTSTRAP_PATH: devops/ibm/ibm-entitlement-registration
-
   CIMPL_OPENAPI_SPEC_PATH: docs/api/community/v2/openapi.yaml
   CIMPL_OPENAPI_YAML_ROUTE: /api/entitlements/v2/api-docs.yaml
 
@@ -53,9 +47,6 @@ include:
     file: "cloud-providers/aws-maven.yml"
 
   - project: "osdu/platform/ci-cd-pipelines"
-    file: "cloud-providers/ibm.yml"
-
-  - project: "osdu/platform/ci-cd-pipelines"
     file: "cloud-providers/gc-global.yml"
 
   - project: "osdu/platform/ci-cd-pipelines"
@@ -70,9 +61,6 @@ include:
 
   - project: "osdu/platform/ci-cd-pipelines"
     file: "cloud-providers/gc-one-pipeline.yml"
-
-  - project: "osdu/platform/ci-cd-pipelines"
-    file: "cloud-providers/ibm-one-pipeline.yml"
 
   - local: "devops/gc/pipeline/override-stages.yml"
 
