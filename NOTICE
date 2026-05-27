@@ -74,7 +74,7 @@ The following software have components provided under the terms of this license:
 - Asynchronous Http Client (from https://github.com/AsyncHttpClient/async-http-client, https://repo1.maven.org/maven2/org/asynchttpclient/async-http-client)
 - Asynchronous Http Client Netty Utils (from http://github.com/AsyncHttpClient/async-http-client, https://repo1.maven.org/maven2/org/asynchttpclient/async-http-client-netty-utils)
 - AutoValue Annotations (from https://github.com/google/auto/tree/main/value, https://github.com/google/auto/tree/master/value, https://repo1.maven.org/maven2/com/google/auto/value/auto-value-annotations)
-- Awaitility (from http://awaitility.org)
+- Awaitility (from http://awaitility.org/)
 - Awaitility Proxy (from http://awaitility.org)
 - Byte Buddy (without dependencies) (from https://bytebuddy.net/, https://repo1.maven.org/maven2/net/bytebuddy/byte-buddy)
 - Byte Buddy Java agent (from https://bytebuddy.net/, https://repo1.maven.org/maven2/net/bytebuddy/byte-buddy-agent)
