@@ -1,8 +1,8 @@
-FROM google/cloud-sdk:alpine
+FROM alpine/curl:8.19.0
 
 WORKDIR /opt
 
-RUN apk update && apk add --no-cache jq
+RUN apk add --no-cache jq bash
 
 COPY ./entitlements-v2-core-plus/bootstrap/ /opt/
 

@@ -1,91 +1,185 @@
 #!/usr/bin/env bash
 
-set -ex
+set -euo pipefail
 
-bootstrap_entitlements_onprem() {
+log() {
+  echo "[$(date -Iseconds)] $*"
+}
 
-  local DATA_PARTITION_ID=$1
+fail() {
+  echo "[$(date -Iseconds)] ERROR: $*" >&2
+  exit 1
+}
 
-  ID_TOKEN="$(curl --location --silent --globoff --request POST "${OPENID_PROVIDER_URL}/protocol/openid-connect/token" \
-    --header "data-partition-id: ${DATA_PARTITION_ID}" \
-    --header "Content-Type: application/x-www-form-urlencoded" \
+wait_for_entitlements() {
+  log "Waiting for Entitlements to become reachable..."
+
+  local max_retries=60
+  local delay=3
+
+  for ((i=1; i<=max_retries; i++)); do
+    if curl -sf \
+      --connect-timeout 5 --max-time 15 \
+      "${ENTITLEMENTS_HOST}/api/entitlements/v2/info" >/dev/null; then
+
+      log "✅ Entitlements endpoint reachable"
+      sleep 5
+      return 0
+    fi
+
+    log "Entitlements not reachable yet ($i/$max_retries)..."
+    sleep $delay
+  done
+
+  fail "Entitlements did not become reachable in time"
+}
+
+get_id_token() {
+  log "Requesting ID token from Keycloak..."
+
+  local token
+  token=$(curl -s --location \
+    --connect-timeout 5 --max-time 15 \
+    "${OPENID_PROVIDER_URL}/protocol/openid-connect/token" \
+    -H "Content-Type: application/x-www-form-urlencoded" \
     --data-urlencode "grant_type=client_credentials" \
     --data-urlencode "scope=openid" \
     --data-urlencode "client_id=${OPENID_PROVIDER_CLIENT_ID}" \
-    --data-urlencode "client_secret=${OPENID_PROVIDER_CLIENT_SECRET}" | jq -r ".id_token")"
-  export ID_TOKEN
+    --data-urlencode "client_secret=${OPENID_PROVIDER_CLIENT_SECRET}" \
+    | jq -r ".id_token")
+
+  [[ -z "$token" || "$token" == "null" ]] && fail "Failed to obtain ID token"
+
+  echo "$token"
+}
+
+prepare_payload() {
+  log "Preparing provisioning payload..."
 
   cat <<EOF >/opt/configuration.json
 {
-  "aliasMappings":
-[
-{
-"aliasId": "SERVICE_PRINCIPAL",
-"userId": "$ADMIN_USER_EMAIL"
-},
-{
-"aliasId": "SERVICE_PRINCIPAL_AIRFLOW",
-"userId": "$AIRFLOW_COMPOSER_EMAIL"
-},
-{
-"aliasId": "SERVICE_PRINCIPAL_INDEXER",
-"userId": "indexer@service.local"
-},
-{
-"aliasId": "SERVICE_PRINCIPAL_NOTIFICATION",
-"userId": "notification@service.local"
-},
-{
-"aliasId": "SERVICE_PRINCIPAL_STORAGE",
-"userId": "storage@service.local"
-},
-{
-"aliasId": "SERVICE_PRINCIPAL_SEISMIC",
-"userId": "seismic@service.local"
-},
-{
-"aliasId": "SERVICE_PRINCIPAL_REGISTER",
-"userId": "register@service.local"
-},
-{
-"aliasId": "SERVICE_PRINCIPAL_GCZ",
-"userId": "gcz@service.local"
-},
-{
-"aliasId": "SERVICE_PRINCIPAL_WORKFLOW",
-"userId": "workflow@service.local"
-}
-]
+  "aliasMappings": [
+    { "aliasId": "SERVICE_PRINCIPAL", "userId": "$ADMIN_USER_EMAIL" },
+    { "aliasId": "SERVICE_PRINCIPAL_AIRFLOW", "userId": "$AIRFLOW_COMPOSER_EMAIL" },
+    { "aliasId": "SERVICE_PRINCIPAL_INDEXER", "userId": "indexer@service.local" },
+    { "aliasId": "SERVICE_PRINCIPAL_NOTIFICATION", "userId": "notification@service.local" },
+    { "aliasId": "SERVICE_PRINCIPAL_STORAGE", "userId": "storage@service.local" },
+    { "aliasId": "SERVICE_PRINCIPAL_SEISMIC", "userId": "seismic@service.local" },
+    { "aliasId": "SERVICE_PRINCIPAL_REGISTER", "userId": "register@service.local" },
+    { "aliasId": "SERVICE_PRINCIPAL_GCZ", "userId": "gcz@service.local" },
+    { "aliasId": "SERVICE_PRINCIPAL_WORKFLOW", "userId": "workflow@service.local" }
+  ]
 }
 EOF
-
-  status_code=$(curl --location --globoff --request POST "${ENTITLEMENTS_HOST}/api/entitlements/v2/tenant-provisioning" \
-    --write-out "%{http_code}" --silent --output "output.txt" \
-    --header 'Content-Type: application/json' \
-    --header "data-partition-id: ${DATA_PARTITION_ID}" \
-    --header "Authorization: Bearer ${ID_TOKEN}" \
-    --data @/opt/configuration.json)
-
-  if [ "$status_code" == 200 ]; then
-    echo "Entitlements provisioning completed successfully!"
-  else
-    echo "Entitlements provisioning failed!"
-    cat /opt/output.txt | jq
-    exit 1
-  fi
-
 }
 
-source ./validate-env.sh "DATA_PARTITION_ID"
-source ./validate-env.sh "ENTITLEMENTS_HOST"
-source ./validate-env.sh "ADMIN_USER_EMAIL"
-source ./validate-env.sh "AIRFLOW_COMPOSER_EMAIL"
-source ./validate-env.sh "OPENID_PROVIDER_URL"
-source ./validate-env.sh "OPENID_PROVIDER_CLIENT_ID"
-source ./validate-env.sh "OPENID_PROVIDER_CLIENT_SECRET"
+call_entitlements() {
+  local token=$1
 
-bootstrap_entitlements_onprem "${DATA_PARTITION_ID}"
+  curl -s --location --request POST \
+    --connect-timeout 5 --max-time 15 \
+    "${ENTITLEMENTS_HOST}/api/entitlements/v2/tenant-provisioning" \
+    --header "Content-Type: application/json" \
+    --header "data-partition-id: ${DATA_PARTITION_ID}" \
+    --header "Authorization: Bearer ${token}" \
+    --data @/opt/configuration.json \
+    --write-out "%{http_code}" \
+    --output /tmp/entitlements_output.json
+}
+
+wait_for_jwks() {
+  log "Priming Istio JWKS cache..."
+
+  # Trigger JWKS fetch (first request may fail)
+  call_entitlements "$ID_TOKEN" || true
+
+  sleep 5
+}
+
+check_existing() {
+  log "Checking if tenant already initialized..."
+
+  for i in {1..5}; do
+    if curl -sf \
+      --connect-timeout 5 --max-time 15 \
+      "${ENTITLEMENTS_HOST}/api/entitlements/v2/groups" \
+      -H "Authorization: Bearer ${ID_TOKEN}" \
+      -H "data-partition-id: ${DATA_PARTITION_ID}" \
+    | grep -q "users.datalake.admins"; then
+
+      log "✅ Tenant already initialized"
+      touch /tmp/bootstrap_ready
+      sleep infinity
+    fi
+
+    log "Check attempt $i/5 failed, retrying..."
+    sleep 2
+  done
+}
+
+bootstrap_entitlements() {
+  local max_retries=30
+  local delay=5
+
+  for ((i=1; i<=max_retries; i++)); do
+    log "Attempt $i/$max_retries: provisioning tenant..."
+
+    status_code=$(call_entitlements "$ID_TOKEN")
+
+    # ✅ success
+    if [[ "$status_code" == "200" ]]; then
+      log "✅ Provisioning completed successfully"
+      return 0
+    fi
+
+    # ✅ treat 400 as already provisioned (safe after check_existing)
+    if [[ "$status_code" == "400" ]]; then
+      log "⚠️ Received 400 (likely already provisioned)"
+      return 0
+    fi
+
+    log "⚠️ Failed with status ${status_code}"
+
+    if [[ -s /tmp/entitlements_output.json ]]; then
+      log "Response:"
+      cat /tmp/entitlements_output.json || true
+    fi
+
+    if [[ $i -lt $max_retries ]]; then
+      log "Retrying in ${delay}s..."
+      sleep $delay
+    fi
+  done
+
+  fail "Provisioning failed after ${max_retries} attempts"
+}
+
+# --- MAIN ---
+
+: "${DATA_PARTITION_ID:?missing}"
+: "${ENTITLEMENTS_HOST:?missing}"
+: "${OPENID_PROVIDER_URL:?missing}"
+: "${OPENID_PROVIDER_CLIENT_ID:?missing}"
+: "${OPENID_PROVIDER_CLIENT_SECRET:?missing}"
+: "${ADMIN_USER_EMAIL:?missing}"
+: "${AIRFLOW_COMPOSER_EMAIL:?missing}"
+
+log "Starting entitlements bootstrap..."
+
+wait_for_entitlements
+
+ID_TOKEN=$(get_id_token)
+export ID_TOKEN
+
+prepare_payload
+
+wait_for_jwks
+
+check_existing
+
+bootstrap_entitlements
 
 touch /tmp/bootstrap_ready
+log "✅ Bootstrap finished successfully"
 
-sleep 365d
+sleep infinity
