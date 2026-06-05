@@ -34,8 +34,8 @@ wait_for_entitlements() {
   fail "Entitlements did not become reachable in time"
 }
 
-get_id_token() {
-  log "Requesting ID token from Keycloak..."
+get_access_token() {
+  log "Requesting access token from Keycloak..." >&2
 
   local token
   token=$(curl -s --location \
@@ -46,9 +46,9 @@ get_id_token() {
     --data-urlencode "scope=openid" \
     --data-urlencode "client_id=${OPENID_PROVIDER_CLIENT_ID}" \
     --data-urlencode "client_secret=${OPENID_PROVIDER_CLIENT_SECRET}" \
-    | jq -r ".id_token")
+    | jq -r ".access_token")
 
-  [[ -z "$token" || "$token" == "null" ]] && fail "Failed to obtain ID token"
+  [[ -z "$token" || "$token" == "null" ]] && fail "Failed to obtain access token"
 
   echo "$token"
 }
@@ -90,10 +90,28 @@ call_entitlements() {
 wait_for_jwks() {
   log "Priming Istio JWKS cache..."
 
-  # Trigger JWKS fetch (first request may fail)
-  call_entitlements "$ID_TOKEN" || true
+  local max_retries=20
+  local delay=5
 
-  sleep 5
+  for ((i=1; i<=max_retries; i++)); do
+    local status_code
+    status_code=$(curl -s -o /dev/null -w "%{http_code}" \
+      --connect-timeout 5 --max-time 15 \
+      "${ENTITLEMENTS_HOST}/api/entitlements/v2/groups" \
+      -H "Authorization: Bearer ${ACCESS_TOKEN}" \
+      -H "data-partition-id: ${DATA_PARTITION_ID}")
+
+    # 200 or 404 means Istio accepted the JWT (JWKS cache is warm)
+    if [[ "$status_code" == "200" || "$status_code" == "404" ]]; then
+      log "✅ Istio JWKS cache primed (HTTP $status_code)"
+      return 0
+    fi
+
+    log "JWKS not ready yet (HTTP $status_code, attempt $i/$max_retries), retrying in ${delay}s..."
+    sleep $delay
+  done
+
+  fail "Istio JWKS cache did not prime in time"
 }
 
 check_existing() {
@@ -103,7 +121,7 @@ check_existing() {
     if curl -sf \
       --connect-timeout 5 --max-time 15 \
       "${ENTITLEMENTS_HOST}/api/entitlements/v2/groups" \
-      -H "Authorization: Bearer ${ID_TOKEN}" \
+      -H "Authorization: Bearer ${ACCESS_TOKEN}" \
       -H "data-partition-id: ${DATA_PARTITION_ID}" \
     | grep -q "users.datalake.admins"; then
 
@@ -124,7 +142,7 @@ bootstrap_entitlements() {
   for ((i=1; i<=max_retries; i++)); do
     log "Attempt $i/$max_retries: provisioning tenant..."
 
-    status_code=$(call_entitlements "$ID_TOKEN")
+    status_code=$(call_entitlements "$ACCESS_TOKEN")
 
     # ✅ success
     if [[ "$status_code" == "200" ]]; then
@@ -168,8 +186,8 @@ log "Starting entitlements bootstrap..."
 
 wait_for_entitlements
 
-ID_TOKEN=$(get_id_token)
-export ID_TOKEN
+ACCESS_TOKEN=$(get_access_token)
+export ACCESS_TOKEN
 
 prepare_payload
 
