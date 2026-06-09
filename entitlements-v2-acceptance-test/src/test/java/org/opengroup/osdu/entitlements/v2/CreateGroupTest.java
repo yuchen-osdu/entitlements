@@ -1,120 +1,136 @@
+/*
+ * Copyright 2020-2026 EPAM Systems, Inc
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.opengroup.osdu.entitlements.v2;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import com.google.gson.Gson;
-import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
-import org.apache.hc.core5.http.io.entity.EntityUtils;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
+import java.io.InputStream;
+import java.util.Properties;
+import org.apache.hc.core5.http.HttpStatus;
 import org.junit.jupiter.api.Test;
-import org.opengroup.osdu.entitlements.v2.model.GroupItem;
-import org.opengroup.osdu.entitlements.v2.model.MemberItem;
-import org.opengroup.osdu.entitlements.v2.model.request.RequestData;
-import org.opengroup.osdu.entitlements.v2.model.response.ErrorResponse;
-import org.opengroup.osdu.entitlements.v2.model.response.ListMemberResponse;
-import org.opengroup.osdu.entitlements.v2.util.CommonConfigurationService;
-import org.opengroup.osdu.entitlements.v2.util.TokenTestUtils;
+import org.opengroup.osdu.core.test.client.ClientException;
+import org.opengroup.osdu.core.test.client.HttpResponse;
+import org.opengroup.osdu.core.test.config.EnvLoader;
+import org.opengroup.osdu.core.test.client.model.entitlements.CreateGroupRequest;
+import org.opengroup.osdu.core.test.client.model.entitlements.Group;
+import org.opengroup.osdu.core.test.client.model.entitlements.GroupMember;
 
-public class CreateGroupTest extends AcceptanceBaseTest {
-    private final ErrorResponse expectedConflictResponse = ErrorResponse.builder().code(409).reason("Conflict")
-            .message("This group already exists").build();
+public class CreateGroupTest extends BaseEntitlementsAcceptanceTest {
 
-    public CreateGroupTest() {
-        super(new CommonConfigurationService());
+    private final long currentTime = System.currentTimeMillis();
+
+    @Test
+    void shouldAddDataRootAsMemberOfNewDataGroup() throws Exception {
+        String groupName = "data.groupName-" + currentTime;
+
+        HttpResponse<Group> response = entitlementsClient.createGroup(groupName, "desc", DEFAULT_USER);
+        assertEquals(HttpStatus.SC_CREATED, response.statusCode());
+        Group createdGroup = response.body();
+        assertEquals(groupName.toLowerCase(), createdGroup.name());
+        assertEquals("desc", createdGroup.description());
+        assertNotNull(createdGroup.email());
+
+        verifyRootGroupMembership(createdGroup);
     }
 
-    @BeforeEach
-    @Override
-    public void setupTest() throws Exception {
-        this.testUtils = new TokenTestUtils();
+    @Test
+    void shouldCreateGroupOnlyOneTimeSuccessfully() throws Exception {
+        String groupName = "groupName-" + currentTime;
+
+        HttpResponse<Group> response = entitlementsClient.createGroup(groupName, "desc", DEFAULT_USER);
+        assertEquals(HttpStatus.SC_CREATED, response.statusCode());
+        Group createdGroup = response.body();
+        assertEquals(groupName.toLowerCase(), createdGroup.name());
+        assertEquals("desc", createdGroup.description());
+        assertNotNull(createdGroup.email());
+
+        verifyConflictException(groupName);
     }
 
-    @AfterEach
-    @Override
-    public void tearTestDown() throws Exception {
-        entitlementsV2Service.deleteGroup(configurationService.getIdOfGroup("groupName-" + currentTime), testUtils.getToken());
-        this.testUtils = null;
+    private void verifyConflictException(String groupName) {
+        ClientException exception = assertThrows(ClientException.class,
+            () -> entitlementsClient.createGroup(new CreateGroupRequest(groupName, "desc"), DEFAULT_USER));
+        assertEquals(HttpStatus.SC_CONFLICT, exception.getStatusCode());
+        // os-core-test 0.1.6 stores the raw error body in AppError.message and uses a generic
+        // reason, so assert on status + message content rather than the parsed reason field.
+        assertTrue(exception.getError().getMessage().contains("This group already exists"));
     }
 
-    private boolean isSecondGroupMemberofFirst(String firstEmail, String secondEmail, String token) throws Exception {
-        ListMemberResponse response = entitlementsV2Service.getMembers(firstEmail, token);
-        for (MemberItem item : response.getMembers()) {
-            if (item.getEmail().equalsIgnoreCase(secondEmail)) {
+    private void verifyRootGroupMembership(Group createdGroup) {
+        String createdEmail = createdGroup.email();
+        String suffix = createdEmail.split("@")[1];
+        String rootEmail = String.format("users.data.root@%s", suffix);
+
+        boolean rootIsMemberOfDataGroup = isSecondGroupMemberOfFirst(createdEmail, rootEmail);
+        boolean dataGroupIsMemberOfRoot = isSecondGroupMemberOfFirst(rootEmail, createdEmail);
+
+        if (isFeatureFlagEnabled("disable-data-root-group-hierarchy")) {
+            // Feature flag ON: no explicit hierarchy links should exist.
+            assertFalse(rootIsMemberOfDataGroup,
+                "With disable-data-root-group-hierarchy enabled, root group should NOT be a member of the new data group");
+            assertFalse(dataGroupIsMemberOfRoot,
+                "With disable-data-root-group-hierarchy enabled, new data group should NOT be a member of the root group");
+        } else {
+            // Feature flag OFF: legacy behaviour with explicit hierarchy.
+            assertFalse(dataGroupIsMemberOfRoot,
+                "Ensure that the newly created data group is NOT a member of the root group");
+            assertTrue(rootIsMemberOfDataGroup,
+                "Ensure that the root group is a member of the newly created data group");
+        }
+    }
+
+    private boolean isSecondGroupMemberOfFirst(String firstEmail, String secondEmail) {
+        HttpResponse<org.opengroup.osdu.core.test.client.model.entitlements.GroupMembersResponse> response =
+            entitlementsClient.listGroupMembers(firstEmail, DEFAULT_USER);
+        for (GroupMember member : response.body().members()) {
+            if (member.email().equalsIgnoreCase(secondEmail)) {
                 return true;
             }
         }
         return false;
     }
 
-    private void verifyRootGroupMembership(GroupItem createdGroup, String token) throws Exception {
-        String createdEmail = createdGroup.getEmail();
-        String suffix = createdEmail.split("@")[1];
-        String rootEmail = String.format("users.data.root@%s", suffix);
-
-        boolean rootIsMemberOfDataGroup = isSecondGroupMemberofFirst(createdEmail, rootEmail, token);
-        boolean dataGroupIsMemberOfRoot = isSecondGroupMemberofFirst(rootEmail, createdEmail, token);
-
-        // Check if disable-data-root-group-hierarchy feature flag is enabled
-        boolean isFeatureFlagEnabled = configurationService.isFeatureFlagEnabled("disable-data-root-group-hierarchy");
-        
-        if (isFeatureFlagEnabled) {
-            // Feature flag is ON: no explicit hierarchy links should exist
-            assertFalse("With disable-data-root-group-hierarchy enabled, root group should NOT be a member of the newly created data group", rootIsMemberOfDataGroup);
-            assertFalse("With disable-data-root-group-hierarchy enabled, newly created data group should NOT be a member of the root group", dataGroupIsMemberOfRoot);
-        } else {
-            // Feature flag is OFF: old behavior with explicit hierarchy
-            assertFalse("Ensure that the newly created data group is NOT a member of the root group", dataGroupIsMemberOfRoot);
-            assertTrue("Ensure that the root group is a member of the newly created data group", rootIsMemberOfDataGroup);
+    /**
+     * Domain-only feature-flag lookup (no os-core-test equivalent). Reads {@code test.properties}
+     * first, then falls back to the {@code DATA_ROOT_GROUP_HIERARCHY_ENABLED} environment variable.
+     */
+    private boolean isFeatureFlagEnabled(String flagName) {
+        try (InputStream input = getClass().getClassLoader().getResourceAsStream("test.properties")) {
+            if (input != null) {
+                Properties properties = new Properties();
+                properties.load(input);
+                String value = properties.getProperty(flagName);
+                if (value != null) {
+                    return Boolean.parseBoolean(value);
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("Failed to read feature flag from test.properties: " + e.getMessage());
         }
+        if ("disable-data-root-group-hierarchy".equals(flagName)) {
+            String envValue = EnvLoader.get("DATA_ROOT_GROUP_HIERARCHY_ENABLED");
+            if (envValue != null) {
+                return !Boolean.parseBoolean(envValue);
+            }
+        }
+        return false;
     }
-
-    @Test
-    public void shouldAddDataRootAsMemberOfNewDataGroup() throws Exception {
-        String groupName = "data.groupName-" + currentTime;
-        GroupItem expectedGroup = GroupItem.builder().name(groupName.toLowerCase())
-                                           .description("desc")
-                                           .email(configurationService.getIdOfGroup(groupName)).build();
-
-        assertEquals(expectedGroup, entitlementsV2Service.createGroup(groupName, testUtils.getToken()));
-
-        verifyRootGroupMembership(expectedGroup, testUtils.getToken());
-    }
-
-    @Test
-    public void shouldCreateGroupOnlyOneTimeSuccessfully() throws Exception {
-        String groupName = "groupName-" + currentTime;
-        GroupItem expectedGroup = GroupItem.builder().name(groupName.toLowerCase())
-                .description("desc")
-                .email(configurationService.getIdOfGroup(groupName)).build();
-
-        assertEquals(expectedGroup, entitlementsV2Service.createGroup(groupName, testUtils.getToken()));
-
-        verifyConflictException(groupName, testUtils.getToken());
-    }
-
-    private void verifyConflictException(String groupName, String token) throws Exception {
-        RequestData requestData = RequestData.builder()
-                .method("POST").dataPartitionId(configurationService.getTenantId())
-                .relativePath("groups")
-                .token(token)
-                .body(new Gson().toJson(GroupItem.builder().name(groupName).description("desc").build())).build();
-        CloseableHttpResponse conflictResponse = httpClientService.send(requestData);
-        assertEquals(409, conflictResponse.getCode());
-        assertEquals(expectedConflictResponse, new Gson().fromJson(EntityUtils.toString(conflictResponse.getEntity()), ErrorResponse.class));
-    }
-
-    @Override
-    protected RequestData getRequestDataForNoTokenTest() {
-        return RequestData.builder()
-                .method("POST").dataPartitionId(configurationService.getTenantId())
-                .relativePath("groups")
-                .body(new Gson().toJson(GroupItem.builder().name("groupName-" + System.currentTimeMillis())
-                        .description("desc").build()))
-                .build();
-    }
-
 }

@@ -1,105 +1,55 @@
+/*
+ * Copyright 2020-2026 EPAM Systems, Inc
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.opengroup.osdu.entitlements.v2;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
+import org.apache.hc.core5.http.HttpStatus;
 import org.junit.jupiter.api.Test;
-import org.opengroup.osdu.entitlements.v2.model.GroupItem;
-import org.opengroup.osdu.entitlements.v2.model.request.AddMemberRequestData;
-import org.opengroup.osdu.entitlements.v2.model.request.RequestData;
-import org.opengroup.osdu.entitlements.v2.model.response.MembersCountResponse;
-import org.opengroup.osdu.entitlements.v2.util.CommonConfigurationService;
-import org.opengroup.osdu.entitlements.v2.util.TokenTestUtils;
+import org.opengroup.osdu.core.test.client.ClientException;
+import org.opengroup.osdu.core.test.client.model.entitlements.Group;
+import org.opengroup.osdu.core.test.client.model.entitlements.MembersCountResponse;
 
+public class GetMembersCountTest extends BaseEntitlementsAcceptanceTest {
 
+    private final long currentTime = System.currentTimeMillis();
 
-
-public class GetMembersCountTest extends AcceptanceBaseTest {
-
-    public GetMembersCountTest() {
-        super(new CommonConfigurationService());
-    }
-
-    @BeforeEach
-    @Override
-    public void setupTest() throws Exception {
-        this.testUtils = new TokenTestUtils();
-    }
-
-    @AfterEach
-    @Override
-    public void tearTestDown() throws Exception {
-        entitlementsV2Service.deleteGroup(configurationService.getIdOfGroup("child-group-name-1" + currentTime), testUtils.getToken());
-        entitlementsV2Service.deleteGroup(configurationService.getIdOfGroup("child-group-name-2" + currentTime), testUtils.getToken());
-        entitlementsV2Service.deleteGroup(configurationService.getIdOfGroup("child-group-name-3" + currentTime), testUtils.getToken());
-        entitlementsV2Service.deleteGroup(configurationService.getIdOfGroup("group-" + currentTime), testUtils.getToken());
-        this.testUtils = null;
-    }
-
-    @Override
-    protected RequestData getRequestDataForNoTokenTest() {
-        final String groupEmail = configurationService.getIdOfGroup("group");
-        return RequestData.builder()
-                .method("GET").dataPartitionId(configurationService.getTenantId())
-                .relativePath(String.format("groups/%s/membersCount", groupEmail))
-                .build();
-    }
-
-    /**
-     * 1) create group
-     * 2) create child group
-     * 3) add child group 1 to group as member
-     * 4) add child group 2 to group as member
-     * 5) add child group 3 to group as member
-     * 6) List members of the group and check child group 1,2,3 are a member of group
-     * 7) delete child group 1
-     * 8) delete child group 2
-     * 9) delete child group 3
-     * 10) delete group
-     */
     @Test
-    public void shouldSuccessfullyCountMembers() throws Exception {
-        String groupName = "group-" + currentTime;
-        String childGroupName1 = "child-group-name-1" + currentTime;
-        String childGroupName2 = "child-group-name-2" + currentTime;
-        String childGroupName3 = "child-group-name-3" + currentTime;
+    void shouldSuccessfullyCountMembers() {
+        Group group = entitlementsClient.createGroup("group-" + currentTime, "desc", DEFAULT_USER).body();
+        Group child1 = entitlementsClient.createGroup("child-group-name-1" + currentTime, "desc", DEFAULT_USER).body();
+        Group child2 = entitlementsClient.createGroup("child-group-name-2" + currentTime, "desc", DEFAULT_USER).body();
+        Group child3 = entitlementsClient.createGroup("child-group-name-3" + currentTime, "desc", DEFAULT_USER).body();
 
-        GroupItem groupItem = entitlementsV2Service.createGroup(groupName, testUtils.getToken());
-        GroupItem childGroupItem1 = entitlementsV2Service.createGroup(childGroupName1, testUtils.getToken());
-        GroupItem childGroupItem2 = entitlementsV2Service.createGroup(childGroupName2, testUtils.getToken());
-        GroupItem childGroupItem3 = entitlementsV2Service.createGroup(childGroupName3, testUtils.getToken());
+        entitlementsClient.addMemberToGroup(group.email(), child1.email(), "MEMBER", DEFAULT_USER);
+        entitlementsClient.addMemberToGroup(group.email(), child2.email(), "MEMBER", DEFAULT_USER);
+        entitlementsClient.addMemberToGroup(group.email(), child3.email(), "MEMBER", DEFAULT_USER);
 
-        AddMemberRequestData addMemberRequestData1 = AddMemberRequestData.builder()
-                .groupEmail(groupItem.getEmail()).role("MEMBER").memberEmail(childGroupItem1.getEmail()).build();
-        AddMemberRequestData addMemberRequestData2 = AddMemberRequestData.builder()
-                .groupEmail(groupItem.getEmail()).role("MEMBER").memberEmail(childGroupItem2.getEmail()).build();
-        AddMemberRequestData addMemberRequestData3 = AddMemberRequestData.builder()
-                .groupEmail(groupItem.getEmail()).role("MEMBER").memberEmail(childGroupItem3.getEmail()).build();
-        entitlementsV2Service.addMember(addMemberRequestData1, testUtils.getToken());
-        entitlementsV2Service.addMember(addMemberRequestData2, testUtils.getToken());
-        entitlementsV2Service.addMember(addMemberRequestData3, testUtils.getToken());
-
-        MembersCountResponse membersCountResponse = entitlementsV2Service.getMembersCount(groupItem.getEmail(), testUtils.getToken());
-
-        boolean isGroupReturnedSameAsProvided = membersCountResponse.getGroupEmail().equals(groupItem.getEmail());
-        assertTrue(isGroupReturnedSameAsProvided);
-        assertEquals(4, membersCountResponse.getMembersCount());
+        MembersCountResponse count = entitlementsClient.getMembersCount(group.email(), DEFAULT_USER).body();
+        assertEquals(group.email(), count.groupEmail());
+        // creator (OWNER) + 3 child groups
+        assertEquals(4, count.membersCount());
     }
 
     @Test
-    public void shouldReturnBadRequestWhenMakingHttpRequestWithInvalidUrl() throws Exception {
-        RequestData requestData = RequestData.builder()
-                .method("GET")
-                .relativePath("groups/%3B/membersCount")
-                .dataPartitionId(configurationService.getTenantId())
-                .token(testUtils.getToken())
-                .build();
-
-        CloseableHttpResponse closeableHttpResponse = httpClientService.send(requestData);
-
-        assertEquals(400, closeableHttpResponse.getCode());
+    void shouldReturnBadRequestWhenMakingHttpRequestWithInvalidUrl() {
+        ClientException exception = assertThrows(ClientException.class,
+            () -> entitlementsClient.getMembersCount("%3B", DEFAULT_USER));
+        assertEquals(HttpStatus.SC_BAD_REQUEST, exception.getStatusCode());
     }
 }

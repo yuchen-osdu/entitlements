@@ -1,112 +1,90 @@
+/*
+ * Copyright 2020-2026 EPAM Systems, Inc
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.opengroup.osdu.entitlements.v2;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import com.google.gson.Gson;
-import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
-import org.apache.hc.core5.http.io.entity.EntityUtils;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
+import org.apache.hc.core5.http.HttpStatus;
 import org.junit.jupiter.api.Test;
-import org.opengroup.osdu.entitlements.v2.model.GroupItem;
-import org.opengroup.osdu.entitlements.v2.model.request.AddMemberRequestData;
-import org.opengroup.osdu.entitlements.v2.model.request.RequestData;
-import org.opengroup.osdu.entitlements.v2.model.response.ErrorResponse;
-import org.opengroup.osdu.entitlements.v2.model.response.ListMemberResponse;
-import org.opengroup.osdu.entitlements.v2.util.CommonConfigurationService;
-import org.opengroup.osdu.entitlements.v2.util.TokenTestUtils;
+import org.opengroup.osdu.core.test.client.ClientException;
+import org.opengroup.osdu.core.test.client.HttpResponse;
+import org.opengroup.osdu.core.test.client.model.entitlements.AddMemberRequest;
+import org.opengroup.osdu.core.test.client.model.entitlements.Group;
+import org.opengroup.osdu.core.test.client.model.entitlements.GroupMember;
+import org.opengroup.osdu.core.test.client.model.entitlements.GroupMembersResponse;
 
-import java.util.HashMap;
-import java.util.Map;
+public class AddMemberTest extends BaseEntitlementsAcceptanceTest {
 
-public class AddMemberTest extends AcceptanceBaseTest {
-
-    public AddMemberTest() {
-        super(new CommonConfigurationService());
-    }
-
-    @BeforeEach
-    @Override
-    public void setupTest() throws Exception {
-        this.testUtils = new TokenTestUtils();
-    }
-
-    @AfterEach
-    @Override
-    public void tearTestDown() throws Exception {
-        entitlementsV2Service.deleteGroup(configurationService.getIdOfGroup("child-groupName-" + currentTime), testUtils.getToken());
-        entitlementsV2Service.deleteGroup(configurationService.getIdOfGroup("groupName-" + currentTime), testUtils.getToken());
-        this.testUtils = null;
-        //        TODO add revoke member logic for memberEmail and ownerMemberEmail
-    }
+    private final long currentTime = System.currentTimeMillis();
 
     @Test
-    public void shouldAddMemberSuccessfully() throws Exception {
+    void shouldAddMemberSuccessfully() throws Exception {
         String groupName = "groupName-" + currentTime;
         String childGroupName = "child-groupName-" + currentTime;
-        String memberEmail = this.configurationService.getMemberMailId();
-        String ownerMemberEmail = this.configurationService.getOwnerMailId();
 
-        GroupItem groupItem = entitlementsV2Service.createGroup(groupName, testUtils.getToken());
+        Group group = entitlementsClient.createGroup(groupName, "desc", DEFAULT_USER).body();
 
-        AddMemberRequestData addOwnerMemberRequestData = AddMemberRequestData.builder()
-                .groupEmail(groupItem.getEmail()).role("OWNER").memberEmail(ownerMemberEmail).build();
-        entitlementsV2Service.addMember(addOwnerMemberRequestData, testUtils.getToken());
+        entitlementsClient.addMemberToGroup(group.email(), OWNER_EMAIL, "OWNER", DEFAULT_USER);
+        entitlementsClient.addMemberToGroup(group.email(), MEMBER_EMAIL, "MEMBER", DEFAULT_USER);
 
-        AddMemberRequestData addMemberRequestData = AddMemberRequestData.builder()
-                .groupEmail(groupItem.getEmail()).role("MEMBER").memberEmail(memberEmail).build();
-        entitlementsV2Service.addMember(addMemberRequestData, testUtils.getToken());
+        verifyConflictError(group.email(), MEMBER_EMAIL, "MEMBER");
 
-        verifyConflictError(addMemberRequestData, testUtils.getToken());
+        Group childGroup = entitlementsClient.createGroup(childGroupName, "desc", DEFAULT_USER).body();
+        entitlementsClient.addMemberToGroup(group.email(), childGroup.email(), "MEMBER", DEFAULT_USER);
 
-        GroupItem childGroupItem = entitlementsV2Service.createGroup(childGroupName, testUtils.getToken());
-        AddMemberRequestData addGroupMemberRequestData = AddMemberRequestData.builder()
-                .groupEmail(groupItem.getEmail()).role("MEMBER").memberEmail(childGroupItem.getEmail()).build();
-        entitlementsV2Service.addMember(addGroupMemberRequestData, testUtils.getToken());
-        ListMemberResponse listMemberResponse = entitlementsV2Service.getMembers(groupItem.getEmail(), testUtils.getToken());
+        HttpResponse<GroupMembersResponse> response =
+            entitlementsClient.listGroupMembers(group.email(), DEFAULT_USER);
+        assertEquals(HttpStatus.SC_OK, response.statusCode());
+        GroupMembersResponse members = response.body();
 
-        assertEquals(4, listMemberResponse.getMembers().size());
-        verifyMemberInResponse(listMemberResponse, "MEMBER", childGroupItem.getEmail());
-        verifyMemberInResponse(listMemberResponse, "MEMBER", memberEmail.toLowerCase());
-        verifyMemberInResponse(listMemberResponse, "OWNER", ownerMemberEmail.toLowerCase());
-        verifyMemberInResponse(listMemberResponse, "OWNER", testUtils.getUserId());
+        // creator (auto OWNER) + added OWNER + added MEMBER + child group MEMBER
+        assertEquals(4, members.members().length);
+        verifyMemberInResponse(members, "MEMBER", childGroup.email());
+        verifyMemberInResponse(members, "MEMBER", MEMBER_EMAIL.toLowerCase());
+        verifyMemberInResponse(members, "OWNER", OWNER_EMAIL.toLowerCase());
+        verifyMemberInResponse(members, "OWNER", getCallerEmail());
     }
 
-    @Override
-    protected RequestData getRequestDataForNoTokenTest() {
-        Map<String, String> requestBody = new HashMap<>();
-        requestBody.put("role", "MEMBER");
-        requestBody.put("email", this.configurationService.getMemberMailId());
-        return RequestData.builder()
-                .method("POST").dataPartitionId(configurationService.getTenantId())
-                .relativePath(String.format("groups/%s/members", configurationService.getIdOfGroup("users")))
-                .body(new Gson().toJson(requestBody))
-                .build();
+    private String getCallerEmail() {
+        return entitlementsClient.listGroups(DEFAULT_USER).body().principal()
+            .orElseThrow(() -> new IllegalStateException("Could not resolve caller identity"))
+            .toLowerCase();
     }
 
-    private void verifyMemberInResponse(ListMemberResponse listMemberResponse, String role, String memberEmail) {
-        boolean isMemberCreated = listMemberResponse.getMembers().stream()
-                .filter(memberItem -> memberEmail.equals(memberItem.getEmail()))
-                .anyMatch(memberItem -> memberItem.getRole().equals(role));
-        assertTrue(isMemberCreated);
+    private void verifyMemberInResponse(GroupMembersResponse response, String role, String memberEmail) {
+        boolean present = false;
+        for (GroupMember member : response.members()) {
+            if (memberEmail.equalsIgnoreCase(member.email()) && role.equals(member.role())) {
+                present = true;
+                break;
+            }
+        }
+        assertTrue(present, "Expected member " + memberEmail + " with role " + role);
     }
 
-    private void verifyConflictError(AddMemberRequestData addMemberRequestData, String token) throws Exception {
-        Map<String, String> requestBody = new HashMap<>();
-        requestBody.put("role", addMemberRequestData.getRole().toUpperCase());
-        requestBody.put("email", addMemberRequestData.getMemberEmail());
-        RequestData requestData = RequestData.builder()
-                .method("POST").dataPartitionId(configurationService.getTenantId())
-                .relativePath(String.format("groups/%s/members", addMemberRequestData.getGroupEmail()))
-                .token(token)
-                .body(new Gson().toJson(requestBody)).build();
-        CloseableHttpResponse response = httpClientService.send(requestData);
-        assertEquals(409, response.getCode());
-        String errorMessage = String.format("%s is already a member of group %s",
-                addMemberRequestData.getMemberEmail().toLowerCase(), addMemberRequestData.getGroupEmail());
-        ErrorResponse expectedConflictResponse = ErrorResponse.builder().code(409).reason("Conflict")
-                .message(errorMessage).build();
-        assertEquals(expectedConflictResponse, new Gson().fromJson(EntityUtils.toString(response.getEntity()), ErrorResponse.class));
+    private void verifyConflictError(String groupEmail, String memberEmail, String role) {
+        ClientException exception = assertThrows(ClientException.class,
+            () -> entitlementsClient.addMemberToGroup(groupEmail, new AddMemberRequest(memberEmail, role), DEFAULT_USER));
+        assertEquals(HttpStatus.SC_CONFLICT, exception.getStatusCode());
+        String expectedMessage =
+            String.format("%s is already a member of group %s", memberEmail.toLowerCase(), groupEmail);
+        // os-core-test 0.1.6 stores the raw error body in AppError.message, so assert containment.
+        assertTrue(exception.getError().getMessage().contains(expectedMessage));
     }
 }

@@ -1,222 +1,113 @@
+/*
+ * Copyright 2020-2026 EPAM Systems, Inc
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.opengroup.osdu.entitlements.v2;
 
-import static org.junit.Assert.assertEquals;
-
-import com.google.gson.Gson;
-import java.util.Map;
-import lombok.SneakyThrows;
-import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
-import org.apache.hc.core5.http.io.entity.EntityUtils;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.opengroup.osdu.entitlements.v2.model.GroupItem;
-import org.opengroup.osdu.entitlements.v2.model.GroupType;
-import org.opengroup.osdu.entitlements.v2.model.request.AddMemberRequestData;
-import org.opengroup.osdu.entitlements.v2.model.request.GetGroupsRequestData;
-import org.opengroup.osdu.entitlements.v2.model.request.RequestData;
-import org.opengroup.osdu.entitlements.v2.model.response.ListGroupResponse;
-import org.opengroup.osdu.entitlements.v2.util.CommonConfigurationService;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Arrays;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
+import org.apache.hc.core5.http.HttpStatus;
+import org.junit.jupiter.api.Test;
+import org.opengroup.osdu.core.test.client.ClientException;
+import org.opengroup.osdu.core.test.client.model.entitlements.Group;
+import org.opengroup.osdu.core.test.client.model.entitlements.GroupReference;
+import org.opengroup.osdu.core.test.client.model.entitlements.GroupsResponse;
 
-import org.opengroup.osdu.entitlements.v2.util.TokenTestUtils;
+public class ListGroupOnBehalfOfTest extends BaseEntitlementsAcceptanceTest {
 
+    private final long currentTime = System.currentTimeMillis();
 
+    @Test
+    void shouldReturnAllGroupsThatGivenMemberBelongsTo() {
+        List<Group> createdGroups = setup(MEMBER_EMAIL);
 
-public class ListGroupOnBehalfOfTest extends AcceptanceBaseTest {
+        GroupsResponse groups =
+            entitlementsClient.listMemberGroups(MEMBER_EMAIL, DEFAULT_USER, Map.of("type", "NONE")).body();
 
-    private static final String URL_TEMPLATE_MEMBERS_GROUPS = "members/%s/groups";
-    private final List<String> groupsForFurtherDeletion;
-
-    public ListGroupOnBehalfOfTest() {
-        super(new CommonConfigurationService());
-        groupsForFurtherDeletion = new ArrayList<>();
-    }
-
-    @BeforeEach
-    @Override
-    public void setupTest() throws Exception {
-        this.testUtils = new TokenTestUtils();
-    }
-
-    @AfterEach
-    @Override
-    public void tearTestDown() throws Exception {
-        for (String groupName : groupsForFurtherDeletion) {
-            entitlementsV2Service.deleteGroup(groupName, testUtils.getToken());
-        }
-        this.testUtils = null;
+        assertEquals(MEMBER_EMAIL.toLowerCase(), groups.desId());
+        assertEquals(MEMBER_EMAIL.toLowerCase(), groups.memberEmail());
+        assertFoundGroups(groups, createdGroups);
     }
 
     @Test
-    public void should200ForGetGroupsOnBehalfOfWithRoleEnabled() {
-        test200ForGetGroupsOnBehalfOfWithRoleEnabled();
+    void should200ForGetGroupsOnBehalfOfWithRoleEnabled() {
+        List<Group> createdGroups = setup(MEMBER_EMAIL);
+        Map<String, String> params = new LinkedHashMap<>();
+        params.put("type", "NONE");
+        params.put("roleRequired", "true");
+
+        GroupsResponse groups =
+            entitlementsClient.listMemberGroups(MEMBER_EMAIL, DEFAULT_USER, params).body();
+
+        assertEquals(MEMBER_EMAIL.toLowerCase(), groups.desId());
+        assertEquals(MEMBER_EMAIL.toLowerCase(), groups.memberEmail());
+        assertFoundGroups(groups, createdGroups);
+        assertTrue(Arrays.stream(groups.groups())
+            .allMatch(group -> group.roleName() != null && !group.roleName().isEmpty()));
     }
 
     @Test
-    public void shouldReturnAllGroupsThatGivenMemberBelongsTo() throws Exception {
-        String memberEmail = this.configurationService.getMemberMailId();
-
-        List<GroupItem> createdGroups = setup(memberEmail);
-
-        GetGroupsRequestData getGroupsRequestData = GetGroupsRequestData.builder()
-                .memberEmail(memberEmail)
-                .type(GroupType.NONE)
-                .build();
-        ListGroupResponse groups =
-            entitlementsV2Service.getGroups(getGroupsRequestData, testUtils.getToken());
-
-        assertEquals(memberEmail.toLowerCase(), groups.getDesId());
-        assertEquals(memberEmail.toLowerCase(), groups.getMemberEmail());
-        List<String> foundGroups = groups.getGroups().stream()
-                .filter(group -> group.getEmail().equals(createdGroups.get(0).getEmail())
-                        || group.getEmail().equals(createdGroups.get(1).getEmail())
-                        || group.getEmail().equals(createdGroups.get(2).getEmail()))
-                .map(GroupItem::getEmail)
-                .sorted(String::compareTo)
-                .collect(Collectors.toList());
-        assertEquals(3, foundGroups.size());
-        assertEquals(createdGroups.get(0).getEmail(), foundGroups.get(0));
-        assertEquals(createdGroups.get(1).getEmail(), foundGroups.get(1));
-        assertEquals(createdGroups.get(2).getEmail(), foundGroups.get(2));
+    void shouldReturn400WhenGroupsTypeIsMissed() {
+        ClientException exception = assertThrows(ClientException.class,
+            () -> entitlementsClient.listMemberGroups(MEMBER_EMAIL, DEFAULT_USER, Map.of()));
+        assertEquals(HttpStatus.SC_BAD_REQUEST, exception.getStatusCode());
     }
 
     @Test
-    public void shouldReturn400WhenGroupsTypeIsMissed() throws Exception {
-        RequestData requestData = RequestData.builder()
-                .method("GET")
-                .relativePath(String.format(URL_TEMPLATE_MEMBERS_GROUPS,
-                    this.configurationService.getMemberMailId()))
-                .dataPartitionId(configurationService.getTenantId())
-                .token(testUtils.getToken())
-                .build();
-        CloseableHttpResponse response = httpClientService.send(requestData);
-        assertEquals(400, response.getCode());
+    void shouldReturn400WhenGroupsTypeIsUnknown() {
+        ClientException exception = assertThrows(ClientException.class,
+            () -> entitlementsClient.listMemberGroups(MEMBER_EMAIL, DEFAULT_USER, Map.of("type", "test")));
+        assertEquals(HttpStatus.SC_BAD_REQUEST, exception.getStatusCode());
     }
 
     @Test
-    public void shouldReturn400WhenGroupsTypeIsUnknown() throws Exception {
-        RequestData requestData = RequestData.builder()
-                .method("GET")
-                .relativePath(String.format(URL_TEMPLATE_MEMBERS_GROUPS,
-                    this.configurationService.getMemberMailId()))
-                .queryParams(Collections.singletonMap("type", "test"))
-                .dataPartitionId(configurationService.getTenantId())
-                .token(testUtils.getToken())
-                .build();
-        CloseableHttpResponse response = httpClientService.send(requestData);
-        assertEquals(400, response.getCode());
+    void shouldReturnBadRequestWhenMakingHttpRequestWithInvalidUrl() {
+        ClientException exception = assertThrows(ClientException.class,
+            () -> entitlementsClient.listMemberGroups("%3B", DEFAULT_USER, Map.of("type", "NONE")));
+        assertEquals(HttpStatus.SC_BAD_REQUEST, exception.getStatusCode());
     }
 
-    @Test
-    public void shouldReturnBadRequestWhenMakingHttpRequestWithInvalidUrl() throws Exception {
-        RequestData requestData = RequestData.builder()
-                .method("GET")
-                .relativePath("members/%3B/groups")
-                .dataPartitionId(configurationService.getTenantId())
-                .token(testUtils.getToken())
-                .build();
-
-        CloseableHttpResponse closeableHttpResponse = httpClientService.send(requestData);
-
-        assertEquals(400, closeableHttpResponse.getCode());
-    }
-
-    @Override
-    protected RequestData getRequestDataForNoTokenTest() {
-        return RequestData.builder()
-                .method("GET")
-                .relativePath(String.format(URL_TEMPLATE_MEMBERS_GROUPS,
-                    this.configurationService.getMemberMailId()))
-                .queryParams(Collections.singletonMap("type", GroupType.NONE.toString()))
-                .dataPartitionId(configurationService.getTenantId())
-                .build();
-    }
-
-    @SneakyThrows
-    private void test200ForGetGroupsOnBehalfOfWithRoleEnabled() {
-        String memberEmail = this.configurationService.getMemberMailId();
-
-        List<GroupItem> createdGroups = setup(memberEmail);
-        Map<String, String> queryParams = Map.of(
-            "type", GroupType.NONE.toString(),
-            "roleRequired", "true");
-
-        RequestData requestData = RequestData.builder()
-            .method("GET")
-            .relativePath(String.format(URL_TEMPLATE_MEMBERS_GROUPS, memberEmail))
-            .queryParams(queryParams)
-            .dataPartitionId(configurationService.getTenantId())
-            .token(testUtils.getToken())
-            .build();
-
-        CloseableHttpResponse response = httpClientService.send(requestData);
-
-        assertEquals(200, response.getCode());
-        String getGroupsResponseBody = EntityUtils.toString(response.getEntity());
-        ListGroupResponse groups = new Gson()
-            .fromJson(getGroupsResponseBody, ListGroupResponse.class);
-
-        assertEquals(memberEmail.toLowerCase(), groups.getDesId());
-        assertEquals(memberEmail.toLowerCase(), groups.getMemberEmail());
-
-        List<String> foundGroups = groups.getGroups().stream()
-            .filter(group -> group.getEmail().equals(createdGroups.get(0).getEmail())
-                || group.getEmail().equals(createdGroups.get(1).getEmail())
-                || group.getEmail().equals(createdGroups.get(2).getEmail()))
-            .map(GroupItem::getEmail)
+    private void assertFoundGroups(GroupsResponse groups, List<Group> createdGroups) {
+        List<String> createdEmails = createdGroups.stream().map(Group::email).sorted(String::compareTo).toList();
+        List<String> foundGroups = Arrays.stream(groups.groups())
+            .map(GroupReference::email)
+            .filter(createdEmails::contains)
             .sorted(String::compareTo)
-            .toList();
-
+            .collect(Collectors.toList());
         assertEquals(3, foundGroups.size());
-        assertEquals(createdGroups.get(0).getEmail(), foundGroups.get(0));
-        assertEquals(createdGroups.get(1).getEmail(), foundGroups.get(1));
-        assertEquals(createdGroups.get(2).getEmail(), foundGroups.get(2));
-
-        //assert all items contain the role info
-        int expectedHasRoleCount = groups.getGroups().stream()
-            .filter(item -> !item.getRole().isEmpty())
-            .toList()
-            .size();
-        assertEquals(expectedHasRoleCount, groups.groups.size() );
+        assertEquals(createdEmails.get(0), foundGroups.get(0));
+        assertEquals(createdEmails.get(1), foundGroups.get(1));
+        assertEquals(createdEmails.get(2), foundGroups.get(2));
     }
 
-    private List<GroupItem> setup(String memberEmail) throws Exception {
-        List<GroupItem> groups = new ArrayList<>();
-
-        String group1Name = "group1-" + currentTime;
-        String group2Name = "group2-" + currentTime;
-        String group3Name = "group3-" + currentTime;
-
-        GroupItem group1Item = entitlementsV2Service.createGroup(group1Name, testUtils.getToken());
-        groupsForFurtherDeletion.add(group1Item.getEmail());
-        groups.add(group1Item);
-
-        GroupItem group2Item = entitlementsV2Service.createGroup(group2Name, testUtils.getToken());
-        groupsForFurtherDeletion.add(group2Item.getEmail());
-        groups.add(group2Item);
-
-        GroupItem group3Item = entitlementsV2Service.createGroup(group3Name, testUtils.getToken());
-        groupsForFurtherDeletion.add(group3Item.getEmail());
-        groups.add(group3Item);
-
-        addMember(group1Item.getEmail(), memberEmail);
-        addMember(group2Item.getEmail(), memberEmail);
-        addMember(group3Item.getEmail(), memberEmail);
-
+    private List<Group> setup(String memberEmail) {
+        List<Group> groups = new ArrayList<>();
+        groups.add(entitlementsClient.createGroup("group1-" + currentTime, "desc", DEFAULT_USER).body());
+        groups.add(entitlementsClient.createGroup("group2-" + currentTime, "desc", DEFAULT_USER).body());
+        groups.add(entitlementsClient.createGroup("group3-" + currentTime, "desc", DEFAULT_USER).body());
+        for (Group group : groups) {
+            entitlementsClient.addMemberToGroup(group.email(), memberEmail, "MEMBER", DEFAULT_USER);
+        }
         return groups;
-    }
-
-    private void addMember(String groupEMail, String memberEmail) throws Exception {
-        AddMemberRequestData addMemberRequestData = AddMemberRequestData.builder()
-                .groupEmail(groupEMail)
-                .role("MEMBER")
-                .memberEmail(memberEmail)
-                .build();
-        entitlementsV2Service.addMember(addMemberRequestData, testUtils.getToken());
     }
 }

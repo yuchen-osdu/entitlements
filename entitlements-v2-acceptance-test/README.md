@@ -1,41 +1,35 @@
 ### Running E2E Tests
 
-You will need to have the following environment variables defined.
+These tests use the shared `os-core-test` library. HTTP endpoints, authentication and the data
+partition are resolved from the environment variables below (loaded by `os-core-test`'s
+`EnvLoader` / `ServicesConfig` / token providers).
 
-| name                                | value                                            | description                                                                                       | sensitive? | source | required |
-|-------------------------------------|--------------------------------------------------|---------------------------------------------------------------------------------------------------|------------|--------|----------|
-| `ENTITLEMENTS_URL`                  | ex `http://localhost:8080/api/entitlements/v2/`  | Entitlements service URL                                                                          | no         | -      | yes      |
-| `TENANT_NAME`                       | ex `opendes`                                     | OSDU tenant used for testing                                                                      | no         | -      | yes      |
-| `ENTITLEMENTS_DOMAIN`               | ex `contoso.com`                                 | Entitlements domain                                                                               | no         | -      | yes      |
-| `PARTITION_URL`                     | ex `http://localhost:8080/api/partition/v1/`     | Partition service URL                                                                             | no         | -      | no       |
-| `INTEGRATION_TESTER_EMAIL`          | ex `integration-tester@service.local`            | Integration tester email                                                                          | no         | -      | no       |
-| `INDEXER_SERVICE_ACCOUNT_EMAIL`     | ex `workload-indexer@osdu.iam.gserviceaccount.com` | Indexer service account email with special privileges for data groups                           | no         | -      | no       |
-| `DATA_ROOT_GROUP_HIERARCHY_ENABLED` | ex `true`                                        | Controls whether data.root groups get access to all data groups (depends on partition feature flag) | no         | -      | no       |
-| `LOCAL_MODE`                        | ex `true`                                        | Enable local mode for testing/debugging with HEADER_X_USER_ID                                     | no         | -      | no       |
-| `HEADER_X_USER_ID`                  | ex `1234`                                        | Custom HTTP header for user identification (used with LOCAL_MODE)                                 | no         | -      | no       |
+| name                                | value                                              | description                                                                                         | sensitive? | source | required |
+|-------------------------------------|----------------------------------------------------|-----------------------------------------------------------------------------------------------------|------------|--------|----------|
+| `HOST`                              | ex `https://osdu.example.com`                      | Base host for all OSDU services; the entitlements URL is `HOST` + `/api/entitlements/v2/`            | no         | -      | yes      |
+| `DATA_PARTITION_ID`                 | ex `opendes`                                       | OSDU data partition used for testing                                                                | no         | -      | yes      |
+| `ENTITLEMENTS_DOMAIN`               | ex `contoso.com`                                   | Entitlements group domain used to build well-known group emails (defaults to `group`)               | no         | -      | no       |
+| `INDEXER_SERVICE_ACCOUNT_EMAIL`     | ex `workload-indexer@osdu.iam.gserviceaccount.com` | Indexer service account email with special privileges for data groups (`GetDataGroupsIndexer...`)   | no         | -      | no       |
+| `DATA_ROOT_GROUP_HIERARCHY_ENABLED` | ex `true`                                          | Controls whether data.root groups get access to all data groups (depends on partition feature flag) | no         | -      | no       |
 
-Authentication can be provided as OIDC config:
+Authentication is provided per user type. Tests use `PRIVILEGED_USER` and `NO_ACCESS_USER`.
+It can be supplied as OIDC client credentials:
 
 | name                                            | value                                      | description                                 | sensitive? | source |
 |-------------------------------------------------|--------------------------------------------|---------------------------------------------|------------|--------|
+| `TEST_OPENID_PROVIDER_URL`                      | ex `https://keycloak.com/auth/realms/osdu` | OpenID provider url                         | yes        | -      |
 | `PRIVILEGED_USER_OPENID_PROVIDER_CLIENT_ID`     | `********`                                 | Privileged User Client Id                   | yes        | -      |
 | `PRIVILEGED_USER_OPENID_PROVIDER_CLIENT_SECRET` | `********`                                 | Privileged User Client secret               | yes        | -      |
-| `TEST_OPENID_PROVIDER_URL`                      | ex `https://keycloak.com/auth/realms/osdu` | OpenID provider url                         | yes        | -      |
 | `PRIVILEGED_USER_OPENID_PROVIDER_SCOPE`         | ex `api://my-app/.default`                 | OAuth2 scope (optional, defaults to openid) | no         | -      |
-| `NO_ACCESS_USER_OPENID_PROVIDER_CLIENT_ID`      | `********`                                 | No-access User Client Id (optional)         | yes        | -      |
-| `NO_ACCESS_USER_OPENID_PROVIDER_CLIENT_SECRET`  | `********`                                 | No-access User Client secret (optional)     | yes        | -      |
-| `ROOT_USER_OPENID_PROVIDER_CLIENT_ID`           | `********`                                 | Root User Client Id (optional)              | yes        | -      |
-| `ROOT_USER_OPENID_PROVIDER_CLIENT_SECRET`       | `********`                                 | Root User Client secret (optional)          | yes        | -      |
+| `NO_ACCESS_USER_OPENID_PROVIDER_CLIENT_ID`      | `********`                                 | No-access User Client Id                    | yes        | -      |
+| `NO_ACCESS_USER_OPENID_PROVIDER_CLIENT_SECRET`  | `********`                                 | No-access User Client secret                | yes        | -      |
 
-Or tokens can be used directly from env variables:
+Or as pre-issued bearer tokens (`{USER_TYPE}_TOKEN`), which take precedence over OIDC config:
 
 | name                    | value      | description           | sensitive? | source |
 |-------------------------|------------|-----------------------|------------|--------|
 | `PRIVILEGED_USER_TOKEN` | `********` | Privileged User Token | yes        | -      |
 | `NO_ACCESS_USER_TOKEN`  | `********` | No-access User Token  | yes        | -      |
-| `ROOT_USER_TOKEN`       | `********` | Root User Token       | yes        | -      |
-
-Authentication configuration is optional and could be omitted if not needed.
 
 **Entitlements configuration for integration accounts**
 
