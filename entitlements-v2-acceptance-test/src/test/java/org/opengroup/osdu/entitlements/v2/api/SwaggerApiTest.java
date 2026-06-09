@@ -1,63 +1,41 @@
+/*
+ * Copyright 2020-2026 EPAM Systems, Inc
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.opengroup.osdu.entitlements.v2.api;
 
-import lombok.extern.slf4j.Slf4j;
-import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
-import org.apache.http.HttpStatus;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
+import org.apache.hc.core5.http.HttpStatus;
 import org.junit.jupiter.api.Test;
-import org.opengroup.osdu.entitlements.v2.AcceptanceBaseTest;
-import org.opengroup.osdu.entitlements.v2.model.request.RequestData;
-import org.opengroup.osdu.entitlements.v2.util.ConfigurationService;
+import org.opengroup.osdu.core.test.client.HttpResponse;
+import org.opengroup.osdu.core.test.client.model.OpenApiSpec;
+import org.opengroup.osdu.entitlements.v2.BaseEntitlementsAcceptanceTest;
 
-import static org.junit.Assert.assertEquals;
+public class SwaggerApiTest extends BaseEntitlementsAcceptanceTest {
 
-@Slf4j
-public abstract class SwaggerApiTest extends AcceptanceBaseTest {
+    @Test
+    void shouldReturn200_whenSwaggerApiIsCalled() {
+        assertEquals(HttpStatus.SC_OK, entitlementsClient.getSwagger().statusCode());
+    }
 
-  private static final String HTTP_GET = "GET";
-  private static final String SWAGGER_API_PATH = "swagger";
-  private static final String SWAGGER_API_DOCS_PATH = "api-docs";
-
-  private SwaggerApiTest(ConfigurationService configurationService) {
-    super(configurationService);
-  }
-
-  @Test
-  public void shouldReturn200_whenSwaggerApiIsCalled() throws Exception {
-    RequestData request =
-            RequestData.builder()
-                    .relativePath(SWAGGER_API_PATH)
-                    .method(HTTP_GET)
-                    .body(null)
-                    .token(testUtils.getToken())
-                    .build();
-
-    CloseableHttpResponse response = httpClientService.send(request);
-
-    assertEquals(HttpStatus.SC_OK, response.getCode());
-  }
-
-  @Test
-  public void shouldReturn200_whenSwaggerApiDocsIsCalled() throws Exception {
-    RequestData request =
-            RequestData.builder()
-                    .relativePath(SWAGGER_API_DOCS_PATH)
-                    .method(HTTP_GET)
-                    .body(null)
-                    .token(testUtils.getToken())
-                    .build();
-
-    CloseableHttpResponse response = httpClientService.send(request);
-    
-    assertEquals(HttpStatus.SC_OK, response.getCode());
-  }
-
-  @Override
-  public void shouldReturn401WhenMakingHttpRequestWithoutToken() {
-    // not actual for this case
-  }
-
-  @Override
-  protected RequestData getRequestDataForNoTokenTest() {
-    return null;
-  }
+    @Test
+    void shouldReturn200_whenSwaggerApiDocsIsCalled() {
+        HttpResponse<OpenApiSpec> response = entitlementsClient.getApiDocs();
+        assertEquals(HttpStatus.SC_OK, response.statusCode());
+        assertNotNull(response.body().openapi(), "api-docs openapi field should not be null");
+    }
 }

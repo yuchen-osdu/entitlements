@@ -1,0 +1,13 @@
+{
+  "enabled": true,
+  "PRIVILEGED_USER": [
+    "users",
+    "service.entitlements.user",
+    "service.entitlements.admin",
+    "users.datalake.delegation"
+  ],
+  "NO_ACCESS_USER": [
+    "users",
+    "service.entitlements.user"
+  ]
+}

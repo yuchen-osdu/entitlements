@@ -1,126 +1,73 @@
+/*
+ * Copyright 2020-2026 EPAM Systems, Inc
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.opengroup.osdu.entitlements.v2;
 
-import static org.junit.Assert.assertEquals;
-
-import com.google.gson.Gson;
-import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
-import org.apache.hc.core5.http.io.entity.EntityUtils;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.opengroup.osdu.entitlements.v2.model.request.RequestData;
-import org.opengroup.osdu.entitlements.v2.model.request.UpdateGroupRequestData;
-import org.opengroup.osdu.entitlements.v2.model.response.UpdateGroupResponse;
-import org.opengroup.osdu.entitlements.v2.util.CommonConfigurationService;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
-import org.opengroup.osdu.entitlements.v2.util.TokenTestUtils;
+import org.apache.hc.core5.http.HttpStatus;
+import org.junit.jupiter.api.Test;
+import org.opengroup.osdu.core.test.client.ClientException;
+import org.opengroup.osdu.core.test.client.model.entitlements.Group;
+import org.opengroup.osdu.core.test.client.model.entitlements.UpdateGroupOperation;
+import org.opengroup.osdu.core.test.client.model.entitlements.UpdateGroupResponse;
 
+public class UpdateGroupTest extends BaseEntitlementsAcceptanceTest {
 
-public class UpdateGroupTest extends AcceptanceBaseTest {
-
-    public UpdateGroupTest() {
-        super(new CommonConfigurationService());
-    }
-
-    @BeforeEach
-    @Override
-    public void setupTest() throws Exception {
-        this.testUtils = new TokenTestUtils();
-    }
-
-    @AfterEach
-    @Override
-    public void tearTestDown() throws Exception {
-        String token = testUtils.getToken();
-        entitlementsV2Service.deleteGroup(configurationService.getIdOfGroup("newGroupName-" + currentTime), token);
-        entitlementsV2Service.deleteGroup(configurationService.getIdOfGroup("groupName-" + currentTime), token);
-        this.testUtils = null;
-    }
+    private final long currentTime = System.currentTimeMillis();
 
     @Test
-    public void shouldRenameGroupSuccessfully() throws Exception {
+    void shouldRenameGroupSuccessfully() {
         String oldGroupName = "oldGroupName-" + currentTime;
         String newGroupName = "newGroupName-" + currentTime;
+        Group created = entitlementsClient.createGroup(oldGroupName, "desc", DEFAULT_USER).body();
 
-        entitlementsV2Service.createGroup(oldGroupName, testUtils.getToken());
+        UpdateGroupResponse updated = entitlementsClient.updateGroupAttributes(created.email(),
+            List.of(new UpdateGroupOperation("replace", "/name", List.of(newGroupName))), DEFAULT_USER).body();
 
-        CloseableHttpResponse response = httpClientService.send(getRenameGroupRequestData(oldGroupName, newGroupName, testUtils.getToken()));
-        UpdateGroupResponse updateGroupResponse = new Gson().fromJson(EntityUtils.toString(response.getEntity()), UpdateGroupResponse.class);
-        assertEquals(200, response.getCode());
-        assertEquals(newGroupName.toLowerCase(), updateGroupResponse.getName());
-        assertEquals(configurationService.getIdOfGroup(newGroupName).toLowerCase(), updateGroupResponse.getEmail());
-        assertEquals(newGroupName.toLowerCase(), updateGroupResponse.getName().toLowerCase());
+        assertEquals(newGroupName.toLowerCase(), updated.name());
+        assertEquals(groupEmail(newGroupName).toLowerCase(), updated.email());
+        // the rename produces a new group email; track the new one for teardown
+        entitlementsClient.deleteGroup(updated.email(), DEFAULT_USER);
     }
 
     @Test
-    public void shouldUpdateAppIdsSuccessfully() throws Exception {
+    void shouldUpdateAppIdsSuccessfully() {
         String groupName = "groupName-" + currentTime;
-        Set<String> newAppIds = new HashSet<>();
-        newAppIds.add("app1");
-        newAppIds.add("app2");
+        Set<String> newAppIds = new HashSet<>(List.of("app1", "app2"));
+        Group created = entitlementsClient.createGroup(groupName, "desc", DEFAULT_USER).body();
 
-        entitlementsV2Service.createGroup(groupName, testUtils.getToken());
+        UpdateGroupResponse updated = entitlementsClient.updateGroupAttributes(created.email(),
+            List.of(new UpdateGroupOperation("replace", "/appIds", new ArrayList<>(newAppIds))), DEFAULT_USER).body();
 
-        CloseableHttpResponse response = httpClientService.send(getUpdateAppIdsRequestData(groupName, newAppIds, testUtils.getToken()));
-        UpdateGroupResponse updateGroupResponse = new Gson().fromJson(EntityUtils.toString(response.getEntity()), UpdateGroupResponse.class);
-        assertEquals(200, response.getCode());
-        assertEquals(groupName.toLowerCase(), updateGroupResponse.getName());
-        assertEquals(configurationService.getIdOfGroup(groupName).toLowerCase(), updateGroupResponse.getEmail());
-        assertEquals(new HashSet<>(updateGroupResponse.getAppIds()), newAppIds);
-    }
-
-    @Override
-    protected RequestData getRequestDataForNoTokenTest() {
-        UpdateGroupRequestData requestBody = UpdateGroupRequestData.builder()
-                .op("replace")
-                .path("/name")
-                .value(Collections.singletonList("newGroupName")).build();
-        return RequestData.builder()
-                .method("PATCH").dataPartitionId(configurationService.getTenantId())
-                .relativePath("groups/" + configurationService.getIdOfGroup("test"))
-                .body(new Gson().toJson(Collections.singletonList(requestBody)))
-                .build();
-    }
-
-    private RequestData getRenameGroupRequestData(String oldGroupName, String newGroupName, String token) {
-        UpdateGroupRequestData requestBody = UpdateGroupRequestData.builder()
-                .op("replace")
-                .path("/name")
-                .value(Collections.singletonList(newGroupName)).build();
-        return RequestData.builder()
-                .method("PATCH").dataPartitionId(configurationService.getTenantId())
-                .relativePath("groups/" + configurationService.getIdOfGroup(oldGroupName))
-                .token(token)
-                .body(new Gson().toJson(Collections.singletonList(requestBody))).build();
-    }
-
-    private RequestData getUpdateAppIdsRequestData(String groupName, Set<String> newAppIds, String token) {
-        UpdateGroupRequestData requestBody = UpdateGroupRequestData.builder()
-                .op("replace")
-                .path("/appIds")
-                .value(new ArrayList<>(newAppIds)).build();
-        return RequestData.builder()
-                .method("PATCH").dataPartitionId(configurationService.getTenantId())
-                .relativePath("groups/" + configurationService.getIdOfGroup(groupName))
-                .token(token)
-                .body(new Gson().toJson(Collections.singletonList(requestBody))).build();
+        assertEquals(groupName.toLowerCase(), updated.name());
+        assertEquals(groupEmail(groupName).toLowerCase(), updated.email());
+        assertEquals(newAppIds, new HashSet<>(updated.appIds()));
     }
 
     @Test
-    public void shouldReturnBadRequestWhenMakingHttpRequestWithoutValidUrl() throws Exception {
-        RequestData requestData = RequestData.builder()
-                .method("PATCH")
-                .relativePath("groups/%25")
-                .dataPartitionId(configurationService.getTenantId())
-                .token(testUtils.getToken())
-                .build();
-
-        CloseableHttpResponse closeableHttpResponse = httpClientService.send(requestData);
-
-        assertEquals(400, closeableHttpResponse.getCode());
+    void shouldReturnBadRequestWhenMakingHttpRequestWithoutValidUrl() {
+        ClientException exception = assertThrows(ClientException.class,
+            () -> entitlementsClient.updateGroupAttributes("%25",
+                List.of(new UpdateGroupOperation("replace", "/name", List.of("newGroupName"))), DEFAULT_USER));
+        assertEquals(HttpStatus.SC_BAD_REQUEST, exception.getStatusCode());
     }
 }
