@@ -1,0 +1,21 @@
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: {{ .Values.conf.appName }}-authz-policy
+spec:
+  selector:
+    matchLabels:
+      {{- include "ibm-entitlement-deploy.selectorLabels" . | nindent 6 }}
+  action: DENY
+  rules:
+  - from:
+    - source:
+        notRequestPrincipals:
+        - '*'
+    to:
+    - operation:
+        notPaths:
+        - '*/v2/api-docs'
+        - /api/entitlements/v2/info
+        - /api/entitlements/v2/_ah/liveness_check
+        - /api/entitlements/v2/_ah/readiness_check

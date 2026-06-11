@@ -1,0 +1,85 @@
+global:
+  domain: ""
+  limitsEnabled: true
+  dataPartitionId: ""
+  logLevel: "ERROR"
+  tier: ""
+  autoscalingMode: "cpu"
+  otelJavaagentEnabled: "true"
+
+data:
+  # Configmaps
+  entitlementsHost: "http://entitlements"
+  airflowComposerEmail: ""
+  logLevel: ""
+  partitionHost: "http://partition"
+  projectId: ""
+  otelExporterEndpoint: "http://opentelemetry-collector.opentelemetry.svc.cluster.local:4318"
+  # redis connection. Change it if you want to use external redis
+  redisEntHost: ""
+  redisEntPort: 6379
+  redisImage: "docker.io/library/redis:7.2-alpine"
+  # Don't change or use the parameter unless necessary
+  entitlementsDomain: "group"
+  # Deployments
+  bootstrapDeploy: "false"
+  bootstrapImage: ""
+  bootstrapServiceAccountName: ""
+  requestsCpu: "65m"
+  requestsMemory: "350Mi"
+  limitsCpu: "1"
+  limitsMemory: "1G"
+  serviceAccountName: "entitlements"
+  image: ""
+  imagePullPolicy: "IfNotPresent"
+  cloudSqlProxyVersion: "2.18.0"
+  sqlConnectionString: ""
+  javaOptions: "-XX:MaxDirectMemorySize=512M"
+  affinityLabelsSpot:
+    cloud.google.com/gke-provisioning:
+      - spot
+  affinityLabelsStandard:
+    cloud.google.com/gke-provisioning:
+      - standard
+
+conf:
+  configmap: "entitlements-config"
+  appName: "entitlements"
+  entitlementsPostgresSecretName: "entitlements-multi-tenant-postgres-secret"
+  entitlementsRedisSecretName: "entitlements-redis-secret"
+
+istio:
+  proxyCPU: "5m"
+  proxyCPULimit: "200m"
+  proxyMemory: "64Mi"
+  proxyMemoryLimit: "256Mi"
+  bootstrapProxyCPU: "5m"
+  bootstrapProxyCPULimit: "100m"
+  sidecarInject: true
+  corsEnabled: false
+
+hpa:
+  minReplicas: 1
+  maxReplicas: 6
+  cpu:
+    utilization: 200
+    scaleUpStabilizationWindowSeconds: 30
+    scaleUpValue: 200
+    scaleUpPeriod: 15
+    scaleDownStabilizationWindowSeconds: 150
+    scaleDownValue: 100
+    scaleDownPeriod: 15
+  requests:
+    targetType: "AverageValue"
+    targetValue: 330
+    scaleUpStabilizationWindowSeconds: 10
+    scaleUpValue: 50
+    scaleUpPeriod: 15
+    scaleDownStabilizationWindowSeconds: 60
+    scaleDownValue: 25
+    scaleDownPeriod: 60
+
+limits:
+  maxTokens: 390
+  tokensPerFill: 390
+  fillInterval: "1s"

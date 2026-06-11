@@ -1,0 +1,47 @@
+variables:
+  CIMPL_SERVICE: entitlements-v2
+  CIMPL_ENABLE_BOOTSTRAP: "true"
+  CIMPL_BUILD_BOOTSTRAP_PATH: "entitlements-v2-core-plus/bootstrap/Dockerfile"
+  CIMPL_BUILD_PATH: "entitlements-v2-core-plus/cloudbuild/Dockerfile"
+  CIMPL_HELM_PACKAGE_NAME: core-plus-entitlements-deploy
+  CIMPL_HELM_TIMEOUT: "--timeout 20m"
+  CIMPL_TEST_SUBDIR: "testing/entitlements-v2-test-baremetal"
+
+cimpl-containerize-bootstrap-gitlab:
+  variables:
+    CIMPL_IMAGE_BOOTSTRAP_NAME: "core-plus-bootstrap-entitlements-v2"
+
+cimpl-deploy:
+  variables:
+    CIMPL_SERVICE: "entitlements"
+
+cimpl-acceptance-test:
+  variables:
+    PARTITION_URL: "https://osdu.dev1.osdu-cimpl.opengroup.org/api/partition/v1/"
+
+cimpl-test:
+  script:
+    - >
+      $MAVEN_BUILD . test-results.log
+      verify
+      --file $CIMPL_TESTING_DIR/pom.xml
+      --projects $CIMPL_TEST_PROJECT
+      --update-snapshots
+
+#dev2 jobs
+cimpl-dev2-deploy:
+  variables:
+    CIMPL_SERVICE: "entitlements"
+
+cimpl-dev2-acceptance-test:
+  variables:
+    PARTITION_URL: "https://osdu.dev2.osdu-cimpl.opengroup.org/api/partition/v1/"
+
+cimpl-dev2-test:
+  script:
+    - >
+      $MAVEN_BUILD . test-results.log
+      verify
+      --file $CIMPL_TESTING_DIR/pom.xml
+      --projects $CIMPL_TEST_PROJECT
+      --update-snapshots

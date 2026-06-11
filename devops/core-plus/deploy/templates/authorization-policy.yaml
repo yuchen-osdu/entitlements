@@ -1,0 +1,33 @@
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: {{ printf "%s-jwt-policy" .Values.conf.appName | quote }}
+  namespace: {{ .Release.Namespace | quote }}
+spec:
+  selector:
+    matchLabels:
+      app: {{ .Values.conf.appName | quote }}
+  action: ALLOW
+  rules:
+  - from:
+    - source:
+       requestPrincipals: ["*"]
+    when:
+    - key: request.auth.claims[iss]
+      values:
+      {{- if .Values.auth.keycloakUrl }}
+      - "https://{{ .Values.auth.keycloakUrl }}/realms/{{ .Values.auth.realm }}"
+      {{- else }}
+      - "https://keycloak.{{ .Values.global.domain }}/realms/{{ .Values.auth.realm }}"
+      - "http://keycloak.{{ .Values.global.domain }}/realms/{{ .Values.auth.realm }}"
+      - "http://{{ .Values.auth.localUrl }}/realms/{{ .Values.auth.realm }}"
+      {{- end }}
+  - to:
+    - operation:
+        methods:
+        - GET
+        paths:
+        - /api/entitlements/v2/info
+        - /api/entitlements/v2/swagger
+        - /api/entitlements/v2/swagger-ui*
+        - /api/entitlements/v2/api-docs*

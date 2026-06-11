@@ -1,0 +1,287 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Copyright
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>org.opengroup.osdu.entitlements.v2</groupId>
+  <artifactId>entitlements-v2-service</artifactId>
+  <version>0.30.0-SNAPSHOT</version>
+  <packaging>pom</packaging>
+  <name>entitlements-v2-service</name>
+  <description>Entitlements V2 service</description>
+
+  <licenses>
+    <license>
+      <name>Apache License, Version 2.0</name>
+      <url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
+
+  <properties>
+    <java.version>17</java.version>
+    <maven.compiler.release>${java.version}</maven.compiler.release>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+    <!-- Spring Versions-->
+    <spring-boot.version>3.5.13</spring-boot.version>
+    <spring-security.version>6.5.9</spring-security.version>
+    <spring-framework-version>6.2.17</spring-framework-version>
+
+    <!-- Project Versions-->
+    <json-smart.version>2.5.2</json-smart.version>
+    <log4j.version>2.25.3</log4j.version>
+    <jackson.version>2.21.2</jackson.version>
+    <swagger-core.version>2.2.45</swagger-core.version>
+
+    <!-- Plugin Versions -->
+    <spring-boot-maven-plugin.version>${spring-boot.version}</spring-boot-maven-plugin.version>
+    <maven-compiler-plugin.version>3.13.0</maven-compiler-plugin.version>
+    <git-commit-id-plugin.version>8.0.2</git-commit-id-plugin.version>
+
+    <!-- Lombok -->
+    <lombok.version>1.18.42</lombok.version>
+  </properties>
+
+  <dependencyManagement>
+    <dependencies>
+      <!-- BOMs listed in order of dependency hierarchy:
+        spring-boot-dependencies first as it's the parent BOM providing default dependency management,
+        spring-security-bom second as it may need to override Spring Framework versions for security purposes,
+        spring-framework-bom third as it provides core dependencies that can be safely overridden by the security BOM
+        os-core-common last as it provides the default dependencies for the project.dependency>
+      -->
+
+      <!-- BOM Section Start-->
+      <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-dependencies</artifactId>
+        <version>${spring-boot.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+      <!-- Jackson override: Spring Boot 3.5.13 and other artifacts provide an older Jackson; we need 2.21.2 for GHSA-72hv-8253-57qq -->
+      <!-- Maybe remove this override when Spring Boot BOM updates to Jackson >= 2.21.2 -->
+      <dependency>
+        <groupId>com.fasterxml.jackson</groupId>
+        <artifactId>jackson-bom</artifactId>
+        <version>${jackson.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+      <!-- Align swagger-core.v3 across os-core-common and springdoc to avoid mixed versions.
+           os-core-common 6.0.0 pins swagger-annotations/core/models to 2.2.45, but
+           springdoc-openapi-starter-common 2.8.16 pulls swagger-core-jakarta 2.2.43 transitively.
+           The mismatch causes issues like the "##default" sentinel leaking into the generated OpenAPI spec. -->
+      <dependency>
+        <groupId>io.swagger.core.v3</groupId>
+        <artifactId>swagger-annotations-jakarta</artifactId>
+        <version>${swagger-core.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>io.swagger.core.v3</groupId>
+        <artifactId>swagger-core-jakarta</artifactId>
+        <version>${swagger-core.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>io.swagger.core.v3</groupId>
+        <artifactId>swagger-models-jakarta</artifactId>
+        <version>${swagger-core.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.springframework.security</groupId>
+        <artifactId>spring-security-bom</artifactId>
+        <version>${spring-security.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.springframework</groupId>
+        <artifactId>spring-framework-bom</artifactId>
+        <version>${spring-framework-version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+
+      <!-- Any dependencies here will be used by all projects. -->
+      <dependency>
+        <groupId>net.minidev</groupId>
+        <artifactId>json-smart</artifactId>
+        <version>${json-smart.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.logging.log4j</groupId>
+        <artifactId>log4j-api</artifactId>
+        <version>${log4j.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.logging.log4j</groupId>
+        <artifactId>log4j-core</artifactId>
+        <version>${log4j.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.logging.log4j</groupId>
+        <artifactId>log4j-jul</artifactId>
+        <version>${log4j.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.yaml</groupId>
+        <artifactId>snakeyaml</artifactId>
+      </dependency>
+      <dependency>
+        <groupId>org.projectlombok</groupId>
+        <artifactId>lombok</artifactId>
+        <version>${lombok.version}</version>
+        <scope>provided</scope>
+        <optional>true</optional>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+
+  <build>
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-compiler-plugin</artifactId>
+          <version>${maven-compiler-plugin.version}</version>
+          <configuration>
+            <parameters>true</parameters>
+            <annotationProcessorPaths>
+              <path>
+                <groupId>org.projectlombok</groupId>
+                <artifactId>lombok</artifactId>
+                <version>${lombok.version}</version>
+              </path>
+            </annotationProcessorPaths>
+          </configuration>
+        </plugin>
+        <plugin>
+          <groupId>org.springframework.boot</groupId>
+          <artifactId>spring-boot-maven-plugin</artifactId>
+          <version>${spring-boot-maven-plugin.version}</version>
+          <executions>
+            <execution>
+              <id>build-info</id>
+              <goals>
+                <goal>build-info</goal>
+              </goals>
+            </execution>
+          </executions>
+        </plugin>
+      </plugins>
+    </pluginManagement>
+    <plugins>
+      <plugin>
+        <groupId>io.github.git-commit-id</groupId>
+        <artifactId>git-commit-id-maven-plugin</artifactId>
+        <version>${git-commit-id-plugin.version}</version>
+        <executions>
+          <execution>
+            <goals>
+              <goal>revision</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <verbose>true</verbose>
+          <dateFormat>yyyy-MM-dd'T'HH:mm:ssZ</dateFormat>
+          <generateGitPropertiesFile>true</generateGitPropertiesFile>
+          <generateGitPropertiesFilename>
+            ${project.build.outputDirectory}/git.properties
+          </generateGitPropertiesFilename>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+
+  <profiles>
+    <profile>
+      <id>Default</id>
+      <activation>
+        <property>
+          <name>!repo.releases.id</name>
+        </property>
+      </activation>
+      <properties>
+        <repo.releases.id>community-maven-repo</repo.releases.id>
+        <publish.snapshots.id>community-maven-via-job-token</publish.snapshots.id>
+        <publish.releases.id>community-maven-via-job-token</publish.releases.id>
+        <repo.releases.url>https://community.opengroup.org/api/v4/groups/17/-/packages/maven</repo.releases.url>
+        <publish.snapshots.url>https://community.opengroup.org/api/v4/projects/400/packages/maven</publish.snapshots.url>
+        <publish.releases.url>https://community.opengroup.org/api/v4/projects/400/packages/maven</publish.releases.url>
+      </properties>
+    </profile>
+    <profile>
+      <id>core</id>
+      <activation>
+        <activeByDefault>true</activeByDefault>
+      </activation>
+      <modules>
+        <module>entitlements-v2-core</module>
+        <module>entitlements-v2-core-plus</module>
+        <!-- Remove once TinkerPop releases gremlin-shaded with jackson >= 2.21.1 -->
+        <module>gremlin-shaded-fix</module>
+      </modules>
+    </profile>
+    <profile>
+      <id>aws</id>
+      <modules>
+        <module>provider/entitlements-v2-aws</module>
+      </modules>
+    </profile>
+    <profile>
+      <id>azure</id>
+      <modules>
+        <module>gremlin-shaded-fix</module>
+        <module>provider/entitlements-v2-azure</module>
+      </modules>
+    </profile>
+    <profile>
+      <id>ibm</id>
+      <modules>
+        <module>provider/entitlements-v2-ibm</module>
+      </modules>
+    </profile>
+    <profile>
+      <id>gc</id>
+      <modules>
+        <module>provider/entitlements-v2-jdbc</module>
+      </modules>
+    </profile>
+  </profiles>
+
+  <repositories>
+    <repository>
+      <id>${repo.releases.id}</id>
+      <!--suppress UnresolvedMavenProperty -->
+      <url>${repo.releases.url}</url>
+    </repository>
+  </repositories>
+
+  <distributionManagement>
+    <repository>
+      <id>${publish.releases.id}</id>
+      <!--suppress UnresolvedMavenProperty -->
+      <url>${publish.releases.url}</url>
+    </repository>
+    <snapshotRepository>
+      <id>${publish.snapshots.id}</id>
+      <!--suppress UnresolvedMavenProperty -->
+      <url>${publish.snapshots.url}</url>
+    </snapshotRepository>
+  </distributionManagement>
+</project>

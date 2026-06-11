@@ -1,41 +1,35 @@
-# OSDU Azure Service Provider Interface
+# Entitlement Service
+Official documentation can be found at [https://osdu.pages.opengroup.org/platform/security-and-compliance/entitlements/](https://osdu.pages.opengroup.org/platform/security-and-compliance/entitlements/)
 
-[![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/Azure/osdu-spi/badge)](https://scorecard.dev/viewer/?uri=github.com/Azure/osdu-spi)
-[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+## Running the Entitlements Service locally
+The Entitlements Service is a Maven multi-module project with each cloud implemention placed in its submodule.
 
-> [!IMPORTANT]
-> This is the central engineering system and platform home that manages all OSDU Azure service implementations. It provides documentation, automated workflows, CI/CD pipelines, and synchronization mechanisms that keep Azure's OSDU services aligned with upstream OSDU standards while enabling Azure-specific interface development.
+## AWS
 
-## OSDU Repositories
+Instructions for running and testing this service can be found [here](./provider/entitlements-v2-aws/README.md)
 
-This engineering system manages the following Azure OSDU service implementations:
+### Integration tests
+Instructions for running the Azure integration tests in local environment can be found [here][Azure documentation]
 
-### Core Services
+Instructions for running the JDBC integration tests can be found [here][JDBC documentation].
 
-> Coming soon:
-
-- [Partition Service](https://github.com/azure/osdu-spi-partition) - Data partition management and isolation
-- [Entitlements Service](https://github.com/azure/osdu-spi-entitlements) - Access control and permissions
-- [Legal Service](https://github.com/azure/osdu-spi-legal) - Legal tag management and compliance
-- [Schema Service](https://github.com/azure/osdu-spi-schema) - Data model and schema management
-- [File Service](https://github.com/azure/osdu-spi-file) - File storage and retrieval
-- [Storage Service](https://github.com/azure/osdu-spi-storage) - Data persistence and management
-- [Indexer Service](https://github.com/azure/osdu-spi-indexer) - Data indexing pipeline
-- [Search Service](https://github.com/azure/osdu-spi-search) - Elasticsearch integration
+[Azure documentation]: testing/entitlements-v2-test-azure/README.md
+[JDBC documentation]: provider/entitlements-v2-jdbc/README.md
 
 
-## Contributing
+### Open API 3.0 - Swagger
+- Swagger UI : https://host/context-path/swagger (will redirect to https://host/context-path/swagger-ui/index.html)
+- api-docs (JSON) : https://host/context-path/api-docs
+- api-docs (YAML) : https://host/context-path/api-docs.yaml
 
-Only Microsoft employees can be be contributors for the OSDU SPI services at this time. 
+All the Swagger and OpenAPI related common properties are managed here [swagger.properties](./entitlements-v2-core/src/main/resources/swagger.properties)
 
-## License
+#### Server Url(full path vs relative path) configuration
+- `api.server.fullUrl.enabled=true` It will generate full server url in the OpenAPI swagger
+- `api.server.fullUrl.enabled=false` It will generate only the contextPath only
+- default value is false (Currently only in Azure it is enabled)
+[Reference]:(https://springdoc.org/faq.html#_how_is_server_url_generated)
 
-This project is licensed under the Apache License 2.0 - see the [LICENSE](LICENSE) file for details.
+### AWS
 
----
-
-<div align="center">
-
-[OSDU Website](https://osduforum.org/) • [Azure OSDU SPI](https://azure.github.io/osdu-spi) • [The Open Group](https://www.opengroup.org/)
-
-</div>
+Instructions for running the AWS integration tests can be found [here](./provider/entitlements-v2-aws/README.md).
