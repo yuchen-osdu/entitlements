@@ -44,7 +44,7 @@
     <!-- Project Versions-->
     <json-smart.version>2.5.2</json-smart.version>
     <log4j.version>2.25.3</log4j.version>
-    <jackson.version>2.21.2</jackson.version>
+    <jackson.version>2.21.4</jackson.version>
     <swagger-core.version>2.2.45</swagger-core.version>
 
     <!-- Plugin Versions -->
