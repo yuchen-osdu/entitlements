@@ -168,9 +168,10 @@ $ ./mvnw test -f testing/entitlements-v2-test-azure
     - `app.gremlin.port`=`8901`
     - `app.gremlin.sslEnabled`=`false`
 
-4. Temporarily hardcode in `provider/entitlements-v2-azure/src/main/java/org/opengroup/osdu/entitlements/v2/azure/AzureAppProperties.java` the following methods so that they start returning such values:
+4. Temporarily hardcode in `provider/entitlements-v2-azure/src/main/java/org/opengroup/osdu/entitlements/v2/azure/AzureAppProperties.java` the following method so that it starts returning such value:
     - `getGraphDbEndpoint()`=`localhost`
-    - `getGraphDbPassword()`=`C2y6yDjf5/R+ob0N8A7Cgv30VRDJIWEHLM+4QDU5DE2nQ9nDuVTqobD4b8mGGyPMbIZnqyMsEcaGQy67XIw/Jw==`
+
+   Gremlin authentication uses Microsoft Entra tokens from the configured managed identity. For local emulator testing, use an Azure identity with access to the emulator-compatible Gremlin endpoint or run against a deployed test Cosmos DB account with Gremlin RBAC configured.
 
 5. Run Entitlements V2 service from Azure provider.
 
@@ -225,4 +226,3 @@ distributed under the License is distributed on an "AS IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
-
