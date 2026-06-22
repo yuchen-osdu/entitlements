@@ -18,7 +18,14 @@
         <dependency>
             <groupId>org.opengroup.osdu</groupId>
             <artifactId>os-core-test</artifactId>
-            <version>0.1.10</version>
+            <version>0.2.7</version>
+            <scope>test</scope>
+        </dependency>
+        <!-- os-core-test declares junit-jupiter-engine with test scope, so it is not transitive here. -->
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-engine</artifactId>
+            <version>5.14.4</version>
             <scope>test</scope>
         </dependency>
         <dependency>
