@@ -28,7 +28,7 @@ public class TenantInitTest extends BaseEntitlementsAcceptanceTest {
     /** Executing provisioning request twice to ensure the request is idempotent. */
     @Test
     void shouldSuccessfullyProvisionGroupsForNewTenant() {
-        assertEquals(HttpStatus.SC_OK, entitlementsClient.provisionTenant(DEFAULT_USER).statusCode());
-        assertEquals(HttpStatus.SC_OK, entitlementsClient.provisionTenant(DEFAULT_USER).statusCode());
+        assertEquals(HttpStatus.SC_OK, entitlementsClient.provisionTenant().statusCode());
+        assertEquals(HttpStatus.SC_OK, entitlementsClient.provisionTenant().statusCode());
     }
 }
