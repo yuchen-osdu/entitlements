@@ -34,6 +34,7 @@
     <core-lib-azure.version>2.5.7</core-lib-azure.version>
     <slf4j.version>2.0.17</slf4j.version>
     <gremlin.version>3.8.0</gremlin.version>
+    <java-jwt.version>4.5.0</java-jwt.version>
     <commons-configuration2.version>2.13.0</commons-configuration2.version>
     <!-- Test Versions -->
     <awaitility-test.version>3.1.6</awaitility-test.version>
@@ -147,6 +148,11 @@
       <version>${project.version}</version>
     </dependency>
     <dependency>
+      <groupId>com.auth0</groupId>
+      <artifactId>java-jwt</artifactId>
+      <version>${java-jwt.version}</version>
+    </dependency>
+    <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-core</artifactId>
     </dependency>
@@ -247,7 +253,7 @@
         <artifactId>maven-surefire-plugin</artifactId>
         <version>${surefire-plugin.version}</version>
         <configuration>
-          <argLine>@{argLine} --add-opens java.base/java.lang=ALL_UNNAMED</argLine>
+          <argLine>@{argLine} --add-opens java.base/java.lang=ALL-UNNAMED</argLine>
         </configuration>
       </plugin>
 
