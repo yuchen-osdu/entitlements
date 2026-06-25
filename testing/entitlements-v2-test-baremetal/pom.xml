@@ -33,10 +33,7 @@
   <packaging>jar</packaging>
 
   <properties>
-    <maven.compiler.target>17</maven.compiler.target>
-    <maven.compiler.source>17</maven.compiler.source>
     <oauth2-oidc-sdk.version>9.15</oauth2-oidc-sdk.version>
-    <lombok.version>1.18.28</lombok.version>
   </properties>
 
   <dependencies>
@@ -48,13 +45,7 @@
     <dependency>
       <groupId>org.opengroup.osdu</groupId>
       <artifactId>os-core-common</artifactId>
-      <version>6.0.0</version>
       <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>com.nimbusds</groupId>
-      <artifactId>oauth2-oidc-sdk</artifactId>
-      <version>9.15</version>
     </dependency>
     <dependency>
       <groupId>com.nimbusds</groupId>
@@ -64,7 +55,6 @@
     <dependency>
       <groupId>org.projectlombok</groupId>
       <artifactId>lombok</artifactId>
-      <version>${lombok.version}</version>
       <scope>test</scope>
     </dependency>
   </dependencies>

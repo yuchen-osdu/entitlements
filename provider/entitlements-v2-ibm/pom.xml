@@ -3,10 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <properties>
-        <java.version>17</java.version>
         <os-core-lib-ibm.version>0.28.0</os-core-lib-ibm.version>
-        <maven.compiler.target>17</maven.compiler.target>
-        <maven.compiler.source>17</maven.compiler.source>
 	</properties>
 
     <parent>
@@ -60,9 +57,13 @@
 	<dependency>
 		<groupId>org.projectlombok</groupId>
 		<artifactId>lombok</artifactId>
-		<version>1.18.28</version>
 		<scope>provided</scope>
 	</dependency>
+	<!--
+		os-core-common 7.0.0 declares lettuce-core as provided. Spring Boot BOM
+		still manages lettuce-core (to 6.6.0.RELEASE, vulnerable per CVE-2024-47535),
+		so we declare it explicitly to win over Spring Boot's dependencyManagement.
+	-->
 	<dependency>
 		<groupId>io.lettuce</groupId>
 		<artifactId>lettuce-core</artifactId>
@@ -98,10 +99,6 @@
 		<groupId>org.apache.tomcat.embed</groupId>
 		<artifactId>tomcat-embed-core</artifactId>
 	</dependency>
-	<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-web</artifactId>
-		</dependency>
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-webmvc</artifactId>
@@ -176,26 +173,11 @@
 		</dependency>
     </dependencies>
 
-	<dependencyManagement>
-		<dependencies>
-			<!-- https://mvnrepository.com/artifact/io.netty/netty-bom -->
-			<dependency>
-				<groupId>io.netty</groupId>
-				<artifactId>netty-bom</artifactId>
-				<version>4.1.128.Final</version>
-				<type>pom</type>
-				<scope>import</scope>
-			</dependency>
-
-		</dependencies>
-	</dependencyManagement>
-
 	<build>
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
-				<version>3.2.2</version>
                 <executions>
                     <execution>
                         <goals>

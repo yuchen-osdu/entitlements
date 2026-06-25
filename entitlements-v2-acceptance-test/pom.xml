@@ -34,6 +34,37 @@
             <version>${lombok.version}</version>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>org.apache.httpcomponents.client5</groupId>
+            <artifactId>httpclient5</artifactId>
+            <version>5.2.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.opengroup.osdu</groupId>
+            <artifactId>os-core-common</artifactId>
+            <version>7.1.0</version>
+        </dependency>
+        <dependency>
+            <groupId>com.nimbusds</groupId>
+            <artifactId>oauth2-oidc-sdk</artifactId>
+            <version>11.37.1</version>
+        </dependency>
+        <dependency>
+            <groupId>io.qameta.allure</groupId>
+            <artifactId>allure-junit5</artifactId>
+            <version>2.31.0</version>
+        </dependency>
+        <!-- allure-junit-platform 2.31.0 brings junit-platform-launcher 1.10.3,
+             but os-core-test brings junit-platform-suite-engine 1.14.4. The old
+             launcher can't invoke the newer suite engine's discovery API, so
+             surefire fails with: "TestEngine with ID 'junit-platform-suite'
+             failed to discover tests". Pin launcher to match. -->
+        <dependency>
+            <groupId>org.junit.platform</groupId>
+            <artifactId>junit-platform-launcher</artifactId>
+            <version>1.14.4</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
