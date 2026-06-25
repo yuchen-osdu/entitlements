@@ -120,7 +120,7 @@ After configuring your environment as specified above, you can follow these step
 
 ```bash
 # build + test + install core service code
-$ ./mvnw clean install
+$ mvn clean install
 
 # run service
 #
@@ -129,7 +129,7 @@ $ ./mvnw clean install
 $ java -jar $(find provider/entitlements-v2-azure/target/ -name '*-spring-boot.jar')
 
 # Alternately you can run using the Maven Task
-$ ./mvnw spring-boot:run -pl provider/entitlements-v2-azure
+$ mvn spring-boot:run -pl provider/entitlements-v2-azure
 ```
 
 
@@ -146,10 +146,10 @@ $ ./mvnw spring-boot:run -pl provider/entitlements-v2-azure
 
 ```bash
 # build + install integration test core
-$ ./mvnw compile -f testing/entitlements-v2-test-core
+$ mvn compile -f testing/entitlements-v2-test-core
 
 # build + run Azure integration tests.
-$ ./mvnw test -f testing/entitlements-v2-test-azure
+$ mvn test -f testing/entitlements-v2-test-azure
 ```
 
 #### Using CosmosDB Emulator
@@ -192,10 +192,10 @@ New variables added:
 
 ```bash
 # build + install integration test core
-$ ./mvnw compile -f testing/entitlements-v2-test-core
+$ mvn compile -f testing/entitlements-v2-test-core
 
 # build + run Azure integration tests.
-$ ./mvnw test -f testing/entitlements-v2-test-azure
+$ mvn test -f testing/entitlements-v2-test-azure
 ```
 
 

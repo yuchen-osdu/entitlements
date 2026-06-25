@@ -22,9 +22,6 @@
   <modelVersion>4.0.0</modelVersion>
 
   <properties>
-    <java.version>17</java.version>
-    <maven.compiler.target>${java.version}</maven.compiler.target>
-    <maven.compiler.source>${java.version}</maven.compiler.source>
     <postgresql.version>42.7.3</postgresql.version>
   </properties>
 
@@ -38,18 +35,6 @@
   <artifactId>entitlements-v2-core-plus</artifactId>
   <name>entitlements-v2-core-plus</name>
 
-  <dependencyManagement>
-    <dependencies>
-      <dependency>
-        <groupId>io.netty</groupId>
-        <artifactId>netty-bom</artifactId>
-        <version>4.1.128.Final</version>
-        <type>pom</type>
-        <scope>import</scope>
-      </dependency>
-    </dependencies>
-  </dependencyManagement>
-
   <dependencies>
     <!--  OSDU common  -->
     <dependency>
@@ -60,7 +45,6 @@
     <dependency>
       <groupId>org.projectlombok</groupId>
       <artifactId>lombok</artifactId>
-      <version>${lombok.version}</version>
       <scope>provided</scope>
       <optional>true</optional>
     </dependency>
@@ -86,6 +70,14 @@
       <groupId>org.opengroup.osdu</groupId>
       <artifactId>core-plus-common-lib</artifactId>
       <version>0.27.3</version>
+    </dependency>
+    <!--
+        os-core-common declares lettuce-core as provided. core-plus is packaged
+        as a self-contained Spring Boot jar, so include Lettuce explicitly.
+    -->
+    <dependency>
+      <groupId>io.lettuce</groupId>
+      <artifactId>lettuce-core</artifactId>
     </dependency>
     <dependency>
       <groupId>org.opengroup.osdu</groupId>
@@ -138,6 +130,11 @@
       <scope>test</scope>
     </dependency>
     <dependency>
+      <groupId>org.junit.vintage</groupId>
+      <artifactId>junit-vintage-engine</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
       <groupId>org.powermock</groupId>
       <artifactId>powermock-module-junit4</artifactId>
       <version>2.0.7</version>
@@ -166,7 +163,6 @@
         <plugin>
           <groupId>org.springframework.boot</groupId>
           <artifactId>spring-boot-maven-plugin</artifactId>
-          <version>3.2.2</version>
           <executions>
             <execution>
               <goals>
@@ -204,7 +200,6 @@
       <plugin>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-maven-plugin</artifactId>
-        <version>3.2.2</version>
         <executions>
           <execution>
             <goals>

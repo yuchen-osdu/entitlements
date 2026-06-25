@@ -95,7 +95,7 @@ After configuring your environment as specified above, you can follow these step
 
 ```bash
 # build + test + install core service code
-$ ./mvnw clean install
+$ mvn clean install
 
 ```
 
@@ -130,10 +130,10 @@ In order to run integration tests, you need to have the following environment va
 
 ```bash
 # build + install integration test core
-$ ./mvnw compile -f testing/entitlements-v2-test-core
+$ mvn compile -f testing/entitlements-v2-test-core
 
 # build + run JDBC integration tests.
-$ ./mvnw test -f testing/entitlements-v2-test-jdbc
+$ mvn test -f testing/entitlements-v2-test-jdbc
 ```
 
 ## Debugging

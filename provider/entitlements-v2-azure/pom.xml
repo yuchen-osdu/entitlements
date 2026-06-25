@@ -49,6 +49,14 @@
   <dependencyManagement>
     <dependencies>
       <!-- BOMs listed in the order of their dependency hierarchy or importance.  -->
+      <!-- netty-bom first so lettuce 7.x gets Netty 4.2+ (core-lib-azure BOM below pins 4.1.x) -->
+      <dependency>
+        <groupId>io.netty</groupId>
+        <artifactId>netty-bom</artifactId>
+        <version>${netty.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
       <dependency>
         <groupId>org.opengroup.osdu</groupId>
         <artifactId>core-lib-azure</artifactId>
@@ -82,6 +90,15 @@
       <groupId>org.opengroup.osdu</groupId>
       <artifactId>core-lib-azure</artifactId>
       <version>${core-lib-azure.version}</version>
+    </dependency>
+    <!--
+        os-core-common 7.0.0 declares lettuce-core as provided. Spring Boot BOM
+        still manages lettuce-core (to 6.6.0.RELEASE, vulnerable per CVE-2024-47535),
+        so we declare it explicitly to win over Spring Boot's dependencyManagement.
+    -->
+    <dependency>
+      <groupId>io.lettuce</groupId>
+      <artifactId>lettuce-core</artifactId>
     </dependency>
 
     <!-- Spring Dependencies -->

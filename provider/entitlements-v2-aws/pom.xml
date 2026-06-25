@@ -50,6 +50,15 @@
             <artifactId>entitlements-v2-core-plus</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <!--
+            os-core-common 7.0.0 declares lettuce-core as provided. Spring Boot BOM
+            still manages lettuce-core (to 6.6.0.RELEASE, vulnerable per CVE-2024-47535),
+            so we declare it explicitly to win over Spring Boot's dependencyManagement.
+        -->
+        <dependency>
+            <groupId>io.lettuce</groupId>
+            <artifactId>lettuce-core</artifactId>
+        </dependency>
 
         <!-- OpenID Service Principal Auth Token Provider Driver-->
         <dependency>
