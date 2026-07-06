@@ -1,0 +1,31 @@
+{
+  "users": [
+    {
+      "email": "SERVICE_PRINCIPAL_RAFS_DDMS",
+      "role": "MEMBER"
+    }
+  ],
+  "membersOf": [
+    {
+      "groupName": "users"
+    },
+    {
+      "groupName": "users.data.root"
+    },
+    {
+      "groupName": "data.default.viewers"
+    },
+    {
+      "groupName": "service.storage.viewer"
+    },
+    {
+      "groupName": "service.search.user"
+    },
+    {
+      "groupName": "service.entitlements.user"
+    },
+    {
+      "groupName": "service.legal.user"
+    }
+  ]
+}
