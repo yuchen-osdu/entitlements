@@ -247,16 +247,17 @@ public class RetrieveGroupRepoJdbc implements RetrieveGroupRepo {
 
   @Override
   public List<ChildrenReference> loadDirectChildren(String partitionId, String... nodeId) {
-    //The method is not used in JDBC module and does not provide a solution
-    // to identify the type of the node.
-    //Should be reworked later
     List<Long> parentIds = groupRepository.findByEmail(nodeId[0]).stream()
         .map(GroupInfoEntity::getId)
         .toList();
 
+    if (parentIds.isEmpty()) {
+      return new ArrayList<>();
+    }
+
     List<ChildrenReference> children = groupRepository.findDirectChildren(parentIds).stream()
         .map(GroupInfoEntity::toChildrenReference)
-        .toList();
+        .collect(Collectors.toCollection(ArrayList::new));
     List<ChildrenReference> members = parentIds.stream()
         .flatMap(id -> memberRepository.findMembersByGroup(id).stream())
         .map(MemberInfoEntity::toChildrenReference)
