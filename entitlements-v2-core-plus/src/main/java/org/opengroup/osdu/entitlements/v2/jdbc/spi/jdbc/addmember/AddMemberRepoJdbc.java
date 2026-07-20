@@ -20,7 +20,6 @@ package org.opengroup.osdu.entitlements.v2.jdbc.spi.jdbc.addmember;
 import static java.lang.String.format;
 
 import com.google.common.collect.ImmutableSet;
-import java.util.Collections;
 import java.util.Deque;
 import java.util.Optional;
 import java.util.Set;
@@ -74,7 +73,8 @@ public class AddMemberRepoJdbc implements AddMemberRepo {
 	@Override
 	public Set<String> addMember(Deque<Operation> executedCommands, EntityNode groupEntityNode,
 			AddMemberRepoDto addMemberRepoDto) {
-		return Collections.emptySet();
+		throw new UnsupportedOperationException(
+			"addMember is not supported by the JDBC (core-plus) provider");
 	}
 
 	private Set<String> executeAddMemberOperation(EntityNode groupEntityNode, AddMemberRepoDto addMemberRepoDto) {
