@@ -42,6 +42,7 @@ import java.util.Collections;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -293,5 +294,53 @@ class RetrieveGroupRepoJdbcTest {
     // fan-out.
     verify(groupRepository, never()).findDirectChildren(any());
     verify(memberRepository, never()).findMembersByGroup(anyLong());
+  }
+
+  @Test
+  void getEntityNodes_shouldThrowUnsupportedOperation() {
+    UnsupportedOperationException exception = assertThrows(UnsupportedOperationException.class,
+        () -> sut.getEntityNodes(DATA_PARTITION_ID, Collections.emptyList()));
+    assertEquals("getEntityNodes is not supported by the JDBC (core-plus) provider",
+        exception.getMessage());
+  }
+
+  @Test
+  void getUserPartitionAssociations_shouldThrowUnsupportedOperation() {
+    UnsupportedOperationException exception = assertThrows(UnsupportedOperationException.class,
+        () -> sut.getUserPartitionAssociations(Collections.emptySet()));
+    assertEquals("getUserPartitionAssociations is not supported by the JDBC (core-plus) provider",
+        exception.getMessage());
+  }
+
+  @Test
+  void getAllGroupNodes_shouldThrowUnsupportedOperation() {
+    UnsupportedOperationException exception = assertThrows(UnsupportedOperationException.class,
+        () -> sut.getAllGroupNodes(DATA_PARTITION_ID, "partitionGroupId"));
+    assertEquals("getAllGroupNodes is not supported by the JDBC (core-plus) provider",
+        exception.getMessage());
+  }
+
+  @Test
+  void getGroupOwners_shouldThrowUnsupportedOperation() {
+    UnsupportedOperationException exception = assertThrows(UnsupportedOperationException.class,
+        () -> sut.getGroupOwners(DATA_PARTITION_ID, "nodeId"));
+    assertEquals("getGroupOwners is not supported by the JDBC (core-plus) provider",
+        exception.getMessage());
+  }
+
+  @Test
+  void getAssociationCount_shouldThrowUnsupportedOperation() {
+    UnsupportedOperationException exception = assertThrows(UnsupportedOperationException.class,
+        () -> sut.getAssociationCount(Collections.emptyList()));
+    assertEquals("getAssociationCount is not supported by the JDBC (core-plus) provider",
+        exception.getMessage());
+  }
+
+  @Test
+  void getAllUserPartitionAssociations_shouldThrowUnsupportedOperation() {
+    UnsupportedOperationException exception = assertThrows(UnsupportedOperationException.class,
+        () -> sut.getAllUserPartitionAssociations());
+    assertEquals("getAllUserPartitionAssociations is not supported by the JDBC (core-plus) provider",
+        exception.getMessage());
   }
 }
