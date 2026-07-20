@@ -287,6 +287,7 @@ The following software have components provided under the terms of this license:
 - ANTLR 4 Runtime (from https://www.antlr.org/)
 - Apache Log4j Core (from https://repo1.maven.org/maven2/org/apache/logging/log4j/log4j-core)
 - HdrHistogram (from http://hdrhistogram.github.io/HdrHistogram/)
+- Jackson-core (from http://wiki.fasterxml.com/JacksonHome, https://github.com/FasterXML/jackson-core)
 - Jodd Util (from https://util.jodd.org/)
 - LatencyUtils (from http://latencyutils.github.io/LatencyUtils/)
 - MinLog (from https://github.com/EsotericSoftware/minlog)
@@ -322,6 +323,13 @@ The following software have components provided under the terms of this license:
 - Redisson (from http://redisson.org, https://redisson.pro/)
 - ReflectASM (from https://github.com/EsotericSoftware/reflectasm)
 - Spring Core (from http://www.springframework.org, https://github.com/spring-projects/spring-framework, https://repo1.maven.org/maven2/org/springframework/spring-core)
+
+========================================================================
+BSL-1.0
+========================================================================
+The following software have components provided under the terms of this license:
+
+- Jackson-core (from http://wiki.fasterxml.com/JacksonHome, https://github.com/FasterXML/jackson-core)
 
 ========================================================================
 CC-BY-2.5
