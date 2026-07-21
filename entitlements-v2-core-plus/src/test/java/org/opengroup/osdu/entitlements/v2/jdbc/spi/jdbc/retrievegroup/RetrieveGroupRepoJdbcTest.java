@@ -40,6 +40,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -298,16 +299,18 @@ class RetrieveGroupRepoJdbcTest {
 
   @Test
   void getEntityNodes_shouldThrowUnsupportedOperation() {
+    List<String> nodeIds = Collections.emptyList();
     UnsupportedOperationException exception = assertThrows(UnsupportedOperationException.class,
-        () -> sut.getEntityNodes(DATA_PARTITION_ID, Collections.emptyList()));
+        () -> sut.getEntityNodes(DATA_PARTITION_ID, nodeIds));
     assertEquals("getEntityNodes is not supported by the JDBC (core-plus) provider",
         exception.getMessage());
   }
 
   @Test
   void getUserPartitionAssociations_shouldThrowUnsupportedOperation() {
+    Set<String> userIds = Collections.emptySet();
     UnsupportedOperationException exception = assertThrows(UnsupportedOperationException.class,
-        () -> sut.getUserPartitionAssociations(Collections.emptySet()));
+        () -> sut.getUserPartitionAssociations(userIds));
     assertEquals("getUserPartitionAssociations is not supported by the JDBC (core-plus) provider",
         exception.getMessage());
   }
@@ -330,8 +333,9 @@ class RetrieveGroupRepoJdbcTest {
 
   @Test
   void getAssociationCount_shouldThrowUnsupportedOperation() {
+    List<String> userIds = Collections.emptyList();
     UnsupportedOperationException exception = assertThrows(UnsupportedOperationException.class,
-        () -> sut.getAssociationCount(Collections.emptyList()));
+        () -> sut.getAssociationCount(userIds));
     assertEquals("getAssociationCount is not supported by the JDBC (core-plus) provider",
         exception.getMessage());
   }
