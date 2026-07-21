@@ -66,6 +66,6 @@ public class AuthTestConfig {
   @Bean
   @Primary
   public EntOpenIDProviderConfig getEntOpenIDProviderConfig() {
-    return new EntOpenIDProviderConfig();
+    return Mockito.mock(EntOpenIDProviderConfig.class);
   }
 }

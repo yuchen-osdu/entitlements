@@ -25,6 +25,8 @@ public class HealthServiceJdbc implements HealthService {
 
   @Override
   public void performHealthCheck() {
-
+    // Intentionally empty. The JDBC provider relies on Spring Boot Actuator's
+    // DataSource health indicator (spring-boot-starter-actuator) for database
+    // connectivity checks, so no additional application-level probe is required here.
   }
 }
