@@ -126,9 +126,8 @@ check_existing() {
       -H "data-partition-id: ${DATA_PARTITION_ID}" \
     | grep -q "users.datalake.admins"; then
 
-      log "✅ Tenant already initialized"
-      touch /tmp/bootstrap_ready
-      sleep infinity
+      log "⚠️ Tenant already initialized — re-running provisioning to apply any new groups"
+      return 0
     fi
 
     log "Check attempt $i/5 failed, retrying..."
