@@ -42,10 +42,7 @@ public class ClusterGremlinConnector implements GremlinConnector {
     private VertexUtilService vertexUtilService;
 
     @Autowired
-    private Client client;
-
-    @Autowired
-    private GraphTraversalSource graphTraversalSource;
+    private GremlinConnectionManager gremlinConnectionManager;
 
     @Autowired
     private JaxRsDpsLog log;
@@ -55,7 +52,7 @@ public class ClusterGremlinConnector implements GremlinConnector {
 
     @Override
     public GraphTraversalSource getGraphTraversalSource() {
-        return this.graphTraversalSource;
+        return this.gremlinConnectionManager.getGraphTraversalSource();
     }
 
     @Override
@@ -116,7 +113,11 @@ public class ClusterGremlinConnector implements GremlinConnector {
         String query = GroovyTranslator.of("g").translate(bytecode).getScript();
 
         // Submit the query using the Gremlin client and return the results
-        return getResultList(client.submit(query));
+        return getResultList(getClient().submit(query));
+    }
+
+    private Client getClient() {
+        return gremlinConnectionManager.getClient();
     }
 
     private List<Result> getResultList(ResultSet resultSet) {
