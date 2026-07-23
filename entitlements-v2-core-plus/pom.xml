@@ -90,11 +90,10 @@
       <artifactId>postgresql</artifactId>
       <version>${postgresql.version}</version>
     </dependency>
-    <!--  Vulnerability fixes  -->
     <dependency>
-      <groupId>ch.qos.logback.contrib</groupId>
-      <artifactId>logback-json-classic</artifactId>
-      <version>0.1.5</version>
+      <groupId>net.logstash.logback</groupId>
+      <artifactId>logstash-logback-encoder</artifactId>
+      <version>8.1</version>
     </dependency>
     <!-- Spring -->
     <dependency>
