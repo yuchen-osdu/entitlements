@@ -17,7 +17,7 @@
 
     <properties>
         <!-- Must match the jackson version used to fix the CVE -->
-        <jackson.version>2.21.1</jackson.version>
+        <jackson.version>2.21.5</jackson.version>
         <!-- Must match versions originally bundled in gremlin-shaded 3.8.0 -->
         <kryo-shaded.version>3.0.3</kryo-shaded.version>
         <minlog.version>1.3.0</minlog.version>
