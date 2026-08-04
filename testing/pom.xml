@@ -4,7 +4,7 @@
 
     <groupId>org.opengroup.osdu.entitlements.v2</groupId>
     <artifactId>os-entitlements-v2-testing</artifactId>
-    <version>0.30.0-SNAPSHOT</version>
+    <version>0.31.0-SNAPSHOT</version>
     <packaging>pom</packaging>
     <properties>
         <java.version>17</java.version>

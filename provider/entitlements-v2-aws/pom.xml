@@ -22,11 +22,12 @@
     <parent>
         <groupId>org.opengroup.osdu.entitlements.v2</groupId>
         <artifactId>entitlements-v2-service</artifactId>
-        <version>0.30.0-SNAPSHOT</version>
+        <version>0.31.0-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
 
     <artifactId>entitlements-v2-aws</artifactId>
+    <version>0.31.0-SNAPSHOT</version>
     <name>entitlements-v2-aws</name>
     <description>AWS provider for Entitlements v2 service</description>
 

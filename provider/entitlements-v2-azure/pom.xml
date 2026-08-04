@@ -20,13 +20,14 @@
 
   <modelVersion>4.0.0</modelVersion>
   <artifactId>entitlements-v2-azure</artifactId>
+  <version>0.31.0-SNAPSHOT</version>
   <description>Entitlements V2 service on Azure</description>
   <packaging>jar</packaging>
 
   <parent>
     <artifactId>entitlements-v2-service</artifactId>
     <groupId>org.opengroup.osdu.entitlements.v2</groupId>
-    <version>0.30.0-SNAPSHOT</version>
+    <version>0.31.0-SNAPSHOT</version>
     <relativePath>../../pom.xml</relativePath>
   </parent>
 
