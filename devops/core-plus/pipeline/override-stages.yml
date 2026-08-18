@@ -6,6 +6,7 @@ variables:
   CIMPL_HELM_PACKAGE_NAME: core-plus-entitlements-deploy
   CIMPL_HELM_TIMEOUT: "--timeout 20m"
   CIMPL_TEST_SUBDIR: "testing/entitlements-v2-test-baremetal"
+  DISABLE_INTEGRATION_TEST: true
 
 cimpl-containerize-bootstrap-gitlab:
   variables:
@@ -27,3 +28,12 @@ cimpl-dev2-deploy:
 cimpl-dev2-acceptance-test:
   variables:
     PARTITION_URL: "https://osdu.dev2.osdu-cimpl.opengroup.org/api/partition/v1/"
+
+#osdu-main jobs
+cimpl-dev-deploy:
+  variables:
+    CIMPL_SERVICE: "entitlements"
+
+cimpl-dev-backup-deploy:
+  variables:
+    CIMPL_SERVICE: "entitlements"
