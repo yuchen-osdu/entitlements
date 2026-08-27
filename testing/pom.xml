@@ -87,7 +87,6 @@
     <modules>
         <module>entitlements-v2-test-core</module>
         <module>entitlements-v2-test-azure</module>
-        <module>entitlements-v2-test-aws</module>
         <module>entitlements-v2-test-jdbc</module>
         <module>entitlements-v2-test-ibm</module>
         <module>entitlements-v2-test-baremetal</module>

@@ -4,15 +4,6 @@ variables:
   AZURE_TEST_SUBDIR: testing/entitlements-v2-test-azure
   SERVICE_JAVA_VERSION: "17"
 
-  AWS_BUILD_SUBDIR: provider/entitlements-v2-aws/build-aws
-  AWS_TEST_SUBDIR: testing/entitlements-v2-test-aws
-  AWS_CHART_SUBDIR: devops/aws/chart
-  AWS_SERVICE: entitlements-v2
-  AWS_SERVICE_GATEWAY: osdu-gateway
-  AWS_ENVIRONMENT: dev
-  AWS_DEPLOY_TARGET: TF
-  AWS_EKS_DEPLOYMENT_NAME: os-entitlements
-
   CIMPL_OPENAPI_SPEC_PATH: docs/api/community/v2/openapi.yaml
   CIMPL_OPENAPI_YAML_ROUTE: /api/entitlements/v2/api-docs.yaml
 
@@ -41,20 +32,12 @@ include:
     file: "cloud-providers/azure.yml"
 
   - project: "osdu/platform/ci-cd-pipelines"
-    file: "cloud-providers/aws-global.yml"
-
-  - project: "osdu/platform/ci-cd-pipelines"
-    file: "cloud-providers/aws-maven.yml"
-
-  - project: "osdu/platform/ci-cd-pipelines"
     file: "cloud-providers/gc-global.yml"
 
   - project: "osdu/platform/ci-cd-pipelines"
     file: "cloud-providers/cimpl-global.yml"
 
   - local: "devops/core-plus/pipeline/override-stages.yml"
-  - project: "osdu/platform/ci-cd-pipelines"
-    file: "cloud-providers/aws-one-pipeline.yml"
 
   - project: "osdu/platform/ci-cd-pipelines"
     file: "cloud-providers/azure-one-pipeline.yml"
@@ -93,8 +76,6 @@ azure_containerize:
     AZURE_CONTAINERIZE_REPOSITORY: "https://gitlab-ci-token:${CI_JOB_TOKEN}@community.opengroup.org/osdu/platform/deployment-and-operations/base-containers-azure/service-base-image"
 azure_test:
   image: community.opengroup.org:5555/osdu/platform/deployment-and-operations/base-containers-azure/azure-maven17:v0.0.1
-aws-test-java:
-  image: $CI_REGISTRY/osdu/platform/deployment-and-operations/base-containers-aws/aws-maven/aws-maven:v2.0
 fossa-analyze:
   image: $CI_REGISTRY/divido/fossa-with-cache:v0.9-jdk17
 fossa-check-notice:

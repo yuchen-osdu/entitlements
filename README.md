@@ -6,7 +6,7 @@ The Entitlements Service is a Maven multi-module project with each cloud impleme
 
 ## AWS
 
-Instructions for running and testing this service can be found [here](./provider/entitlements-v2-aws/README.md)
+The AWS provider has been removed from this repository.
 
 ### Integration tests
 Instructions for running the Azure integration tests in local environment can be found [here][Azure documentation]
@@ -32,4 +32,4 @@ All the Swagger and OpenAPI related common properties are managed here [swagger.
 
 ### AWS
 
-Instructions for running the AWS integration tests can be found [here](./provider/entitlements-v2-aws/README.md).
+The AWS provider has been removed from this repository.
