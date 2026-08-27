@@ -21,32 +21,6 @@ The following software have components provided under the terms of this license:
 - ANTLR 4 Runtime (from https://www.antlr.org/)
 - ASM Core (from http://asm.ow2.io/, http://asm.ow2.org/)
 - ASM based accessors helper used by json-smart (from https://urielch.github.io/)
-- AWS Advanced JDBC Wrapper (from https://github.com/aws/aws-advanced-jdbc-wrapper)
-- AWS Event Stream (from https://github.com/awslabs/aws-eventstream-java)
-- AWS Java SDK :: AWS Core (from https://aws.amazon.com/sdkforjava)
-- AWS Java SDK :: Annotations (from https://aws.amazon.com/sdkforjava)
-- AWS Java SDK :: Auth (from https://aws.amazon.com/sdkforjava)
-- AWS Java SDK :: Checksums (from https://aws.amazon.com/sdkforjava)
-- AWS Java SDK :: Checksums SPI (from https://aws.amazon.com/sdkforjava)
-- AWS Java SDK :: Core :: Protocols :: AWS Query Protocol (from https://aws.amazon.com/sdkforjava)
-- AWS Java SDK :: Core :: Protocols :: Json Utils (from https://aws.amazon.com/sdkforjava)
-- AWS Java SDK :: Core :: Protocols :: Protocol Core (from https://aws.amazon.com/sdkforjava)
-- AWS Java SDK :: Endpoints SPI (from https://aws.amazon.com/sdkforjava)
-- AWS Java SDK :: HTTP Auth (from https://aws.amazon.com/sdkforjava)
-- AWS Java SDK :: HTTP Auth AWS (from https://aws.amazon.com/sdkforjava)
-- AWS Java SDK :: HTTP Auth SPI (from https://aws.amazon.com/sdkforjava)
-- AWS Java SDK :: HTTP Client Interface (from https://aws.amazon.com/sdkforjava)
-- AWS Java SDK :: HTTP Clients :: Apache (from https://aws.amazon.com/sdkforjava)
-- AWS Java SDK :: HTTP Clients :: Netty Non-Blocking I/O (from https://aws.amazon.com/sdkforjava)
-- AWS Java SDK :: Identity SPI (from https://aws.amazon.com/sdkforjava)
-- AWS Java SDK :: Metrics SPI (from https://aws.amazon.com/sdkforjava)
-- AWS Java SDK :: Profiles (from https://aws.amazon.com/sdkforjava)
-- AWS Java SDK :: Regions (from https://aws.amazon.com/sdkforjava)
-- AWS Java SDK :: SDK Core (from https://aws.amazon.com/sdkforjava)
-- AWS Java SDK :: Services :: AWS STS (from https://aws.amazon.com/sdkforjava)
-- AWS Java SDK :: Services :: Amazon RDS (from https://aws.amazon.com/sdkforjava)
-- AWS Java SDK :: Third Party :: Jackson-core (from https://aws.amazon.com/sdkforjava)
-- AWS Java SDK :: Utilities (from https://aws.amazon.com/sdkforjava)
 - Adapter: RxJava (from https://github.com/square/retrofit)
 - Apache Commons BeanUtils (from http://commons.apache.org/proper/commons-beanutils/, https://commons.apache.org/proper/commons-beanutils, https://repo1.maven.org/maven2/commons-beanutils/commons-beanutils)
 - Apache Commons Codec (from http://commons.apache.org/proper/commons-codec/, https://commons.apache.org/proper/commons-codec/)
@@ -187,8 +161,8 @@ The following software have components provided under the terms of this license:
 - Non-Blocking Reactive Foundation for the JVM (from https://github.com/reactor/reactor, https://github.com/reactor/reactor-core)
 - OAuth 2.0 SDK with OpenID Connect and Federation extensions (from https://bitbucket.org/connect2id/oauth-2.0-sdk-with-openid-connect-extensions)
 - Objenesis (from https://objenesis.org/, https://repo1.maven.org/maven2/org/objenesis/objenesis)
-- OkHttp (from https://repo1.maven.org/maven2/com/squareup/okhttp3/okhttp, https://square.github.io/okhttp/)
-- OkHttp Logging Interceptor (from https://github.com/square/okhttp, https://repo1.maven.org/maven2/com/squareup/okhttp3/logging-interceptor, https://square.github.io/okhttp/)
+- OkHttp (from https://lysine.dev/okhttp/, https://repo1.maven.org/maven2/com/squareup/okhttp3/okhttp, https://square.github.io/okhttp/)
+- OkHttp Logging Interceptor (from https://github.com/square/okhttp, https://lysine.dev/okhttp/, https://repo1.maven.org/maven2/com/squareup/okhttp3/logging-interceptor, https://square.github.io/okhttp/)
 - OkHttp URLConnection (from https://repo1.maven.org/maven2/com/squareup/okhttp3/okhttp-urlconnection, https://square.github.io/okhttp/)
 - Okio (from https://github.com/lysine-dev/okio/, https://github.com/square/okio/, https://repo1.maven.org/maven2/com/squareup/okio/okio)
 - OpenCensus (from https://github.com/census-instrumentation/opencensus-java)
@@ -244,8 +218,6 @@ The following software have components provided under the terms of this license:
 - Swagger UI (from <http://webjars.org>, http://webjars.org, https://www.webjars.org/)
 - Vavr (from http://vavr.io, https://vavr.io/, https://www.vavr.io)
 - Vavr Match (from http://vavr.io, https://vavr.io/)
-- boto3 (from <https://github.com/boto/boto3>, https://github.com/boto/boto3)
-- botocore (from <https://github.com/boto/botocore>, https://github.com/boto/botocore)
 - embedded-redis (from https://github.com/ozimov/embedded-redis)
 - error-prone annotations (from https://errorprone.info/, https://repo1.maven.org/maven2/com/google/errorprone/error_prone_annotations)
 - exp4j (from http://www.objecthunter.net/exp4j)
@@ -266,7 +238,6 @@ The following software have components provided under the terms of this license:
 - org.opentest4j:opentest4j (from https://github.com/ota4j-team/opentest4j)
 - org.xmlunit:xmlunit-core (from http://www.xmlunit.org/, https://www.xmlunit.org/)
 - powermock-module-junit4 (from http://www.powermock.org/)
-- requests (from http://python-requests.org, https://requests.readthedocs.io)
 - resilience4j (from https://github.com/resilience4j/resilience4j, https://resilience4j.readme.io/, ttps://resilience4j.readme.io)
 - spring-boot-loader (from https://spring.io/projects/spring-boot)
 - springdoc-openapi-starter-common (from https://springdoc.org/)
@@ -523,12 +494,10 @@ The following software have components provided under the terms of this license:
 - Netty/Codec/HTTP (from http://netty.io/, https://repo1.maven.org/maven2/io/netty/netty-codec-http)
 - Netty/Common (from http://netty.io/, https://repo1.maven.org/maven2/io/netty/netty-common)
 - Project Lombok (from http://projectlombok.org, https://projectlombok.org, https://projectlombok.org/)
-- PyJWT (from http://github.com/jpadilla/pyjwt, https://pypi.org/project/PyJWT/)
 - SLF4J API Module (from http://www.slf4j.org, http://www.slf4j.org/)
 - SLF4J Simple Provider (from http://www.slf4j.org, http://www.slf4j.org/)
 - Spring Data for Azure Cosmos DB SQL API (from https://github.com/Azure/azure-sdk-for-java/tree/master/sdk/cosmos/azure-spring-data-cosmos, https://github.com/Azure/azure-sdk-for-java/tree/master/sdk/spring/azure-spring-data-cosmos)
 - adal4j (from https://github.com/AzureAD/azure-activedirectory-library-for-java)
-- botocore (from <https://github.com/boto/botocore>, https://github.com/boto/botocore)
 - javamsalruntime (from https://github.com/AzureAD/microsoft-authentication-library-for-cpp)
 - jwks-rsa-java (from https://github.com/auth0/jwks-rsa-java)
 - micrometer-commons (from https://github.com/micrometer-metrics/micrometer)
@@ -546,13 +515,6 @@ MPL-2.0
 The following software have components provided under the terms of this license:
 
 - H2 Database Engine (from https://h2database.com)
-
-========================================================================
-Python-2.0
-========================================================================
-The following software have components provided under the terms of this license:
-
-- argparse (from https://github.com/ThomasWaldmann/argparse/)
 
 ========================================================================
 SAX-PD

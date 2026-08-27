@@ -305,12 +305,6 @@
       </modules>
     </profile>
     <profile>
-      <id>aws</id>
-      <modules>
-        <module>provider/entitlements-v2-aws</module>
-      </modules>
-    </profile>
-    <profile>
       <id>azure</id>
       <modules>
         <module>gremlin-shaded-fix</module>
