@@ -12,28 +12,15 @@ cimpl-containerize-bootstrap-gitlab:
   variables:
     CIMPL_IMAGE_BOOTSTRAP_NAME: "core-plus-bootstrap-entitlements-v2"
 
-cimpl-deploy:
-  variables:
-    CIMPL_SERVICE: "entitlements"
-
-cimpl-acceptance-test:
-  variables:
-    PARTITION_URL: "https://osdu.dev1.osdu-cimpl.opengroup.org/api/partition/v1/"
-
-#dev2 jobs
-cimpl-dev2-deploy:
-  variables:
-    CIMPL_SERVICE: "entitlements"
-
-cimpl-dev2-acceptance-test:
-  variables:
-    PARTITION_URL: "https://osdu.dev2.osdu-cimpl.opengroup.org/api/partition/v1/"
-
 #osdu-main jobs
 cimpl-dev-deploy:
   variables:
     CIMPL_SERVICE: "entitlements"
 
 cimpl-dev-backup-deploy:
+  variables:
+    CIMPL_SERVICE: "entitlements"
+
+cimpl-prod-deploy:
   variables:
     CIMPL_SERVICE: "entitlements"

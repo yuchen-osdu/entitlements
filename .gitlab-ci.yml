@@ -81,5 +81,3 @@ fossa-analyze:
 fossa-check-notice:
   image: $CI_REGISTRY/divido/fossa-with-cache:v0.9-jdk17
 
-schemathesis-tests:
-  extends: .schemathesis-tests-template
