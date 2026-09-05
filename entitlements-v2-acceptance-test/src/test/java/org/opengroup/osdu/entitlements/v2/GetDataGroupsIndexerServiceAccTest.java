@@ -40,24 +40,24 @@ public class GetDataGroupsIndexerServiceAccTest extends BaseEntitlementsAcceptan
         String dataGroupEmail = groupEmail(dataGroupName);
 
         if (isDataGroupAbsent(dataGroupEmail)) {
-            entitlementsClient.createGroup(dataGroupName, "desc", DEFAULT_USER);
+            entitlementsClient.createGroup(dataGroupName, "desc");
         }
 
         assertTrue(parentGroupEmails(indexerServiceAccountEmail).anyMatch(dataGroupEmail::equals));
 
-        entitlementsClient.deleteGroup(dataGroupEmail, DEFAULT_USER);
+        entitlementsClient.deleteGroup(dataGroupEmail);
 
         assertFalse(parentGroupEmails(indexerServiceAccountEmail).anyMatch(dataGroupEmail::equals));
     }
 
     private boolean isDataGroupAbsent(String dataGroupEmail) {
-        GroupsResponse groups = entitlementsClient.listGroups(DEFAULT_USER).body();
+        GroupsResponse groups = entitlementsClient.listGroups().body();
         return Arrays.stream(groups.groups()).map(GroupReference::email).noneMatch(dataGroupEmail::equals);
     }
 
     private java.util.stream.Stream<String> parentGroupEmails(String memberEmail) {
         GroupsResponse groups =
-            entitlementsClient.listMemberGroups(memberEmail, DEFAULT_USER, Map.of("type", "data")).body();
+            entitlementsClient.listMemberGroups(memberEmail, Map.of("type", "data")).body();
         return Arrays.stream(groups.groups()).map(GroupReference::email);
     }
 }

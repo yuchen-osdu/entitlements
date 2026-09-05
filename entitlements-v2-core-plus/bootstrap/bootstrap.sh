@@ -67,7 +67,8 @@ prepare_payload() {
     { "aliasId": "SERVICE_PRINCIPAL_SEISMIC", "userId": "seismic@service.local" },
     { "aliasId": "SERVICE_PRINCIPAL_REGISTER", "userId": "register@service.local" },
     { "aliasId": "SERVICE_PRINCIPAL_GCZ", "userId": "gcz@service.local" },
-    { "aliasId": "SERVICE_PRINCIPAL_WORKFLOW", "userId": "workflow@service.local" }
+    { "aliasId": "SERVICE_PRINCIPAL_WORKFLOW", "userId": "workflow@service.local" },
+    { "aliasId": "SERVICE_PRINCIPAL_RAFS_DDMS", "userId": "rafs-ddms@service.local" }
   ]
 }
 EOF
@@ -125,9 +126,8 @@ check_existing() {
       -H "data-partition-id: ${DATA_PARTITION_ID}" \
     | grep -q "users.datalake.admins"; then
 
-      log "✅ Tenant already initialized"
-      touch /tmp/bootstrap_ready
-      sleep infinity
+      log "⚠️ Tenant already initialized — re-running provisioning to apply any new groups"
+      return 0
     fi
 
     log "Check attempt $i/5 failed, retrying..."

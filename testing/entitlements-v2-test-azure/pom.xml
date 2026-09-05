@@ -5,20 +5,18 @@
     <parent>
         <groupId>org.opengroup.osdu.entitlements.v2</groupId>
         <artifactId>os-entitlements-v2-testing</artifactId>
-        <version>0.30.0-SNAPSHOT</version>
+        <version>0.31.0-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
     <artifactId>entitlements-v2-test-azure</artifactId>
-    <version>0.30.0-SNAPSHOT</version>
+    <version>0.31.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <properties>
-        <maven.compiler.target>17</maven.compiler.target>
-        <maven.compiler.source>17</maven.compiler.source>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.main.basedir>${project.basedir}</project.main.basedir>
-        <jackson.version>2.21.1</jackson.version>
+        <jackson.version>2.21.2</jackson.version>
         <core-lib-azure.version>0.26.0</core-lib-azure.version>
         <junit.version>4.13.2</junit.version>
         <netty-all.version>4.1.50.Final</netty-all.version>
@@ -42,7 +40,7 @@
         <dependency>
             <groupId>org.opengroup.osdu.entitlements.v2</groupId>
             <artifactId>entitlements-v2-test-core</artifactId>
-            <version>0.30.0-SNAPSHOT</version>
+            <version>0.31.0-SNAPSHOT</version>
         </dependency>
 
         <!-- Tests -->
@@ -68,7 +66,7 @@
         <dependency>
             <groupId>org.opengroup.osdu</groupId>
             <artifactId>os-core-common</artifactId>
-            <version>6.0.0</version>
+            <version>7.0.0</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -86,7 +84,6 @@
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <version>1.18.28</version>
         </dependency>
     </dependencies>
 

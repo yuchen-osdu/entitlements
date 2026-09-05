@@ -21,32 +21,6 @@ The following software have components provided under the terms of this license:
 - ANTLR 4 Runtime (from https://www.antlr.org/)
 - ASM Core (from http://asm.ow2.io/, http://asm.ow2.org/)
 - ASM based accessors helper used by json-smart (from https://urielch.github.io/)
-- AWS Advanced JDBC Wrapper (from https://github.com/aws/aws-advanced-jdbc-wrapper)
-- AWS Event Stream (from https://github.com/awslabs/aws-eventstream-java)
-- AWS Java SDK :: AWS Core (from https://aws.amazon.com/sdkforjava)
-- AWS Java SDK :: Annotations (from https://aws.amazon.com/sdkforjava)
-- AWS Java SDK :: Auth (from https://aws.amazon.com/sdkforjava)
-- AWS Java SDK :: Checksums (from https://aws.amazon.com/sdkforjava)
-- AWS Java SDK :: Checksums SPI (from https://aws.amazon.com/sdkforjava)
-- AWS Java SDK :: Core :: Protocols :: AWS Query Protocol (from https://aws.amazon.com/sdkforjava)
-- AWS Java SDK :: Core :: Protocols :: Json Utils (from https://aws.amazon.com/sdkforjava)
-- AWS Java SDK :: Core :: Protocols :: Protocol Core (from https://aws.amazon.com/sdkforjava)
-- AWS Java SDK :: Endpoints SPI (from https://aws.amazon.com/sdkforjava)
-- AWS Java SDK :: HTTP Auth (from https://aws.amazon.com/sdkforjava)
-- AWS Java SDK :: HTTP Auth AWS (from https://aws.amazon.com/sdkforjava)
-- AWS Java SDK :: HTTP Auth SPI (from https://aws.amazon.com/sdkforjava)
-- AWS Java SDK :: HTTP Client Interface (from https://aws.amazon.com/sdkforjava)
-- AWS Java SDK :: HTTP Clients :: Apache (from https://aws.amazon.com/sdkforjava)
-- AWS Java SDK :: HTTP Clients :: Netty Non-Blocking I/O (from https://aws.amazon.com/sdkforjava)
-- AWS Java SDK :: Identity SPI (from https://aws.amazon.com/sdkforjava)
-- AWS Java SDK :: Metrics SPI (from https://aws.amazon.com/sdkforjava)
-- AWS Java SDK :: Profiles (from https://aws.amazon.com/sdkforjava)
-- AWS Java SDK :: Regions (from https://aws.amazon.com/sdkforjava)
-- AWS Java SDK :: SDK Core (from https://aws.amazon.com/sdkforjava)
-- AWS Java SDK :: Services :: AWS STS (from https://aws.amazon.com/sdkforjava)
-- AWS Java SDK :: Services :: Amazon RDS (from https://aws.amazon.com/sdkforjava)
-- AWS Java SDK :: Third Party :: Jackson-core (from https://aws.amazon.com/sdkforjava)
-- AWS Java SDK :: Utilities (from https://aws.amazon.com/sdkforjava)
 - Adapter: RxJava (from https://github.com/square/retrofit)
 - Apache Commons BeanUtils (from http://commons.apache.org/proper/commons-beanutils/, https://commons.apache.org/proper/commons-beanutils, https://repo1.maven.org/maven2/commons-beanutils/commons-beanutils)
 - Apache Commons Codec (from http://commons.apache.org/proper/commons-codec/, https://commons.apache.org/proper/commons-codec/)
@@ -85,7 +59,7 @@ The following software have components provided under the terms of this license:
 - Core functionality for the Reactor Netty library (from https://github.com/reactor/reactor-netty)
 - FindBugs-jsr305 (from http://findbugs.sourceforge.net/)
 - GSON extensions to the Google HTTP Client Library for Java. (from https://github.com/googleapis/google-http-java-client, https://repo1.maven.org/maven2/com/google/http-client/google-http-client-gson)
-- Google Auth Library for Java - Credentials (from https://github.com/googleapis/google-cloud-java, https://repo1.maven.org/maven2/com/google/auth/google-auth-library-credentials)
+- Google Auth Library for Java - Credentials (from https://github.com/googleapis/google-auth-library-java, https://repo1.maven.org/maven2/com/google/auth/google-auth-library-credentials)
 - Google Auth Library for Java - OAuth2 HTTP (from https://github.com/googleapis/google-cloud-java, https://repo1.maven.org/maven2/com/google/auth/google-auth-library-oauth2-http)
 - Google HTTP Client Library for Java (from https://github.com/googleapis/google-http-java-client, https://repo1.maven.org/maven2/com/google/http-client/google-http-client)
 - Gson (from http://code.google.com/p/google-gson/, https://github.com/google/gson, https://repo1.maven.org/maven2/com/google/code/gson/gson)
@@ -112,7 +86,7 @@ The following software have components provided under the terms of this license:
 - JSON library from Android SDK (from http://developer.android.com/sdk)
 - JSONassert (from http://github.com/skyscreamer/yoga, https://github.com/skyscreamer/JSONassert)
 - JSR107 API and SPI (from https://github.com/jsr107/jsr107spec)
-- JSpecify annotations (from http://jspecify.org/)
+- JSpecify annotations (from https://jspecify.dev/)
 - Jackson dataformat: CBOR (from http://github.com/FasterXML/jackson-dataformats-binary)
 - Jackson datatype: JSR310 (from http://wiki.fasterxml.com/JacksonModuleJSR310, https://github.com/FasterXML/jackson-modules-java8, https://repo1.maven.org/maven2/com/fasterxml/jackson/datatype/jackson-datatype-jsr310)
 - Jackson datatype: Joda (from http://wiki.fasterxml.com/JacksonModuleJoda, https://github.com/FasterXML/jackson-datatype-joda)
@@ -124,6 +98,7 @@ The following software have components provided under the terms of this license:
 - Jakarta Dependency Injection (from https://github.com/eclipse-ee4j/injection-api)
 - Jakarta Validation API (from https://beanvalidation.org, https://beanvalidation.org/)
 - Java Architecture for XML Binding (from http://jaxb.java.net/, https://repo1.maven.org/maven2/javax/xml/bind/jaxb-api)
+- Java Concurrency Tools Core Library (from https://github.com/JCTools)
 - Java Native Access (from https://github.com/java-native-access/jna, https://github.com/twall/jna)
 - Java Native Access Platform (from https://github.com/java-native-access/jna)
 - JavaPoet (from http://github.com/square/javapoet/)
@@ -135,6 +110,7 @@ The following software have components provided under the terms of this license:
 - Kotlin Stdlib Jdk7 (from <https://kotlinlang.org/>, https://kotlinlang.org/)
 - Kotlin Stdlib Jdk8 (from <https://kotlinlang.org/>, https://kotlinlang.org/)
 - Lettuce (from http://github.com/lettuce-io/lettuce-core, http://github.com/mp911de/lettuce/wiki, https://github.com/lettuce-io/lettuce-core/wiki, https://github.com/redis/lettuce)
+- Logstash Logback Encoder (from https://github.com/logfellow/logstash-logback-encoder)
 - Metrics Core (from https://metrics.dropwizard.io/, https://repo1.maven.org/maven2/io/dropwizard/metrics/metrics-core)
 - Microsoft Azure Java Core Library (from https://github.com/Azure/azure-sdk-for-java)
 - Microsoft Azure Java XML Library (from https://github.com/Azure/azure-sdk-for-java)
@@ -145,12 +121,18 @@ The following software have components provided under the terms of this license:
 - Netty/All-in-One (from http://netty.io/, https://netty.io/netty-all/, https://repo1.maven.org/maven2/io/netty/netty-all)
 - Netty/Buffer (from http://netty.io/, https://repo1.maven.org/maven2/io/netty/netty-buffer)
 - Netty/Codec (from http://netty.io/, https://repo1.maven.org/maven2/io/netty/netty-codec)
+- Netty/Codec/Base (from https://netty.io/)
+- Netty/Codec/Classes/Quic (from https://netty.io/)
+- Netty/Codec/Compression (from https://netty.io/)
 - Netty/Codec/DNS (from http://netty.io/, https://repo1.maven.org/maven2/io/netty/netty-codec-dns)
 - Netty/Codec/HAProxy (from http://netty.io/)
 - Netty/Codec/HTTP (from http://netty.io/, https://repo1.maven.org/maven2/io/netty/netty-codec-http)
 - Netty/Codec/HTTP2 (from http://netty.io/, https://repo1.maven.org/maven2/io/netty/netty-codec-http2)
+- Netty/Codec/Http3 (from https://netty.io/netty-codec-http3/)
 - Netty/Codec/MQTT (from http://netty.io/)
+- Netty/Codec/Marshalling (from https://netty.io/)
 - Netty/Codec/Memcache (from http://netty.io/)
+- Netty/Codec/Protobuf (from https://netty.io/)
 - Netty/Codec/Redis (from https://netty.io/)
 - Netty/Codec/SMTP (from https://netty.io/)
 - Netty/Codec/Socks (from http://netty.io/, https://repo1.maven.org/maven2/io/netty/netty-codec-socks)
@@ -160,7 +142,6 @@ The following software have components provided under the terms of this license:
 - Netty/Handler (from http://netty.io/, https://repo1.maven.org/maven2/io/netty/netty-handler)
 - Netty/Handler/Proxy (from http://netty.io/, https://repo1.maven.org/maven2/io/netty/netty-handler-proxy)
 - Netty/Handler/Ssl/Ocsp (from https://netty.io/)
-- Netty/Incubator/Codec/Classes/Quic (from <https://repo1.maven.org/maven2/io/netty/incubator/netty-incubator-codec-classes-quic>, https://repo1.maven.org/maven2/io/netty/incubator/netty-incubator-codec-classes-quic)
 - Netty/Resolver (from http://netty.io/, https://repo1.maven.org/maven2/io/netty/netty-resolver)
 - Netty/Resolver/DNS (from http://netty.io/, https://repo1.maven.org/maven2/io/netty/netty-resolver-dns)
 - Netty/Resolver/DNS/Classes/MacOS (from https://netty.io/, https://repo1.maven.org/maven2/io/netty/netty-resolver-dns-classes-macos)
@@ -169,6 +150,7 @@ The following software have components provided under the terms of this license:
 - Netty/Transport (from http://netty.io/, https://repo1.maven.org/maven2/io/netty/netty-transport)
 - Netty/Transport/Classes/Epoll (from https://netty.io/, https://repo1.maven.org/maven2/io/netty/netty-transport-classes-epoll)
 - Netty/Transport/Classes/KQueue (from https://netty.io/, https://repo1.maven.org/maven2/io/netty/netty-transport-classes-kqueue)
+- Netty/Transport/Classes/io_uring (from https://netty.io/)
 - Netty/Transport/Native/Unix/Common (from https://netty.io/, https://repo1.maven.org/maven2/io/netty/netty-transport-native-unix-common)
 - Netty/Transport/RXTX (from http://netty.io/)
 - Netty/Transport/SCTP (from http://netty.io/)
@@ -177,18 +159,17 @@ The following software have components provided under the terms of this license:
 - Nimbus JOSE+JWT (from https://bitbucket.org/connect2id/nimbus-jose-jwt, https://bitbucket.org/nimbusds/nimbus-jose-jwt)
 - Nimbus LangTag (from https://bitbucket.org/connect2id/nimbus-language-tags)
 - Non-Blocking Reactive Foundation for the JVM (from https://github.com/reactor/reactor, https://github.com/reactor/reactor-core)
-- OAuth 2.0 SDK with OpenID Connect extensions (from https://bitbucket.org/connect2id/oauth-2.0-sdk-with-openid-connect-extensions)
+- OAuth 2.0 SDK with OpenID Connect and Federation extensions (from https://bitbucket.org/connect2id/oauth-2.0-sdk-with-openid-connect-extensions)
 - Objenesis (from https://objenesis.org/, https://repo1.maven.org/maven2/org/objenesis/objenesis)
-- OkHttp (from https://repo1.maven.org/maven2/com/squareup/okhttp3/okhttp, https://square.github.io/okhttp/)
-- OkHttp Logging Interceptor (from https://github.com/square/okhttp, https://repo1.maven.org/maven2/com/squareup/okhttp3/logging-interceptor, https://square.github.io/okhttp/)
+- OkHttp (from https://lysine.dev/okhttp/, https://repo1.maven.org/maven2/com/squareup/okhttp3/okhttp, https://square.github.io/okhttp/)
+- OkHttp Logging Interceptor (from https://github.com/square/okhttp, https://lysine.dev/okhttp/, https://repo1.maven.org/maven2/com/squareup/okhttp3/logging-interceptor, https://square.github.io/okhttp/)
 - OkHttp URLConnection (from https://repo1.maven.org/maven2/com/squareup/okhttp3/okhttp-urlconnection, https://square.github.io/okhttp/)
-- Okio (from https://github.com/square/okio/, https://repo1.maven.org/maven2/com/squareup/okio/okio)
+- Okio (from https://github.com/lysine-dev/okio/, https://github.com/square/okio/, https://repo1.maven.org/maven2/com/squareup/okio/okio)
 - OpenCensus (from https://github.com/census-instrumentation/opencensus-java)
 - OpenTelemetry Java (from https://github.com/open-telemetry/opentelemetry-java)
 - PostgreSQL JDBC Driver (from https://jdbc.postgresql.org/)
-- PowerMock (from http://www.powermock.org, http://www.powermock.org/, https://repo1.maven.org/maven2/org/powermock/powermock-api-mockito)
+- PowerMock (from http://www.powermock.org, https://repo1.maven.org/maven2/org/powermock/powermock-api-mockito)
 - Proton-J (from https://qpid.apache.org/proton, https://repo1.maven.org/maven2/org/apache/qpid/proton-j)
-- QUIC functionality for the Reactor Netty library (from https://github.com/reactor/reactor-netty)
 - QpidJMS Client (from https://qpid.apache.org/, https://repo1.maven.org/maven2/org/apache/qpid/qpid-jms-client)
 - Reactive Streams Netty driver (from https://github.com/reactor/reactor-netty)
 - Redisson (from http://redisson.org, https://redisson.pro/)
@@ -237,8 +218,6 @@ The following software have components provided under the terms of this license:
 - Swagger UI (from <http://webjars.org>, http://webjars.org, https://www.webjars.org/)
 - Vavr (from http://vavr.io, https://vavr.io/, https://www.vavr.io)
 - Vavr Match (from http://vavr.io, https://vavr.io/)
-- boto3 (from <https://github.com/boto/boto3>, https://github.com/boto/boto3)
-- botocore (from <https://github.com/boto/botocore>, https://github.com/boto/botocore)
 - embedded-redis (from https://github.com/ozimov/embedded-redis)
 - error-prone annotations (from https://errorprone.info/, https://repo1.maven.org/maven2/com/google/errorprone/error_prone_annotations)
 - exp4j (from http://www.objecthunter.net/exp4j)
@@ -258,16 +237,14 @@ The following software have components provided under the terms of this license:
 - org.apiguardian:apiguardian-api (from https://github.com/apiguardian-team/apiguardian)
 - org.opentest4j:opentest4j (from https://github.com/ota4j-team/opentest4j)
 - org.xmlunit:xmlunit-core (from http://www.xmlunit.org/, https://www.xmlunit.org/)
-- requests (from http://python-requests.org, https://requests.readthedocs.io)
+- powermock-module-junit4 (from http://www.powermock.org/)
 - resilience4j (from https://github.com/resilience4j/resilience4j, https://resilience4j.readme.io/, ttps://resilience4j.readme.io)
 - spring-boot-loader (from https://spring.io/projects/spring-boot)
 - springdoc-openapi-starter-common (from https://springdoc.org/)
 - springdoc-openapi-starter-webmvc-api (from https://springdoc.org/)
 - springdoc-openapi-starter-webmvc-ui (from https://springdoc.org/)
-- swagger-annotations (from https://github.com/swagger-api/swagger-core, https://repo1.maven.org/maven2/io/swagger/core/v3/swagger-annotations)
 - swagger-annotations-jakarta (from https://github.com/swagger-api/swagger-core)
 - swagger-core-jakarta (from https://github.com/swagger-api/swagger-core)
-- swagger-models (from https://github.com/swagger-api/swagger-core, https://repo1.maven.org/maven2/io/swagger/core/v3/swagger-models)
 - swagger-models-jakarta (from https://github.com/swagger-api/swagger-core)
 - tomcat-annotations-api (from http://tomcat.apache.org/, https://tomcat.apache.org/)
 - tomcat-embed-core (from http://tomcat.apache.org/)
@@ -283,6 +260,7 @@ The following software have components provided under the terms of this license:
 - ANTLR 4 Runtime (from https://www.antlr.org/)
 - Apache Log4j Core (from https://repo1.maven.org/maven2/org/apache/logging/log4j/log4j-core)
 - HdrHistogram (from http://hdrhistogram.github.io/HdrHistogram/)
+- Jackson-core (from http://wiki.fasterxml.com/JacksonHome, https://github.com/FasterXML/jackson-core)
 - Jodd Util (from https://util.jodd.org/)
 - LatencyUtils (from http://latencyutils.github.io/LatencyUtils/)
 - MinLog (from https://github.com/EsotericSoftware/minlog)
@@ -299,7 +277,7 @@ The following software have components provided under the terms of this license:
 - AspectJ Weaver (from http://www.aspectj.org, https://www.eclipse.org/aspectj/)
 - DSL Platform JSON (core) (from https://github.com/ngs-doo/dsl-json)
 - FindBugs-jsr305 (from http://findbugs.sourceforge.net/)
-- Google Auth Library for Java - Credentials (from https://github.com/googleapis/google-cloud-java, https://repo1.maven.org/maven2/com/google/auth/google-auth-library-credentials)
+- Google Auth Library for Java - Credentials (from https://github.com/googleapis/google-auth-library-java, https://repo1.maven.org/maven2/com/google/auth/google-auth-library-credentials)
 - Google Auth Library for Java - OAuth2 HTTP (from https://github.com/googleapis/google-cloud-java, https://repo1.maven.org/maven2/com/google/auth/google-auth-library-oauth2-http)
 - H2 Database Engine (from https://h2database.com)
 - Hamcrest (from http://hamcrest.org/JavaHamcrest/)
@@ -318,6 +296,13 @@ The following software have components provided under the terms of this license:
 - Redisson (from http://redisson.org, https://redisson.pro/)
 - ReflectASM (from https://github.com/EsotericSoftware/reflectasm)
 - Spring Core (from http://www.springframework.org, https://github.com/spring-projects/spring-framework, https://repo1.maven.org/maven2/org/springframework/spring-core)
+
+========================================================================
+BSL-1.0
+========================================================================
+The following software have components provided under the terms of this license:
+
+- Jackson-core (from http://wiki.fasterxml.com/JacksonHome, https://github.com/FasterXML/jackson-core)
 
 ========================================================================
 CC-BY-2.5
@@ -382,9 +367,7 @@ The following software have components provided under the terms of this license:
 
 - Apache TinkerPop :: Gremlin Driver (from https://repo1.maven.org/maven2/org/apache/tinkerpop/gremlin-driver)
 - H2 Database Engine (from https://h2database.com)
-- Logback Contrib :: JSON :: Classic (from https://repo1.maven.org/maven2/ch/qos/logback/contrib/logback-json-classic)
-- Logback Contrib :: JSON :: Core (from https://repo1.maven.org/maven2/ch/qos/logback/contrib/logback-json-core)
-- Logback Contrib :: Jackson (from https://repo1.maven.org/maven2/ch/qos/logback/contrib/logback-jackson)
+- JUnit Vintage Engine (from http://junit.org/junit5/, https://junit.org/junit5/)
 - Logback Core Module (from http://logback.qos.ch, https://repo1.maven.org/maven2/ch/qos/logback/logback-core)
 
 ========================================================================
@@ -400,6 +383,7 @@ The following software have components provided under the terms of this license:
 - JUnit Jupiter Params (from http://junit.org/junit5/, https://junit.org/junit5/)
 - JUnit Platform Commons (from http://junit.org/junit5/, https://junit.org/junit5/)
 - JUnit Platform Engine API (from http://junit.org/junit5/, https://junit.org/junit5/)
+- JUnit Vintage Engine (from http://junit.org/junit5/, https://junit.org/junit5/)
 - Jakarta Activation API (from https://github.com/eclipse-ee4j/jaf, https://github.com/jakartaee/jaf-api, https://repo1.maven.org/maven2/jakarta/activation/jakarta.activation-api)
 - Jakarta Annotations API (from https://projects.eclipse.org/projects/ee4j.ca)
 - Jakarta Messaging API (from https://projects.eclipse.org/projects/ee4j.jms)
@@ -444,9 +428,6 @@ The following software have components provided under the terms of this license:
 
 - Javassist (from http://www.javassist.org/, https://www.javassist.org/)
 - Logback Classic Module (from http://logback.qos.ch, https://repo1.maven.org/maven2/ch/qos/logback/logback-classic)
-- Logback Contrib :: JSON :: Classic (from https://repo1.maven.org/maven2/ch/qos/logback/contrib/logback-json-classic)
-- Logback Contrib :: JSON :: Core (from https://repo1.maven.org/maven2/ch/qos/logback/contrib/logback-json-core)
-- Logback Contrib :: Jackson (from https://repo1.maven.org/maven2/ch/qos/logback/contrib/logback-jackson)
 - Logback Core Module (from http://logback.qos.ch, https://repo1.maven.org/maven2/ch/qos/logback/logback-core)
 
 ========================================================================
@@ -481,6 +462,7 @@ The following software have components provided under the terms of this license:
 - Java Client Runtime for AutoRest (from https://github.com/Azure/autorest-clientruntime-for-java)
 - Java JWT (from http://www.jwt.io, https://github.com/auth0/java-jwt)
 - Lettuce (from http://github.com/lettuce-io/lettuce-core, http://github.com/mp911de/lettuce/wiki, https://github.com/lettuce-io/lettuce-core/wiki, https://github.com/redis/lettuce)
+- Logstash Logback Encoder (from https://github.com/logfellow/logstash-logback-encoder)
 - Microsoft Application Insights Java Agent (from https://github.com/Microsoft/ApplicationInsights-Java)
 - Microsoft Azure Identity Brokered Authentication Library (from https://github.com/Azure/azure-sdk-for-java)
 - Microsoft Azure Java Core Library (from https://github.com/Azure/azure-sdk-for-java)
@@ -512,12 +494,10 @@ The following software have components provided under the terms of this license:
 - Netty/Codec/HTTP (from http://netty.io/, https://repo1.maven.org/maven2/io/netty/netty-codec-http)
 - Netty/Common (from http://netty.io/, https://repo1.maven.org/maven2/io/netty/netty-common)
 - Project Lombok (from http://projectlombok.org, https://projectlombok.org, https://projectlombok.org/)
-- PyJWT (from http://github.com/jpadilla/pyjwt, https://pypi.org/project/PyJWT/)
 - SLF4J API Module (from http://www.slf4j.org, http://www.slf4j.org/)
 - SLF4J Simple Provider (from http://www.slf4j.org, http://www.slf4j.org/)
 - Spring Data for Azure Cosmos DB SQL API (from https://github.com/Azure/azure-sdk-for-java/tree/master/sdk/cosmos/azure-spring-data-cosmos, https://github.com/Azure/azure-sdk-for-java/tree/master/sdk/spring/azure-spring-data-cosmos)
 - adal4j (from https://github.com/AzureAD/azure-activedirectory-library-for-java)
-- botocore (from <https://github.com/boto/botocore>, https://github.com/boto/botocore)
 - javamsalruntime (from https://github.com/AzureAD/microsoft-authentication-library-for-cpp)
 - jwks-rsa-java (from https://github.com/auth0/jwks-rsa-java)
 - micrometer-commons (from https://github.com/micrometer-metrics/micrometer)
@@ -535,13 +515,6 @@ MPL-2.0
 The following software have components provided under the terms of this license:
 
 - H2 Database Engine (from https://h2database.com)
-
-========================================================================
-Python-2.0
-========================================================================
-The following software have components provided under the terms of this license:
-
-- argparse (from https://github.com/ThomasWaldmann/argparse/)
 
 ========================================================================
 SAX-PD
@@ -563,7 +536,7 @@ cc-pd
 The following software have components provided under the terms of this license:
 
 - Guava: Google Core Libraries for Java (from http://code.google.com/p/guava-libraries, https://github.com/google/guava, https://repo1.maven.org/maven2/com/google/guava/guava)
-- Netty/Codec (from http://netty.io/, https://repo1.maven.org/maven2/io/netty/netty-codec)
+- Netty/Codec/Base (from https://netty.io/)
 
 ========================================================================
 gpl-2.0-classpath

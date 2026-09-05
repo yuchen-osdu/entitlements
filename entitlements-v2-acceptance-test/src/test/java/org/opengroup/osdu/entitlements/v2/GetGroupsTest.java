@@ -29,7 +29,7 @@ public class GetGroupsTest extends BaseEntitlementsAcceptanceTest {
 
     @Test
     void shouldReturn200WhenMakingValidGetGroupsRequest() {
-        GroupsResponse response = entitlementsClient.listGroups(DEFAULT_USER).body();
+        GroupsResponse response = entitlementsClient.listGroups().body();
         // desId and memberEmail both identify the authenticated caller and must match.
         assertNotNull(response.principal().orElse(null));
         assertEquals(response.desId(), response.memberEmail());
@@ -38,7 +38,7 @@ public class GetGroupsTest extends BaseEntitlementsAcceptanceTest {
     @Test
     void should200ForGetGroupsWithRoleEnabled() {
         GroupsResponse response =
-            entitlementsClient.listGroups(DEFAULT_USER, Map.of("roleRequired", "true")).body();
+            entitlementsClient.listGroups(Map.of("roleRequired", "true")).body();
         assertEquals(response.desId(), response.memberEmail());
         // every returned group must carry role information
         assertTrue(Arrays.stream(response.groups())
