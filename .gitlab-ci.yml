@@ -4,8 +4,8 @@ variables:
   AZURE_TEST_SUBDIR: testing/entitlements-v2-test-azure
   SERVICE_JAVA_VERSION: "17"
 
-  CIMPL_OPENAPI_SPEC_PATH: docs/api/community/v2/openapi.yaml
-  CIMPL_OPENAPI_YAML_ROUTE: /api/entitlements/v2/api-docs.yaml
+  CIMPL_OPENAPI_CONFIG_ROUTE: /api/entitlements/v2/api-docs/swagger-config
+  SCHEMATHESIS_OPENAPI_YAML_ROUTE: /api/entitlements/v2/api-docs.yaml
 
   ACCEPTANCE_TEST_DIR: "entitlements-v2-acceptance-test"
 
