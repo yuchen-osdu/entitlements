@@ -20,20 +20,22 @@
 
   <modelVersion>4.0.0</modelVersion>
   <artifactId>entitlements-v2-azure</artifactId>
+  <version>0.31.0-SNAPSHOT</version>
   <description>Entitlements V2 service on Azure</description>
   <packaging>jar</packaging>
 
   <parent>
     <artifactId>entitlements-v2-service</artifactId>
     <groupId>org.opengroup.osdu.entitlements.v2</groupId>
-    <version>0.30.0-SNAPSHOT</version>
+    <version>0.31.0-SNAPSHOT</version>
     <relativePath>../../pom.xml</relativePath>
   </parent>
 
   <properties>
-    <core-lib-azure.version>2.5.7</core-lib-azure.version>
+    <core-lib-azure.version>3.0.1</core-lib-azure.version>
     <slf4j.version>2.0.17</slf4j.version>
     <gremlin.version>3.8.0</gremlin.version>
+    <java-jwt.version>4.5.0</java-jwt.version>
     <commons-configuration2.version>2.13.0</commons-configuration2.version>
     <!-- Test Versions -->
     <awaitility-test.version>3.1.6</awaitility-test.version>
@@ -48,6 +50,14 @@
   <dependencyManagement>
     <dependencies>
       <!-- BOMs listed in the order of their dependency hierarchy or importance.  -->
+      <!-- netty-bom first so lettuce 7.x gets Netty 4.2+ (core-lib-azure BOM below pins 4.1.x) -->
+      <dependency>
+        <groupId>io.netty</groupId>
+        <artifactId>netty-bom</artifactId>
+        <version>${netty.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
       <dependency>
         <groupId>org.opengroup.osdu</groupId>
         <artifactId>core-lib-azure</artifactId>
@@ -81,6 +91,15 @@
       <groupId>org.opengroup.osdu</groupId>
       <artifactId>core-lib-azure</artifactId>
       <version>${core-lib-azure.version}</version>
+    </dependency>
+    <!--
+        os-core-common 7.0.0 declares lettuce-core as provided. Spring Boot BOM
+        still manages lettuce-core (to 6.6.0.RELEASE, vulnerable per CVE-2024-47535),
+        so we declare it explicitly to win over Spring Boot's dependencyManagement.
+    -->
+    <dependency>
+      <groupId>io.lettuce</groupId>
+      <artifactId>lettuce-core</artifactId>
     </dependency>
 
     <!-- Spring Dependencies -->
@@ -145,6 +164,11 @@
       <groupId>org.opengroup.osdu.entitlements.v2</groupId>
       <artifactId>gremlin-shaded-fix</artifactId>
       <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.auth0</groupId>
+      <artifactId>java-jwt</artifactId>
+      <version>${java-jwt.version}</version>
     </dependency>
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
@@ -247,7 +271,7 @@
         <artifactId>maven-surefire-plugin</artifactId>
         <version>${surefire-plugin.version}</version>
         <configuration>
-          <argLine>@{argLine} --add-opens java.base/java.lang=ALL_UNNAMED</argLine>
+          <argLine>@{argLine} --add-opens java.base/java.lang=ALL-UNNAMED</argLine>
         </configuration>
       </plugin>
 

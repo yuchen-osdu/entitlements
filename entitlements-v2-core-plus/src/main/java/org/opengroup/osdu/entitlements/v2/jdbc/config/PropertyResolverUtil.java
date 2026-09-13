@@ -20,7 +20,11 @@ package org.opengroup.osdu.entitlements.v2.jdbc.config;
 import org.opengroup.osdu.core.common.partition.IPropertyResolver;
 import org.opengroup.osdu.entitlements.v2.jdbc.config.properties.EntConfigProperties;
 
-public class PropertyResolverUtil {
+public final class PropertyResolverUtil {
+
+  private PropertyResolverUtil() {
+    // Utility class; prevent instantiation.
+  }
 
   public static String getPartitionProperty(EntConfigProperties properties,
       IPropertyResolver resolver, String propertyName, String partitionId) {

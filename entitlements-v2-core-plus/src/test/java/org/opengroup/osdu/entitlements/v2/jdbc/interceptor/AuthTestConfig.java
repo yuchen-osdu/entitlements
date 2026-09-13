@@ -17,11 +17,14 @@
 
 package org.opengroup.osdu.entitlements.v2.jdbc.interceptor;
 
+import org.opengroup.osdu.core.common.logging.JaxRsDpsLog;
 import org.opengroup.osdu.core.common.model.http.DpsHeaders;
 import org.opengroup.osdu.entitlements.v2.jdbc.Utils;
 import org.opengroup.osdu.entitlements.v2.jdbc.config.EntOpenIDProviderConfig;
 import org.opengroup.osdu.entitlements.v2.jdbc.config.IDTokenValidatorFactory;
+import org.opengroup.osdu.entitlements.v2.jdbc.config.security.ExternalAuthConfiguration;
 import org.opengroup.osdu.entitlements.v2.jdbc.config.security.InternalAuthConfiguration;
+import org.mockito.Mockito;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.*;
 
@@ -36,6 +39,7 @@ import org.springframework.context.annotation.*;
           type = FilterType.ASSIGNABLE_TYPE,
           value = {
             IDTokenValidatorFactory.class,
+            ExternalAuthConfiguration.class,
             InternalAuthConfiguration.class,
             EntOpenIDProviderConfig.class
           })
@@ -55,7 +59,13 @@ public class AuthTestConfig {
 
   @Bean
   @Primary
+  public JaxRsDpsLog mockJaxRsDpsLog() {
+    return Mockito.mock(JaxRsDpsLog.class);
+  }
+
+  @Bean
+  @Primary
   public EntOpenIDProviderConfig getEntOpenIDProviderConfig() {
-    return new EntOpenIDProviderConfig();
+    return Mockito.mock(EntOpenIDProviderConfig.class);
   }
 }

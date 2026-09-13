@@ -22,28 +22,34 @@
   <modelVersion>4.0.0</modelVersion>
 
   <properties>
-    <java.version>17</java.version>
-    <maven.compiler.target>${java.version}</maven.compiler.target>
-    <maven.compiler.source>${java.version}</maven.compiler.source>
-    <postgresql.version>42.7.3</postgresql.version>
+    <postgresql.version>42.7.10</postgresql.version>
   </properties>
 
   <parent>
     <groupId>org.opengroup.osdu.entitlements.v2</groupId>
     <artifactId>entitlements-v2-service</artifactId>
-    <version>0.30.0-SNAPSHOT</version>
+    <version>0.31.0-SNAPSHOT</version>
     <relativePath>../../pom.xml</relativePath>
   </parent>
 
   <artifactId>entitlements-v2-jdbc</artifactId>
   <name>entitlements-v2-jdbc</name>
-  <version>0.30.0-SNAPSHOT</version>
+  <version>0.31.0-SNAPSHOT</version>
 
   <dependencies>
     <dependency>
       <groupId>org.opengroup.osdu.entitlements.v2</groupId>
       <artifactId>entitlements-v2-core-plus</artifactId>
-      <version>0.30.0-SNAPSHOT</version>
+      <version>0.31.0-SNAPSHOT</version>
+    </dependency>
+    <!--
+        os-core-common 7.0.0 declares lettuce-core as provided. Spring Boot BOM
+        still manages lettuce-core (to 6.6.0.RELEASE, vulnerable per CVE-2024-47535),
+        so we declare it explicitly to win over Spring Boot's dependencyManagement.
+    -->
+    <dependency>
+      <groupId>io.lettuce</groupId>
+      <artifactId>lettuce-core</artifactId>
     </dependency>
 
     <dependency>
@@ -58,17 +64,6 @@
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-annotations</artifactId>
     </dependency>
-    <dependency>
-      <groupId>ch.qos.logback.contrib</groupId>
-      <artifactId>logback-json-classic</artifactId>
-      <version>0.1.5</version>
-    </dependency>
-    <dependency>
-      <groupId>ch.qos.logback.contrib</groupId>
-      <artifactId>logback-jackson</artifactId>
-      <version>0.1.5</version>
-    </dependency>
-
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-test</artifactId>
@@ -88,26 +83,12 @@
     </dependency>
   </dependencies>
 
-  <dependencyManagement>
-    <dependencies>
-      <!-- https://mvnrepository.com/artifact/io.netty/netty-bom -->
-      <dependency>
-        <groupId>io.netty</groupId>
-        <artifactId>netty-bom</artifactId>
-        <version>4.1.128.Final</version>
-        <type>pom</type>
-        <scope>import</scope>
-      </dependency>
-
-    </dependencies>
-  </dependencyManagement>
   <build>
     <pluginManagement>
       <plugins>
         <plugin>
           <groupId>org.springframework.boot</groupId>
           <artifactId>spring-boot-maven-plugin</artifactId>
-          <version>3.2.2</version>
           <executions>
               <execution>
                   <goals>
@@ -145,7 +126,6 @@
       <plugin>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-maven-plugin</artifactId>
-        <version>3.2.2</version>
       </plugin>
       <plugin>
         <groupId>org.jacoco</groupId>

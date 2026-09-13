@@ -42,7 +42,7 @@ public class ListGroupOnBehalfOfTest extends BaseEntitlementsAcceptanceTest {
         List<Group> createdGroups = setup(MEMBER_EMAIL);
 
         GroupsResponse groups =
-            entitlementsClient.listMemberGroups(MEMBER_EMAIL, DEFAULT_USER, Map.of("type", "NONE")).body();
+            entitlementsClient.listMemberGroups(MEMBER_EMAIL, Map.of("type", "NONE")).body();
 
         assertEquals(MEMBER_EMAIL.toLowerCase(), groups.desId());
         assertEquals(MEMBER_EMAIL.toLowerCase(), groups.memberEmail());
@@ -57,7 +57,7 @@ public class ListGroupOnBehalfOfTest extends BaseEntitlementsAcceptanceTest {
         params.put("roleRequired", "true");
 
         GroupsResponse groups =
-            entitlementsClient.listMemberGroups(MEMBER_EMAIL, DEFAULT_USER, params).body();
+            entitlementsClient.listMemberGroups(MEMBER_EMAIL, params).body();
 
         assertEquals(MEMBER_EMAIL.toLowerCase(), groups.desId());
         assertEquals(MEMBER_EMAIL.toLowerCase(), groups.memberEmail());
@@ -69,21 +69,21 @@ public class ListGroupOnBehalfOfTest extends BaseEntitlementsAcceptanceTest {
     @Test
     void shouldReturn400WhenGroupsTypeIsMissed() {
         ClientException exception = assertThrows(ClientException.class,
-            () -> entitlementsClient.listMemberGroups(MEMBER_EMAIL, DEFAULT_USER, Map.of()));
+            () -> entitlementsClient.listMemberGroups(MEMBER_EMAIL, Map.of()));
         assertEquals(HttpStatus.SC_BAD_REQUEST, exception.getStatusCode());
     }
 
     @Test
     void shouldReturn400WhenGroupsTypeIsUnknown() {
         ClientException exception = assertThrows(ClientException.class,
-            () -> entitlementsClient.listMemberGroups(MEMBER_EMAIL, DEFAULT_USER, Map.of("type", "test")));
+            () -> entitlementsClient.listMemberGroups(MEMBER_EMAIL, Map.of("type", "test")));
         assertEquals(HttpStatus.SC_BAD_REQUEST, exception.getStatusCode());
     }
 
     @Test
     void shouldReturnBadRequestWhenMakingHttpRequestWithInvalidUrl() {
         ClientException exception = assertThrows(ClientException.class,
-            () -> entitlementsClient.listMemberGroups("%3B", DEFAULT_USER, Map.of("type", "NONE")));
+            () -> entitlementsClient.listMemberGroups("%3B", Map.of("type", "NONE")));
         assertEquals(HttpStatus.SC_BAD_REQUEST, exception.getStatusCode());
     }
 
@@ -102,11 +102,11 @@ public class ListGroupOnBehalfOfTest extends BaseEntitlementsAcceptanceTest {
 
     private List<Group> setup(String memberEmail) {
         List<Group> groups = new ArrayList<>();
-        groups.add(entitlementsClient.createGroup("group1-" + currentTime, "desc", DEFAULT_USER).body());
-        groups.add(entitlementsClient.createGroup("group2-" + currentTime, "desc", DEFAULT_USER).body());
-        groups.add(entitlementsClient.createGroup("group3-" + currentTime, "desc", DEFAULT_USER).body());
+        groups.add(entitlementsClient.createGroup("group1-" + currentTime, "desc").body());
+        groups.add(entitlementsClient.createGroup("group2-" + currentTime, "desc").body());
+        groups.add(entitlementsClient.createGroup("group3-" + currentTime, "desc").body());
         for (Group group : groups) {
-            entitlementsClient.addMemberToGroup(group.email(), memberEmail, "MEMBER", DEFAULT_USER);
+            entitlementsClient.addMemberToGroup(group.email(), memberEmail, "MEMBER");
         }
         return groups;
     }
