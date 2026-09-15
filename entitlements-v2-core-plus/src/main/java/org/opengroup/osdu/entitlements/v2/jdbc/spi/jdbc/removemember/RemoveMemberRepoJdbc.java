@@ -17,7 +17,6 @@
 
 package org.opengroup.osdu.entitlements.v2.jdbc.spi.jdbc.removemember;
 
-import com.google.common.collect.ImmutableSet;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -55,7 +54,7 @@ public class RemoveMemberRepoJdbc implements RemoveMemberRepo {
             return jdbcTemplateRunner.getAffectedMembersForGroup(memberNode);
         } else {
             executeRemoveMemberFromGroupOperation(groupNode, memberNode);
-            return ImmutableSet.of(memberNode.getNodeId());
+            return Set.of(memberNode.getNodeId());
         }
     }
 

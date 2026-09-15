@@ -28,7 +28,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.opengroup.osdu.core.common.logging.JaxRsDpsLog;
 import org.opengroup.osdu.core.common.model.http.AppException;
 import org.opengroup.osdu.core.common.model.http.DpsHeaders;
 import org.opengroup.osdu.entitlements.v2.jdbc.Utils;
@@ -66,7 +65,6 @@ public class ExternalAuthTest {
   @Mock private Object handler;
   @Mock private HttpServletRequest request;
   @Mock private HttpServletResponse response;
-  @MockBean private JaxRsDpsLog jaxRsDpsLog;
   @MockBean private EntOpenIDProviderConfig entOpenIDProviderConfig;
   @MockBean private IDTokenValidatorFactory tokenValidatorFactory;
   @Autowired private EntConfigProperties entConfigProperties;

@@ -17,7 +17,6 @@
 
 package org.opengroup.osdu.entitlements.v2.jdbc.spi.jdbc.renamegroup;
 
-import java.util.Collections;
 import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import org.opengroup.osdu.entitlements.v2.jdbc.exception.DatabaseAccessException;
