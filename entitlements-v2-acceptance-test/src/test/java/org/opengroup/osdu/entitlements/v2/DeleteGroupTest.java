@@ -35,20 +35,20 @@ public class DeleteGroupTest extends BaseEntitlementsAcceptanceTest {
      */
     @Test
     void shouldReturn204WhenMakingValidHttpRequest() {
-        Group group = entitlementsClient.createGroup("groupName-" + currentTime, "desc", DEFAULT_USER).body();
+        Group group = entitlementsClient.createGroup("groupName-" + currentTime, "desc").body();
 
         assertEquals(HttpStatus.SC_NO_CONTENT,
-            entitlementsClient.deleteGroup(group.email(), DEFAULT_USER).statusCode());
+            entitlementsClient.deleteGroup(group.email()).statusCode());
 
         ClientException exception = assertThrows(ClientException.class,
-            () -> entitlementsClient.listGroupMembers(group.email(), DEFAULT_USER));
+            () -> entitlementsClient.listGroupMembers(group.email()));
         assertEquals(HttpStatus.SC_NOT_FOUND, exception.getStatusCode());
     }
 
     @Test
     void shouldReturnBadRequestWhenMakingHttpRequestWithInvalidUrl() {
         ClientException exception = assertThrows(ClientException.class,
-            () -> entitlementsClient.deleteGroup("%25", DEFAULT_USER));
+            () -> entitlementsClient.deleteGroup("%25"));
         assertEquals(HttpStatus.SC_BAD_REQUEST, exception.getStatusCode());
     }
 }
