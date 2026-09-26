@@ -1,5 +1,0 @@
-{
-	"Users": ["users", "service.entitlements.user"],
-	"Indexer": ["service.indexer.admin","service.indexer.creator","service.indexer.viewer"],
-	"Schema": ["service.schema-service.editors", "service.schema-service.viewers"]
-}

@@ -15,6 +15,7 @@
 package org.opengroup.osdu.entitlements.v2.jdbc.spi.jdbc.creategroup;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.verify;
@@ -24,7 +25,9 @@ import static org.opengroup.osdu.entitlements.v2.jdbc.spi.jdbc.util.JdbcTestData
 import static org.opengroup.osdu.entitlements.v2.jdbc.spi.jdbc.util.JdbcTestDataProvider.getRequesterNode;
 import static org.opengroup.osdu.entitlements.v2.jdbc.spi.jdbc.util.JdbcTestDataProvider.getUsersGroupNode;
 
+import java.util.ArrayDeque;
 import java.util.Collections;
+import java.util.Deque;
 import java.util.List;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -38,6 +41,7 @@ import org.opengroup.osdu.entitlements.v2.model.EntityNode;
 import org.opengroup.osdu.entitlements.v2.model.Role;
 import org.opengroup.osdu.entitlements.v2.model.creategroup.CreateGroupRepoDto;
 import org.opengroup.osdu.entitlements.v2.service.GroupCacheService;
+import org.opengroup.osdu.entitlements.v2.spi.Operation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -150,5 +154,21 @@ public class CreateGroupJdbcTest {
 
         assertEquals(requesterNode.getNodeId(), actualOwner.getEmail());
         assertEquals(Role.OWNER.getValue(), actualOwner.getRole());
+    }
+
+    @Test
+    public void should_throwUnsupportedOperationException_whenCreateGroupWithExecutedCommandsDeque() {
+        EntityNode groupNode = getUsersGroupNode("x");
+        CreateGroupRepoDto createGroupRepoDto = CreateGroupRepoDto.builder()
+                .requesterNode(getRequesterNode())
+                .dataRootGroupNode(null)
+                .addDataRootGroup(false)
+                .partitionId(DATA_PARTITION_ID).build();
+        Deque<Operation> executedCommandsDeque = new ArrayDeque<>();
+
+        UnsupportedOperationException exception = assertThrows(UnsupportedOperationException.class,
+                () -> sut.createGroup(executedCommandsDeque, groupNode, createGroupRepoDto));
+        assertEquals("createGroup is not supported by the JDBC (core-plus) provider",
+                exception.getMessage());
     }
 }

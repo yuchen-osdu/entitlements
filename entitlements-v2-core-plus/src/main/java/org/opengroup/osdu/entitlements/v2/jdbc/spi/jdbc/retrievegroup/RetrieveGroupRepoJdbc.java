@@ -157,22 +157,20 @@ public class RetrieveGroupRepoJdbc implements RetrieveGroupRepo {
     return EntityNode.createNodeFromGroupEmail(memberId);
   }
 
-  //Left without implementation as not necessary for provider
   @Override
   public Set<EntityNode> getEntityNodes(String partitionId, List<String> nodeIds) {
-    return Collections.emptySet();
+    throw new UnsupportedOperationException("getEntityNodes is not supported by the JDBC (core-plus) provider");
   }
 
-  //Left without implementation as not necessary for provider
   @Override
   public Map<String, Set<String>> getUserPartitionAssociations(Set<String> userIds) {
-    return Collections.emptyMap();
+    throw new UnsupportedOperationException(
+        "getUserPartitionAssociations is not supported by the JDBC (core-plus) provider");
   }
 
-  //Left without implementation as not necessary for provider
   @Override
   public Set<EntityNode> getAllGroupNodes(String partitionId, String partitionGroupId) {
-    return Collections.emptySet();
+    throw new UnsupportedOperationException("getAllGroupNodes is not supported by the JDBC (core-plus) provider");
   }
 
   @Override
@@ -247,16 +245,17 @@ public class RetrieveGroupRepoJdbc implements RetrieveGroupRepo {
 
   @Override
   public List<ChildrenReference> loadDirectChildren(String partitionId, String... nodeId) {
-    //The method is not used in JDBC module and does not provide a solution
-    // to identify the type of the node.
-    //Should be reworked later
     List<Long> parentIds = groupRepository.findByEmail(nodeId[0]).stream()
         .map(GroupInfoEntity::getId)
         .toList();
 
+    if (parentIds.isEmpty()) {
+      return new ArrayList<>();
+    }
+
     List<ChildrenReference> children = groupRepository.findDirectChildren(parentIds).stream()
         .map(GroupInfoEntity::toChildrenReference)
-        .toList();
+        .collect(Collectors.toCollection(ArrayList::new));
     List<ChildrenReference> members = parentIds.stream()
         .flatMap(id -> memberRepository.findMembersByGroup(id).stream())
         .map(MemberInfoEntity::toChildrenReference)
@@ -279,22 +278,20 @@ public class RetrieveGroupRepoJdbc implements RetrieveGroupRepo {
         .collect(Collectors.toSet());
   }
 
-  //Left without implementation as not necessary for provider
   @Override
   public Set<String> getGroupOwners(String partitionId, String nodeId) {
-    return Collections.emptySet();
+    throw new UnsupportedOperationException("getGroupOwners is not supported by the JDBC (core-plus) provider");
   }
 
-  //Left without implementation as not necessary for provider
   @Override
   public Map<String, Integer> getAssociationCount(List<String> userIds) {
-    return Collections.emptyMap();
+    throw new UnsupportedOperationException("getAssociationCount is not supported by the JDBC (core-plus) provider");
   }
 
-  //Left without implementation as not necessary for provider
   @Override
   public Map<String, Integer> getAllUserPartitionAssociations() {
-    return Collections.emptyMap();
+    throw new UnsupportedOperationException(
+        "getAllUserPartitionAssociations is not supported by the JDBC (core-plus) provider");
   }
 
   @Override

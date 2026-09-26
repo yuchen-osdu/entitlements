@@ -4,17 +4,18 @@ Official documentation can be found at [https://osdu.pages.opengroup.org/platfor
 ## Running the Entitlements Service locally
 The Entitlements Service is a Maven multi-module project with each cloud implemention placed in its submodule.
 
+## Google Cloud
+
+The Google Cloud implementation has been moved to [gc-osdu-services](https://community.opengroup.org/osdu/platform/deployment-and-operations/base-containers-gcp/gc-osdu-services).
+
 ## AWS
 
-Instructions for running and testing this service can be found [here](./provider/entitlements-v2-aws/README.md)
+The AWS provider has been removed from this repository.
 
 ### Integration tests
 Instructions for running the Azure integration tests in local environment can be found [here][Azure documentation]
 
-Instructions for running the JDBC integration tests can be found [here][JDBC documentation].
-
 [Azure documentation]: testing/entitlements-v2-test-azure/README.md
-[JDBC documentation]: provider/entitlements-v2-jdbc/README.md
 
 
 ### Open API 3.0 - Swagger
@@ -32,4 +33,4 @@ All the Swagger and OpenAPI related common properties are managed here [swagger.
 
 ### AWS
 
-Instructions for running the AWS integration tests can be found [here](./provider/entitlements-v2-aws/README.md).
+The AWS provider has been removed from this repository.
