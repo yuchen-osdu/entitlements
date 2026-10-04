@@ -5,7 +5,6 @@ import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Contact;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.info.License;
-import io.swagger.v3.oas.models.media.ComposedSchema;
 import io.swagger.v3.oas.models.media.StringSchema;
 import io.swagger.v3.oas.models.parameters.Parameter;
 import io.swagger.v3.oas.models.security.SecurityRequirement;
@@ -13,7 +12,6 @@ import io.swagger.v3.oas.models.security.SecurityScheme;
 import io.swagger.v3.oas.models.servers.Server;
 import io.swagger.v3.oas.models.tags.Tag;
 import org.opengroup.osdu.core.common.model.http.DpsHeaders;
-import org.springdoc.core.customizers.OpenApiCustomizer;
 import org.springdoc.core.customizers.OperationCustomizer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -96,38 +94,4 @@ public class SwaggerConfiguration {
         };
     }
 
-    // Springdoc may emit `type: object` together with `anyOf` for composed properties,
-    // which can misrepresent union fields in generated OpenAPI clients; clear the type in this case.
-    @Bean
-    public OpenApiCustomizer stripObjectTypeFromAnyOfSchemas() {
-        return openApi -> {
-            if (openApi.getComponents() == null || openApi.getComponents().getSchemas() == null) {
-                return;
-            }
-
-            openApi.getComponents().getSchemas().values().forEach(schema -> {
-                if (schema == null || schema.getProperties() == null) {
-                    return;
-                }
-
-                for (Object property : schema.getProperties().values()) {
-                    if (property == null) {
-                        continue;
-                    }
-                    // NOTE: ComposedSchema is being phased out in swagger-core in favour of
-                    // calling Schema.getAnyOf() directly on a plain Schema instance.
-                    // This cast works with the pinned swagger-core 2.2.45 but will need to be
-                    // replaced with a Schema<?>-based approach when that version is bumped.
-                    if (!(property instanceof ComposedSchema composedSchema)) {
-                        continue;
-                    }
-                    if (composedSchema.getAnyOf() != null
-                            && !composedSchema.getAnyOf().isEmpty()
-                            && "object".equals(composedSchema.getType())) {
-                        composedSchema.setType(null);
-                    }
-                }
-            });
-        };
-    }
 }

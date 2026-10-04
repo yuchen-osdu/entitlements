@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.opengroup.osdu.entitlements.v2</groupId>
     <artifactId>entitlements-v2-acceptance-test</artifactId>
-    <version>0.30.0-SNAPSHOT</version>
+    <version>0.31.0-SNAPSHOT</version>
 
     <properties>
         <maven.compiler.target>17</maven.compiler.target>
@@ -18,7 +18,14 @@
         <dependency>
             <groupId>org.opengroup.osdu</groupId>
             <artifactId>os-core-test</artifactId>
-            <version>0.1.10</version>
+            <version>0.2.7</version>
+            <scope>test</scope>
+        </dependency>
+        <!-- os-core-test declares junit-jupiter-engine with test scope, so it is not transitive here. -->
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-engine</artifactId>
+            <version>5.14.4</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -26,6 +33,37 @@
             <artifactId>lombok</artifactId>
             <version>${lombok.version}</version>
             <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.httpcomponents.client5</groupId>
+            <artifactId>httpclient5</artifactId>
+            <version>5.2.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.opengroup.osdu</groupId>
+            <artifactId>os-core-common</artifactId>
+            <version>7.1.0</version>
+        </dependency>
+        <dependency>
+            <groupId>com.nimbusds</groupId>
+            <artifactId>oauth2-oidc-sdk</artifactId>
+            <version>11.37.1</version>
+        </dependency>
+        <dependency>
+            <groupId>io.qameta.allure</groupId>
+            <artifactId>allure-junit5</artifactId>
+            <version>2.31.0</version>
+        </dependency>
+        <!-- allure-junit-platform 2.31.0 brings junit-platform-launcher 1.10.3,
+             but os-core-test brings junit-platform-suite-engine 1.14.4. The old
+             launcher can't invoke the newer suite engine's discovery API, so
+             surefire fails with: "TestEngine with ID 'junit-platform-suite'
+             failed to discover tests". Pin launcher to match. -->
+        <dependency>
+            <groupId>org.junit.platform</groupId>
+            <artifactId>junit-platform-launcher</artifactId>
+            <version>1.14.4</version>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 

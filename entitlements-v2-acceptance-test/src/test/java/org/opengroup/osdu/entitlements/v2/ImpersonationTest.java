@@ -22,9 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Arrays;
 import org.apache.hc.core5.http.HttpStatus;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-import org.opengroup.osdu.core.test.auth.UserType;
 import org.opengroup.osdu.core.test.client.ClientException;
 import org.opengroup.osdu.core.test.client.HttpResponse;
 import org.opengroup.osdu.core.test.client.model.entitlements.Group;
@@ -43,10 +41,10 @@ public class ImpersonationTest extends BaseEntitlementsAcceptanceTest {
 
         // control random group with the member added
         String groupName = "groupname-" + System.currentTimeMillis();
-        Group group = entitlementsClient.createGroup(groupName, "desc", DEFAULT_USER).body();
-        entitlementsClient.addMemberToGroup(group.email(), memberEmail, "MEMBER", DEFAULT_USER);
+        Group group = entitlementsClient.createGroup(groupName, "desc").body();
+        entitlementsClient.addMemberToGroup(group.email(), memberEmail, "MEMBER");
 
-        HttpResponse<GroupsResponse> response = entitlementsClient.listGroupsOnBehalfOf(memberEmail, DEFAULT_USER);
+        HttpResponse<GroupsResponse> response = entitlementsClient.listGroupsOnBehalfOf(memberEmail);
         assertEquals(HttpStatus.SC_OK, response.statusCode());
         GroupsResponse groups = response.body();
         assertEquals(memberEmail, groups.memberEmail());
@@ -56,7 +54,7 @@ public class ImpersonationTest extends BaseEntitlementsAcceptanceTest {
             .anyMatch(groupName::equalsIgnoreCase);
         assertTrue(delegationGroupPresent);
 
-        entitlementsClient.removeMemberFromGroup(group.email(), memberEmail, DEFAULT_USER);
+        entitlementsClient.removeMemberFromGroup(group.email(), memberEmail);
     }
 
     @Test
@@ -65,37 +63,37 @@ public class ImpersonationTest extends BaseEntitlementsAcceptanceTest {
         ensureMember(groupEmail("users"), memberEmail);
         String impersonationGroup = groupEmail("users.datalake.impersonation");
         if (isMember(impersonationGroup, memberEmail)) {
-            entitlementsClient.removeMemberFromGroup(impersonationGroup, memberEmail, DEFAULT_USER);
+            entitlementsClient.removeMemberFromGroup(impersonationGroup, memberEmail);
         }
 
         ClientException exception = assertThrows(ClientException.class,
-            () -> entitlementsClient.listGroupsOnBehalfOf(memberEmail, DEFAULT_USER));
+            () -> entitlementsClient.listGroupsOnBehalfOf(memberEmail));
         assertEquals(HttpStatus.SC_FORBIDDEN, exception.getStatusCode());
     }
 
     @Test
     void shouldFailIfNoDelegationGroup() {
         ClientException exception = assertThrows(ClientException.class,
-            () -> entitlementsClient.listGroupsOnBehalfOf("no.matter@user.id", UserType.NO_ACCESS_USER));
+            () -> noAccessEntitlementsClient.listGroupsOnBehalfOf("no.matter@user.id"));
         assertEquals(HttpStatus.SC_FORBIDDEN, exception.getStatusCode());
     }
 
-    // TODO: migrate - requires the tenant service-account from the Partition service, for which
-    // os-core-test provides no typed client or ServiceType. Re-enable once partition lookup is
-    // available through the shared library.
-    @Disabled("Needs Partition service account lookup not yet supported by os-core-test")
     @Test
     void shouldFailIfTryToImpersonateTenantServiceAccount() {
+        String tenantServiceAccount = partitionClient.getServiceAccount(partitionId());
+        ClientException exception = assertThrows(ClientException.class,
+            () -> entitlementsClient.listGroupsOnBehalfOf(tenantServiceAccount));
+        assertEquals(HttpStatus.SC_FORBIDDEN, exception.getStatusCode());
     }
 
     private void ensureMember(String groupEmail, String memberEmail) {
         if (!isMember(groupEmail, memberEmail)) {
-            entitlementsClient.addMemberToGroup(groupEmail, memberEmail, "MEMBER", DEFAULT_USER);
+            entitlementsClient.addMemberToGroup(groupEmail, memberEmail, "MEMBER");
         }
     }
 
     private boolean isMember(String groupEmail, String memberEmail) {
-        GroupMember[] members = entitlementsClient.listGroupMembers(groupEmail, DEFAULT_USER).body().members();
+        GroupMember[] members = entitlementsClient.listGroupMembers(groupEmail).body().members();
         return Arrays.stream(members).anyMatch(m -> m.email().equals(memberEmail));
     }
 }

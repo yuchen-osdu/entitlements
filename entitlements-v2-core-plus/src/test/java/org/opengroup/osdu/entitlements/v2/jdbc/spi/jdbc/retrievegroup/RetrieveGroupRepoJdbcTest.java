@@ -40,13 +40,18 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.opengroup.osdu.entitlements.v2.jdbc.spi.jdbc.util.JdbcTestDataProvider.*;
 import static org.opengroup.osdu.entitlements.v2.jdbc.spi.jdbc.util.JdbcTestDataProvider.getUsersGroupNode;
 import static org.powermock.api.mockito.PowerMockito.when;
@@ -178,5 +183,168 @@ class RetrieveGroupRepoJdbcTest {
 
     assertEquals(1, parents.size());
     assertEquals(parentGroup.getNodeId(), parents.get(0).getId());
+  }
+
+  @Test
+  void shouldReturnDirectChildGroupsAndMembersWhenLoadDirectChildren() {
+    EntityNode parentGroup = getUsersGroupNode("parent");
+    GroupInfoEntity parentEntity = GroupInfoEntity.fromEntityNode(parentGroup);
+    parentEntity.setId(1L);
+
+    EntityNode childGroup1 = getUsersGroupNode("child1");
+    EntityNode childGroup2 = getUsersGroupNode("child2");
+    GroupInfoEntity childEntity1 = GroupInfoEntity.fromEntityNode(childGroup1);
+    GroupInfoEntity childEntity2 = GroupInfoEntity.fromEntityNode(childGroup2);
+
+    MemberInfoEntity member1 = MemberInfoEntity.builder()
+        .id(10L)
+        .email("member1@dp.group.com")
+        .partitionId(DATA_PARTITION_ID)
+        .role(Role.MEMBER.getValue())
+        .build();
+
+    when(groupRepository.findByEmail(parentGroup.getNodeId()))
+        .thenReturn(Collections.singletonList(parentEntity));
+    when(groupRepository.findDirectChildren(Collections.singletonList(1L)))
+        .thenReturn(Arrays.asList(childEntity1, childEntity2));
+    when(memberRepository.findMembersByGroup(1L))
+        .thenReturn(Collections.singletonList(member1));
+
+    List<ChildrenReference> children =
+        sut.loadDirectChildren(DATA_PARTITION_ID, parentGroup.getNodeId());
+
+    assertEquals(3, children.size());
+
+    List<String> childIds = children.stream().map(ChildrenReference::getId).toList();
+    assertTrue(childIds.contains(childGroup1.getNodeId()));
+    assertTrue(childIds.contains(childGroup2.getNodeId()));
+    assertTrue(childIds.contains("member1@dp.group.com"));
+
+    assertTrue(children.stream()
+        .filter(ChildrenReference::isGroup)
+        .map(ChildrenReference::getId)
+        .toList()
+        .containsAll(Arrays.asList(childGroup1.getNodeId(), childGroup2.getNodeId())));
+    assertTrue(children.stream().anyMatch(
+        ref -> "member1@dp.group.com".equals(ref.getId()) && !ref.isGroup()));
+  }
+
+  @Test
+  void shouldReturnOnlyChildGroupsWhenGroupHasNoMembers() {
+    EntityNode parentGroup = getUsersGroupNode("parent");
+    GroupInfoEntity parentEntity = GroupInfoEntity.fromEntityNode(parentGroup);
+    parentEntity.setId(1L);
+
+    EntityNode childGroup = getUsersGroupNode("child");
+    GroupInfoEntity childEntity = GroupInfoEntity.fromEntityNode(childGroup);
+
+    when(groupRepository.findByEmail(parentGroup.getNodeId()))
+        .thenReturn(Collections.singletonList(parentEntity));
+    when(groupRepository.findDirectChildren(Collections.singletonList(1L)))
+        .thenReturn(Collections.singletonList(childEntity));
+    when(memberRepository.findMembersByGroup(1L))
+        .thenReturn(Collections.emptyList());
+
+    List<ChildrenReference> children =
+        sut.loadDirectChildren(DATA_PARTITION_ID, parentGroup.getNodeId());
+
+    assertEquals(1, children.size());
+    assertEquals(childGroup.getNodeId(), children.get(0).getId());
+    assertTrue(children.get(0).isGroup());
+  }
+
+  @Test
+  void shouldReturnOnlyMembersWhenGroupHasNoChildGroups() {
+    EntityNode parentGroup = getUsersGroupNode("parent");
+    GroupInfoEntity parentEntity = GroupInfoEntity.fromEntityNode(parentGroup);
+    parentEntity.setId(1L);
+
+    MemberInfoEntity member1 = MemberInfoEntity.builder()
+        .id(10L)
+        .email("member1@dp.group.com")
+        .partitionId(DATA_PARTITION_ID)
+        .role(Role.MEMBER.getValue())
+        .build();
+
+    when(groupRepository.findByEmail(parentGroup.getNodeId()))
+        .thenReturn(Collections.singletonList(parentEntity));
+    when(groupRepository.findDirectChildren(Collections.singletonList(1L)))
+        .thenReturn(Collections.emptyList());
+    when(memberRepository.findMembersByGroup(1L))
+        .thenReturn(Collections.singletonList(member1));
+
+    List<ChildrenReference> children =
+        sut.loadDirectChildren(DATA_PARTITION_ID, parentGroup.getNodeId());
+
+    assertEquals(1, children.size());
+    assertEquals("member1@dp.group.com", children.get(0).getId());
+    assertFalse(children.get(0).isGroup());
+  }
+
+  @Test
+  void shouldReturnEmptyListWhenNodeDoesNotResolveToGroup() {
+    String unknownEmail = "not.a.group@dp.group.com";
+
+    when(groupRepository.findByEmail(unknownEmail)).thenReturn(Collections.emptyList());
+
+    List<ChildrenReference> children = sut.loadDirectChildren(DATA_PARTITION_ID, unknownEmail);
+
+    assertTrue(children.isEmpty());
+    // With no resolved group, the empty-parentIds short-circuit must fire: no
+    // child-group lookup (avoids the non-portable empty-IN query) and no member
+    // fan-out.
+    verify(groupRepository, never()).findDirectChildren(any());
+    verify(memberRepository, never()).findMembersByGroup(anyLong());
+  }
+
+  @Test
+  void getEntityNodes_shouldThrowUnsupportedOperation() {
+    List<String> nodeIds = Collections.emptyList();
+    UnsupportedOperationException exception = assertThrows(UnsupportedOperationException.class,
+        () -> sut.getEntityNodes(DATA_PARTITION_ID, nodeIds));
+    assertEquals("getEntityNodes is not supported by the JDBC (core-plus) provider",
+        exception.getMessage());
+  }
+
+  @Test
+  void getUserPartitionAssociations_shouldThrowUnsupportedOperation() {
+    Set<String> userIds = Collections.emptySet();
+    UnsupportedOperationException exception = assertThrows(UnsupportedOperationException.class,
+        () -> sut.getUserPartitionAssociations(userIds));
+    assertEquals("getUserPartitionAssociations is not supported by the JDBC (core-plus) provider",
+        exception.getMessage());
+  }
+
+  @Test
+  void getAllGroupNodes_shouldThrowUnsupportedOperation() {
+    UnsupportedOperationException exception = assertThrows(UnsupportedOperationException.class,
+        () -> sut.getAllGroupNodes(DATA_PARTITION_ID, "partitionGroupId"));
+    assertEquals("getAllGroupNodes is not supported by the JDBC (core-plus) provider",
+        exception.getMessage());
+  }
+
+  @Test
+  void getGroupOwners_shouldThrowUnsupportedOperation() {
+    UnsupportedOperationException exception = assertThrows(UnsupportedOperationException.class,
+        () -> sut.getGroupOwners(DATA_PARTITION_ID, "nodeId"));
+    assertEquals("getGroupOwners is not supported by the JDBC (core-plus) provider",
+        exception.getMessage());
+  }
+
+  @Test
+  void getAssociationCount_shouldThrowUnsupportedOperation() {
+    List<String> userIds = Collections.emptyList();
+    UnsupportedOperationException exception = assertThrows(UnsupportedOperationException.class,
+        () -> sut.getAssociationCount(userIds));
+    assertEquals("getAssociationCount is not supported by the JDBC (core-plus) provider",
+        exception.getMessage());
+  }
+
+  @Test
+  void getAllUserPartitionAssociations_shouldThrowUnsupportedOperation() {
+    UnsupportedOperationException exception = assertThrows(UnsupportedOperationException.class,
+        () -> sut.getAllUserPartitionAssociations());
+    assertEquals("getAllUserPartitionAssociations is not supported by the JDBC (core-plus) provider",
+        exception.getMessage());
   }
 }

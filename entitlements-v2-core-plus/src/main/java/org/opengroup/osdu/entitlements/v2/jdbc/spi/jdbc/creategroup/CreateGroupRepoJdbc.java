@@ -17,8 +17,6 @@
 
 package org.opengroup.osdu.entitlements.v2.jdbc.spi.jdbc.creategroup;
 
-import com.google.common.collect.ImmutableSet;
-import java.util.Collections;
 import java.util.Deque;
 import java.util.Optional;
 import java.util.Set;
@@ -57,7 +55,7 @@ public class CreateGroupRepoJdbc implements CreateGroupRepo {
 
 		try {
 			executeCreateGroupOperation(groupNode, createGroupRepoDto);
-			return ImmutableSet.of(createGroupRepoDto.getRequesterNode().getNodeId());
+			return Set.of(createGroupRepoDto.getRequesterNode().getNodeId());
 		} catch (DuplicateKeyException e) {
 			throw new DatabaseAccessException(HttpStatus.CONFLICT, "This group already exists");
 		} catch (Exception e) {
@@ -71,7 +69,8 @@ public class CreateGroupRepoJdbc implements CreateGroupRepo {
 	@Override
 	public Set<String> createGroup(Deque<Operation> executedCommandsDeque, EntityNode groupNode,
 			CreateGroupRepoDto createGroupRepoDto) {
-		return Collections.emptySet();
+		throw new UnsupportedOperationException(
+			"createGroup is not supported by the JDBC (core-plus) provider");
 	}
 
 	private void executeCreateGroupOperation(EntityNode groupNode, CreateGroupRepoDto createGroupRepoDto){
