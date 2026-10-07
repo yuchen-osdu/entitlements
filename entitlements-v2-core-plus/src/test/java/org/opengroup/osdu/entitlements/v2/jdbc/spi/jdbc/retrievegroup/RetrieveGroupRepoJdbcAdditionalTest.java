@@ -253,6 +253,14 @@ class RetrieveGroupRepoJdbcAdditionalTest {
     }
 
     @Test
+    void getGroupsInPartition_negativeCursor_throwsAppException400() {
+        AppException ex = assertThrows(AppException.class,
+                () -> sut.getGroupsInPartition(PARTITION_ID, GroupType.USER, "-58800", 10));
+        assertEquals(400, ex.getError().getCode());
+        assertEquals("Malformed cursor, must be integer value", ex.getError().getMessage());
+    }
+
+    @Test
     void groupExistenceValidation_missingGroup_throwsDatabaseAccessExceptionWith404() {
         // Reads the not-found path via the shared setUp domain mock — no findByEmail hits => 404.
         when(groupRepository.findByEmail(anyString())).thenReturn(Collections.emptyList());

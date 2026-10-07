@@ -133,6 +133,12 @@ public class UpdateGroupApiTests {
     }
 
     @Test
+    public void shouldThrowBadRequestWhenOperationElementIsNull() throws Exception {
+        String groupEmail = "users.common.test@common.contoso.com";
+        performRequestRaw("[null]", groupEmail).andExpect(status().isBadRequest());
+    }
+
+    @Test
     public void should_callService_withExpectedInputs() throws Exception {
         String groupEmail = "users.COMMON.test@common.contoso.com";
         String newGroupName = "users.TEST";
@@ -146,13 +152,17 @@ public class UpdateGroupApiTests {
     }
 
     private ResultActions performRequest(List<UpdateGroupOperation> updateGroupRequest, String groupEmail) throws Exception {
+        return performRequestRaw(objectMapper.writeValueAsString(updateGroupRequest), groupEmail);
+    }
+
+    private ResultActions performRequestRaw(String body, String groupEmail) throws Exception {
         return mockMvc.perform(patch("/groups/{group_email}", groupEmail)
                 .contentType(MediaType.APPLICATION_JSON)
                 .characterEncoding("UTF8")
                 .header(DpsHeaders.AUTHORIZATION, "Bearer token")
                 .header(DpsHeaders.DATA_PARTITION_ID, "common")
                 .header(DpsHeaders.USER_ID,"a@b.com")
-                .content(objectMapper.writeValueAsString(updateGroupRequest)));
+                .content(body));
     }
 
     private List<UpdateGroupOperation> getRequestBody(String operation, String path, String... value) {

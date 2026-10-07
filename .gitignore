@@ -15,3 +15,10 @@
 *.env
 .envrc
 .github/copilot-instructions.md
+
+# Schemathesis
+schemathesis-tests/output/
+__pycache__
+
+schemathesis-tests/.token
+schemathesis-tests/.schemathesis/
