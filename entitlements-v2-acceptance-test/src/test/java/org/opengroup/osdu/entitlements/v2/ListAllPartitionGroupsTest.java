@@ -53,7 +53,7 @@ public class ListAllPartitionGroupsTest extends BaseEntitlementsAcceptanceTest {
         params.put("limit", "10");
         params.put("type", "service");
         GroupsInPartitionResponse groups =
-            entitlementsClient.listAllGroupsInPartition(DEFAULT_USER, params).body();
+            entitlementsClient.listAllGroupsInPartition(params).body();
         assertEquals(10, groups.groups().length);
     }
 
@@ -78,14 +78,14 @@ public class ListAllPartitionGroupsTest extends BaseEntitlementsAcceptanceTest {
     private void assertGroupsStartWithType(GroupType groupType) {
         String type = groupType.toString().toLowerCase();
         GroupsInPartitionResponse groups =
-            entitlementsClient.listAllGroupsInPartition(DEFAULT_USER, Map.of("type", type)).body();
+            entitlementsClient.listAllGroupsInPartition(Map.of("type", type)).body();
         assertTrue(Arrays.stream(groups.groups()).map(Group::email).allMatch(email -> email.startsWith(type)),
             "All returned groups should start with " + type);
     }
 
     private void assertBadRequest(Map<String, String> params) {
         ClientException exception = assertThrows(ClientException.class,
-            () -> entitlementsClient.listAllGroupsInPartition(DEFAULT_USER, params));
+            () -> entitlementsClient.listAllGroupsInPartition(params));
         assertEquals(HttpStatus.SC_BAD_REQUEST, exception.getStatusCode());
     }
 }

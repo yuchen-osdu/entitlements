@@ -9,6 +9,7 @@ import org.opengroup.osdu.core.common.model.http.AppError;
 import org.opengroup.osdu.core.common.model.http.AppException;
 import org.opengroup.osdu.core.common.partition.PartitionException;
 import org.opengroup.osdu.entitlements.v2.validation.PartitionHeaderValidationService;
+import org.springframework.beans.TypeMismatchException;
 import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.Ordered;
@@ -17,12 +18,17 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.lang.NonNull;
+import org.springframework.lang.Nullable;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.context.request.ServletWebRequest;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.ValidationException;
 import java.io.IOException;
 import java.nio.file.AccessDeniedException;
@@ -59,9 +65,64 @@ public class SpringExceptionMapper extends ResponseEntityExceptionHandler {
     }
 
     @Override
+    @NonNull
+    protected ResponseEntity<Object> handleHttpMessageNotReadable(
+            @NonNull HttpMessageNotReadableException e,
+            @NonNull HttpHeaders headers,
+            @NonNull HttpStatusCode status,
+            @NonNull WebRequest request) {
+        return this.getErrorResponse(
+                new AppException(HttpStatus.BAD_REQUEST.value(), "Bad Request", "Failed to read request", e));
+    }
+
+    @Override
+    @NonNull
+    protected ResponseEntity<Object> handleTypeMismatch(
+            @NonNull TypeMismatchException e,
+            @NonNull HttpHeaders headers,
+            @NonNull HttpStatusCode status,
+            @NonNull WebRequest request) {
+        return this.getErrorResponse(
+                new AppException(HttpStatus.BAD_REQUEST.value(), "Bad Request",
+                        "Invalid parameters were given on request", e));
+    }
+
+    @Override
     protected ResponseEntity<Object> handleMissingServletRequestParameter(MissingServletRequestParameterException ex, HttpHeaders headers, HttpStatusCode status,
         WebRequest request) {
         return this.getErrorResponse(new AppException(HttpStatus.BAD_REQUEST.value(), HttpStatus.BAD_REQUEST.getReasonPhrase(), "Invalid filter"));
+    }
+
+    /**
+     * Catch-all for Spring MVC exceptions not given a dedicated override
+     * (415, 405, 406, MissingPathVariable, etc.).
+     * <p>
+     * {@code ResponseEntityExceptionHandler} always builds {@code ProblemDetail}
+     * bodies, so {@code spring.mvc.problemdetails.enabled=false} has no effect
+     * when this advice is present. Route everything through {@link AppError}.
+     */
+    @Override
+    @Nullable
+    protected ResponseEntity<Object> handleExceptionInternal(
+            @NonNull Exception ex,
+            @Nullable Object body,
+            @NonNull HttpHeaders headers,
+            @NonNull HttpStatusCode statusCode,
+            @NonNull WebRequest request) {
+        if (request instanceof ServletWebRequest servletWebRequest) {
+            HttpServletResponse response = servletWebRequest.getResponse();
+            if (response != null && response.isCommitted()) {
+                return null;
+            }
+        }
+
+        HttpStatus resolved = HttpStatus.resolve(statusCode.value());
+        if (resolved == null) {
+            resolved = HttpStatus.INTERNAL_SERVER_ERROR;
+        }
+        String message = ex.getMessage() != null ? ex.getMessage() : resolved.getReasonPhrase();
+        return this.getErrorResponse(
+                new AppException(statusCode.value(), resolved.getReasonPhrase(), message, ex));
     }
 
     @ExceptionHandler({ValidationException.class, JsonProcessingException.class, UnrecognizedPropertyException.class})

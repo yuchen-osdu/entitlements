@@ -13,7 +13,7 @@ public class UpdateGroupPathValidator implements ConstraintValidator<ValidUpdate
     public boolean isValid(String path, ConstraintValidatorContext context) {
         context.disableDefaultConstraintViolation();
 
-        if (!path.equalsIgnoreCase("/name") && !path.equalsIgnoreCase("/appIds")) {
+        if (path == null || (!path.equalsIgnoreCase("/name") && !path.equalsIgnoreCase("/appIds"))) {
             context.buildConstraintViolationWithTemplate("Invalid Update Group Path Provided.")
                     .addConstraintViolation();
             return false;

@@ -2,6 +2,7 @@ package org.opengroup.osdu.entitlements.v2.api;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -30,6 +31,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import java.util.List;
 
 @Validated
@@ -57,8 +59,18 @@ public class UpdateGroupApi {
     })
     @PatchMapping("/groups/{group_email}")
     @PreAuthorize("@authorizationFilter.hasAnyPermission('" + AppProperties.OPS + "','" + AppProperties.ADMIN + "','" + AppProperties.USERS + "')")
-    public ResponseEntity<UpdateGroupResponseDto> updateGroup(@Parameter(description = "Group Email")  @Valid @PathVariable("group_email") String existingGroupEmail,
-                                                              @Valid @RequestBody List<UpdateGroupOperation> updateGroupRequest) {
+    public ResponseEntity<UpdateGroupResponseDto> updateGroup(@Parameter(description = "Group Email")
+                                                              @Valid @PathVariable("group_email") String existingGroupEmail,
+                                                              @Valid @RequestBody
+                                                              @ArraySchema(
+                                                                      minItems = 1,
+                                                                      maxItems = 2,
+                                                                      schema = @Schema(
+                                                                              implementation = UpdateGroupOperation.class,
+                                                                              nullable = false
+                                                                      )
+                                                              )
+                                                              List<@NotNull @Valid UpdateGroupOperation> updateGroupRequest) {
         performRequestBodyValidation(updateGroupRequest);
 
         String partitionId = requestInfo.getHeaders().getPartitionId();
@@ -87,10 +99,18 @@ public class UpdateGroupApi {
     }
 
     private void performRequestBodyValidation(List<UpdateGroupOperation> requestBody) {
+        if (requestBody == null || requestBody.isEmpty()) {
+            throw new AppException(HttpStatus.BAD_REQUEST.value(), HttpStatus.BAD_REQUEST.getReasonPhrase(),
+                    "Invalid number of operation provided, only rename and appIds update are allowed.");
+        }
         if (requestBody.size() > 2) {
             throw new AppException(HttpStatus.BAD_REQUEST.value(), HttpStatus.BAD_REQUEST.getReasonPhrase(), "Invalid number of operation provided, only rename and appIds update are allowed.");
         }
         for (UpdateGroupOperation operation : requestBody) {
+            if (operation == null || operation.getPath() == null || operation.getValue() == null) {
+                throw new AppException(HttpStatus.BAD_REQUEST.value(), HttpStatus.BAD_REQUEST.getReasonPhrase(),
+                        "Invalid update group operation provided.");
+            }
             if (operation.getPath().equalsIgnoreCase("/name") && operation.getValue().size() > 1) {
                 throw new AppException(HttpStatus.BAD_REQUEST.value(), HttpStatus.BAD_REQUEST.getReasonPhrase(), "Invalid number of group name provided.");
             }
@@ -99,7 +119,7 @@ public class UpdateGroupApi {
 
     private UpdateGroupOperation getRenameOperation(List<UpdateGroupOperation> request) {
         for (UpdateGroupOperation op : request) {
-            if (op.getPath().equalsIgnoreCase("/name")) {
+            if (op != null && op.getPath() != null && op.getPath().equalsIgnoreCase("/name")) {
                 return op;
             }
         }
@@ -108,7 +128,7 @@ public class UpdateGroupApi {
 
     private UpdateGroupOperation getAppIdsUpdateOperation(List<UpdateGroupOperation> request) {
         for (UpdateGroupOperation op : request) {
-            if (op.getPath().equalsIgnoreCase("/appIds")) {
+            if (op != null && op.getPath() != null && op.getPath().equalsIgnoreCase("/appIds")) {
                 return op;
             }
         }

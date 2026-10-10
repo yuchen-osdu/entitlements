@@ -15,6 +15,7 @@
 package org.opengroup.osdu.entitlements.v2.jdbc.spi.jdbc.addmember;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.opengroup.osdu.entitlements.v2.jdbc.spi.jdbc.util.JdbcTestDataProvider.DATA_PARTITION_ID;
@@ -22,7 +23,9 @@ import static org.opengroup.osdu.entitlements.v2.jdbc.spi.jdbc.util.JdbcTestData
 import static org.opengroup.osdu.entitlements.v2.jdbc.spi.jdbc.util.JdbcTestDataProvider.getMemberNode;
 import static org.powermock.api.mockito.PowerMockito.when;
 
+import java.util.ArrayDeque;
 import java.util.Collections;
+import java.util.Deque;
 import java.util.HashSet;
 import java.util.List;
 import org.junit.Test;
@@ -37,6 +40,7 @@ import org.opengroup.osdu.entitlements.v2.model.EntityNode;
 import org.opengroup.osdu.entitlements.v2.model.NodeType;
 import org.opengroup.osdu.entitlements.v2.model.Role;
 import org.opengroup.osdu.entitlements.v2.model.addmember.AddMemberRepoDto;
+import org.opengroup.osdu.entitlements.v2.spi.Operation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -177,5 +181,22 @@ public class AddMemberJdbcTest{
 		GroupInfoEntity actualMember = actual.get(0);
 
 		assertEquals(secondGroupNode.getNodeId(), actualMember.getEmail());
+	}
+
+	@Test
+	public void should_throwUnsupportedOperationException_whenAddMemberWithExecutedCommandsDeque() {
+		EntityNode groupNode = getDataViewersGroupNode("x");
+		AddMemberRepoDto addMemberRepoDto = AddMemberRepoDto.builder()
+				.memberNode(getMemberNode("member"))
+				.role(Role.MEMBER)
+				.existingParents(new HashSet<>())
+				.partitionId(DATA_PARTITION_ID)
+				.build();
+		Deque<Operation> executedCommands = new ArrayDeque<>();
+
+		UnsupportedOperationException exception = assertThrows(UnsupportedOperationException.class,
+				() -> sut.addMember(executedCommands, groupNode, addMemberRepoDto));
+		assertEquals("addMember is not supported by the JDBC (core-plus) provider",
+				exception.getMessage());
 	}
 }

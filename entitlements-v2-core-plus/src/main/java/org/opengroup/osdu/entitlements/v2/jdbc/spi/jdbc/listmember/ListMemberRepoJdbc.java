@@ -20,7 +20,6 @@ package org.opengroup.osdu.entitlements.v2.jdbc.spi.jdbc.listmember;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.opengroup.osdu.entitlements.v2.jdbc.exception.DatabaseAccessException;
 import org.opengroup.osdu.entitlements.v2.jdbc.model.GroupInfoEntity;
@@ -52,8 +51,8 @@ public class ListMemberRepoJdbc implements ListMemberRepo {
                 Collections.singletonList(groupInfoEntity.getId()));
 
         List<ChildrenReference> result = new ArrayList<>();
-        result.addAll(memberInfos.stream().map(MemberInfoEntity::toChildrenReference).collect(Collectors.toList()));
-        result.addAll(groupInfos.stream().map(GroupInfoEntity::toChildrenReference).collect(Collectors.toList()));
+        result.addAll(memberInfos.stream().map(MemberInfoEntity::toChildrenReference).toList());
+        result.addAll(groupInfos.stream().map(GroupInfoEntity::toChildrenReference).toList());
 
         return result;
     }

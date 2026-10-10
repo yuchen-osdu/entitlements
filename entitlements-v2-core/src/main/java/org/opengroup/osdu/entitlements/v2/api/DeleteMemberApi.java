@@ -15,6 +15,7 @@ import org.opengroup.osdu.entitlements.v2.AppProperties;
 import org.opengroup.osdu.entitlements.v2.model.deletemember.DeleteMemberDto;
 import org.opengroup.osdu.entitlements.v2.service.DeleteMemberService;
 import org.opengroup.osdu.entitlements.v2.util.RequestInfoUtilService;
+import org.opengroup.osdu.entitlements.v2.validation.ApiInputValidation;
 import org.opengroup.osdu.entitlements.v2.validation.PartitionHeaderValidationService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -46,7 +47,8 @@ public class DeleteMemberApi {
     })
     @DeleteMapping("/members/{member_email}")
     @PreAuthorize("@authorizationFilter.hasAnyPermission('" + AppProperties.OPS + "')")
-    public ResponseEntity<Void> deleteMember(@Parameter(description = "Member Email") @PathVariable("member_email") String memberEmail) {
+    public ResponseEntity<Void> deleteMember(@Parameter(description = "Member Email")
+                                             @PathVariable("member_email") String memberEmail) {
         String partitionId = requestInfo.getHeaders().getPartitionId();
         partitionHeaderValidationService.validateSinglePartitionProvided(partitionId);
         deleteMemberService.deleteMember(buildDeleteMemberDto(memberEmail, partitionId));

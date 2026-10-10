@@ -19,6 +19,7 @@ import org.opengroup.osdu.entitlements.v2.model.*;
 import org.opengroup.osdu.entitlements.v2.model.listgroup.ListGroupsOfPartitionDto;
 import org.opengroup.osdu.entitlements.v2.model.memberscount.MembersCountResponseDto;
 import org.opengroup.osdu.entitlements.v2.spi.retrievegroup.RetrieveGroupRepo;
+import org.opengroup.osdu.entitlements.v2.validation.ApiInputValidation;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Repository;
 
@@ -202,14 +203,7 @@ public class RetrieveGroupRepoGremlin implements RetrieveGroupRepo {
     @Override
     public ListGroupsOfPartitionDto getGroupsInPartition(String dataPartitionId, GroupType groupType, String cursor, Integer limit) {
 
-        int offsetValue = 0;
-        if (Objects.nonNull(cursor) && !cursor.isEmpty()) {
-            try {
-                offsetValue = Integer.parseInt(cursor);
-            } catch (NumberFormatException e) {
-                throw new AppException(HttpStatus.BAD_REQUEST.value(), HttpStatus.BAD_REQUEST.getReasonPhrase(), "Malformed cursor, must be integer value");
-            }
-        }
+        int offsetValue = ApiInputValidation.parseNonNegativeCursorOffset(cursor);
 
         Traversal<Vertex, Vertex> traversal = gremlinConnector.getGraphTraversalSource().V()
                 .has(VertexPropertyNames.DATA_PARTITION_ID, dataPartitionId)
