@@ -26,13 +26,13 @@ import org.opengroup.osdu.core.common.partition.IPartitionProvider;
 import org.opengroup.osdu.entitlements.v2.jdbc.interceptor.authenticator.IAuthenticator;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.Configuration;
+import org.springframework.boot.test.context.TestConfiguration;
 
 @ComponentScan(
     value = {
         "org.opengroup.osdu.entitlements.v2.jdbc.spi.jdbc"
     })
-@Configuration
+@TestConfiguration
 public class SpiJdbcTestConfig {
 
     @Bean

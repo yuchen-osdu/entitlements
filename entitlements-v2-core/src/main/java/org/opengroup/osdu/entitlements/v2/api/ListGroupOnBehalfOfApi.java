@@ -18,6 +18,7 @@ import org.opengroup.osdu.entitlements.v2.model.listgroup.ListGroupOnBehalfOfSer
 import org.opengroup.osdu.entitlements.v2.model.listgroup.ListGroupResponseDto;
 import org.opengroup.osdu.entitlements.v2.model.listgroup.ListGroupsOfPartitionDto;
 import org.opengroup.osdu.entitlements.v2.service.ListGroupOnBehalfOfService;
+import org.opengroup.osdu.entitlements.v2.validation.ApiInputValidation;
 import org.opengroup.osdu.entitlements.v2.validation.PartitionHeaderValidationService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -55,8 +56,10 @@ public class ListGroupOnBehalfOfApi {
     })
     @GetMapping("/members/{member_email}/groups")
     @PreAuthorize("@authorizationFilter.hasAnyPermission('" + AppProperties.OPS + "', '" + AppProperties.ADMIN + "')")
-    public ResponseEntity<ListGroupResponseDto> listGroupsOnBehalfOf(@Parameter(description = "Member Email") @PathVariable("member_email") String memberId,
-        @Parameter(description = "Type of the Group. Allowable Values = \"NONE,DATA,USER,SERVICE\"", example = "NONE") @RequestParam(name = "type") String type,
+    public ResponseEntity<ListGroupResponseDto> listGroupsOnBehalfOf(
+        @Parameter(description = "Member Email")
+        @PathVariable("member_email") String memberId,
+        @Parameter(description = "Type of the Group. Documented as GroupType enum; runtime accepts the same values case-insensitively.", schema = @Schema(implementation = GroupType.class), example = "NONE") @RequestParam(name = "type") String type,
         @Parameter(description = "App Id")  @RequestParam(name = "appid", required = false) String appId, @RequestParam(name="roleRequired", required = false, defaultValue = "false") Boolean roleRequired) {
 
         memberId = memberId.toLowerCase();
@@ -90,9 +93,11 @@ public class ListGroupOnBehalfOfApi {
     @GetMapping("/groups/all")
     @PreAuthorize("@authorizationFilter.hasAnyPermission('" + AppProperties.OPS + "', '" + AppProperties.ADMIN + "')")
     public ResponseEntity<ListGroupsOfPartitionDto> listAllPartitionGroups(
-        @Parameter(description = "Type of the Group. Allowable Values = \"NONE,DATA,USER,SERVICE\"", example = "NONE")
+        @Parameter(description = "Type of the Group. Documented as GroupType enum; runtime accepts the same values case-insensitively.", schema = @Schema(implementation = GroupType.class), example = "NONE")
         @RequestParam(name = "type") String type,
-        @Parameter(description = "cursor") @RequestParam(name = "cursor", required = false) String cursor,
+        @Parameter(description = "Pagination cursor: non-negative integer offset, or empty for 0. Invalid values return 400.")
+        @Schema(type = "string", pattern = ApiInputValidation.CURSOR_PATTERN)
+        @RequestParam(name = "cursor", required = false) String cursor,
         @Parameter(description = "limit", example = "100")
         @RequestParam(name = "limit", required = false, defaultValue = "100") @Min(1) Integer limit
     ) {

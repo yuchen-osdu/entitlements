@@ -22,7 +22,6 @@ trigger:
       - /**/*.md
       - .gitignore
       - /docs
-      - /provider/entitlements-v2-gcp
 
 resources:
   repositories:

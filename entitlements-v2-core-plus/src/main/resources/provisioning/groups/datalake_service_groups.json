@@ -1073,6 +1073,51 @@
           "name": "users.datalake.admins"
         }
       ]
+    },
+    {
+      "name": "service.pws.viewer",
+      "description": "The viewer of the Project and Workflow service",
+      "members": [
+        {
+          "name": "users.datalake.viewers"
+        },
+        {
+          "name": "users.datalake.editors"
+        },
+        {
+          "name": "users.datalake.admins"
+        },
+        {
+          "name": "users.datalake.ops"
+        }
+      ]
+    },
+    {
+      "name": "service.pws.creator",
+      "description": "The creator of the Project and Workflow service",
+      "members": [
+        {
+          "name": "users.datalake.editors"
+        },
+        {
+          "name": "users.datalake.admins"
+        },
+        {
+          "name": "users.datalake.ops"
+        }
+      ]
+    },
+    {
+      "name": "service.pws.admin",
+      "description": "The admin of the Project and Workflow service",
+      "members": [
+        {
+          "name": "users.datalake.admins"
+        },
+        {
+          "name": "users.datalake.ops"
+        }
+      ]
     }
   ]
 }

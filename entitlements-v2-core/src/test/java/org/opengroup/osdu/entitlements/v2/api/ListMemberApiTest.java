@@ -70,7 +70,7 @@ public class ListMemberApiTest {
         tenantInfo.setDataPartitionId("common");
         tenantInfo.setServiceAccount("internal-service-account");
         when(tenantFactory.getTenantInfo("common")).thenReturn(tenantInfo);
-        when(authService.isCurrentUserAuthorized(any(),any())).thenReturn(true);
+        when(authService.isCurrentUserAuthorized(any(), any(String[].class))).thenReturn(true);
     }
 
     @Test

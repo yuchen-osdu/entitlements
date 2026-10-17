@@ -12,8 +12,9 @@ info can be found [here][JDBC documentation].
 
 In order to run this service from a local machine to Cloud Run, you need the following:
 
-- [Maven 3.8.0+](https://maven.apache.org/download.cgi)
-- [AdoptOpenJDK17](https://adoptopenjdk.net/)
+- [Maven 3.9.16+](https://maven.apache.org/download.cgi)
+- [JDK 25](https://adoptium.net/)
+- [Lombok 1.18.40 or later](https://projectlombok.org/setup/maven)
 - [Google Cloud SDK](https://cloud.google.com/sdk/)
 - [Docker](https://docs.docker.com/engine/install/)
 
@@ -93,7 +94,7 @@ After configuring your environment as specified above, you can follow these step
 
 ```bash
 # build + test + install core service code
-$ ./mvnw clean install
+$ mvn clean install
 
 # run service
 #
@@ -102,7 +103,7 @@ $ ./mvnw clean install
 $ java -jar $(find provider/entitlements-v2-jdbc/target/ -name '*-spring-boot.jar')
 
 # Alternately you can run using the Maven Task
-$ ./mvnw spring-boot:run -pl provider/entitlements-v2-jdbc
+$ mvn spring-boot:run -pl provider/entitlements-v2-jdbc
 ```
 
 ### Test the application
@@ -125,10 +126,10 @@ In order to run integration tests, you need to have the following environment va
 
 ```bash
 # build + install integration test core
-$ ./mvnw compile -f testing/entitlements-v2-test-core
+$ mvn compile -f testing/entitlements-v2-test-core
 
 # build + run JDBC integration tests.
-$ ./mvnw test -f testing/entitlements-v2-test-jdbc
+$ mvn test -f testing/entitlements-v2-test-jdbc
 ```
 
 ## Debugging

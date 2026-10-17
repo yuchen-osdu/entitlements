@@ -27,10 +27,8 @@ public class AzureAppProperties extends AppProperties {
     private String tenantInfoContainerName;
     @Value("${azure.cosmosdb.database}")
     private String cosmosDbName;
-
-    public String getGraphDbPassword() {
-        return KeyVaultFacade.getSecretWithValidation(secretClient, "graph-db-primary-key");
-    }
+    @Value("${app.gremlin.token.refresh.buffer.seconds:90}")
+    private long gremlinTokenRefreshBufferSeconds;
 
     public String getGraphDbEndpoint() {
         return KeyVaultFacade.getSecretWithValidation(secretClient, "graph-db-endpoint");

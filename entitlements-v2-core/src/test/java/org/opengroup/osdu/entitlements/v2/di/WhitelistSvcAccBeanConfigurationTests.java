@@ -6,14 +6,14 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.powermock.modules.junit4.PowerMockRunner;
-import org.powermock.reflect.Whitebox;
+import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import static org.powermock.api.mockito.PowerMockito.when;
+import static org.mockito.Mockito.when;
 
-@RunWith(PowerMockRunner.class)
+@RunWith(MockitoJUnitRunner.class)
 public class WhitelistSvcAccBeanConfigurationTests {
 
     @Mock
@@ -36,7 +36,7 @@ public class WhitelistSvcAccBeanConfigurationTests {
     @Before
     public void setup() throws Exception {
         prepareFileReaderForUsersTesting();
-        Whitebox.invokeMethod(sut, "init");
+        ReflectionTestUtils.invokeMethod(sut, "init");
     }
 
     @Test

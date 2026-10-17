@@ -26,6 +26,7 @@ import org.opengroup.osdu.entitlements.v2.service.ListGroupService;
 import org.opengroup.osdu.entitlements.v2.spi.retrievegroup.RetrieveGroupRepo;
 import org.opengroup.osdu.entitlements.v2.util.JsonConverter;
 import org.opengroup.osdu.entitlements.v2.util.RequestInfoUtilService;
+import org.opengroup.osdu.entitlements.v2.validation.ApiInputValidation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Repository;
@@ -148,15 +149,7 @@ public class RetrieveGroupRedisRepo implements RetrieveGroupRepo {
 
     @Override
     public ListGroupsOfPartitionDto getGroupsInPartition(String dataPartitionId, GroupType groupType, String cursor, Integer limit) {
-        int offsetValue = 0;
-        if (org.springframework.util.StringUtils.hasText(cursor)) {
-            try {
-                offsetValue = Integer.parseInt(cursor);
-            } catch (NumberFormatException e) {
-                throw new AppException(HttpStatus.BAD_REQUEST.value(),
-                        HttpStatus.BAD_REQUEST.getReasonPhrase(), "Malformed cursor, must be integer value");
-            }
-        }
+        int offsetValue = ApiInputValidation.parseNonNegativeCursorOffset(cursor);
 
         DpsHeaders dpsHeaders = requestInfo.getHeaders();
         String requesterId = requestInfoUtilService.getUserId(dpsHeaders);

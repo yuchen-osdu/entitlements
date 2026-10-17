@@ -18,7 +18,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.opengroup.osdu.entitlements.v2</groupId>
   <artifactId>entitlements-v2-service</artifactId>
-  <version>0.30.0-SNAPSHOT</version>
+  <version>${revision}</version>
   <packaging>pom</packaging>
   <name>entitlements-v2-service</name>
   <description>Entitlements V2 service</description>
@@ -32,24 +32,46 @@
   </licenses>
 
   <properties>
-    <java.version>17</java.version>
+    <revision>0.31.0-SNAPSHOT</revision>
+    <java.version>25</java.version>
     <maven.compiler.release>${java.version}</maven.compiler.release>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
     <!-- Spring Versions-->
-    <spring-boot.version>3.5.13</spring-boot.version>
-    <spring-security.version>6.5.9</spring-security.version>
-    <spring-framework-version>6.2.17</spring-framework-version>
+    <spring-boot.version>3.5.16</spring-boot.version>
+    <spring-security.version>6.5.11</spring-security.version>
+    <spring-framework.version>6.2.19</spring-framework.version>
+
+    <!-- OSDU Versions-->
+    <os-core-common.version>9.3.0</os-core-common.version>
 
     <!-- Project Versions-->
-    <json-smart.version>2.5.2</json-smart.version>
+    <json-smart.version>2.6.0</json-smart.version>
     <log4j.version>2.25.3</log4j.version>
-    <jackson.version>2.21.2</jackson.version>
+    <openapi.version>2.8.16</openapi.version>
     <swagger-core.version>2.2.45</swagger-core.version>
+    <!-- Override Spring Boot's Tomcat pin. 10.1.60 remediates CVE-2026-76183 / CVE-2026-78437 /
+         CVE-2026-87022. Explicit dependencyManagement is required (BOM import, no spring-boot-starter-parent). -->
+    <tomcat.version>10.1.60</tomcat.version>
+    <!-- jackson-core/databind HIGH CVEs fixed in 2.21.7+.
+         Import jackson-bom ahead of spring-boot-dependencies so the whole jackson.core line moves. -->
+    <jackson-bom.version>2.21.7</jackson-bom.version>
+    <!-- pgjdbc High CVE-2026-42198 on 42.7.10; fixed in 42.7.11+. -->
+    <postgresql.version>42.7.13</postgresql.version>
+    <!-- os-core-common declares lettuce-core as provided; CVE-2025-58057 requires >= 7.5.2.RELEASE -->
+    <lettuce.version>7.5.2.RELEASE</lettuce.version>
+    <!-- lettuce-core 7.x requires Netty 4.2+; Spring Boot 3.5.16 provides 4.1.x.
+         4.2.18.Final remediates CVE-2026-89044 and other findings still present on 4.2.17. -->
+    <netty.version>4.2.18.Final</netty.version>
+    <!-- Nested spring-boot-dependencies → mockito-bom ignores consumer mockito.version; pin explicitly.
+         Mockito 5.20+ pulls ByteBuddy with Java 25 support. -->
+    <mockito.version>5.23.0</mockito.version>
 
     <!-- Plugin Versions -->
     <spring-boot-maven-plugin.version>${spring-boot.version}</spring-boot-maven-plugin.version>
-    <maven-compiler-plugin.version>3.13.0</maven-compiler-plugin.version>
+    <maven-compiler-plugin.version>3.15.0</maven-compiler-plugin.version>
+    <maven-surefire-plugin.version>3.5.4</maven-surefire-plugin.version>
+    <jacoco.version>0.8.14</jacoco.version>
     <git-commit-id-plugin.version>8.0.2</git-commit-id-plugin.version>
 
     <!-- Lombok -->
@@ -58,14 +80,31 @@
 
   <dependencyManagement>
     <dependencies>
-      <!-- BOMs listed in order of dependency hierarchy:
-        spring-boot-dependencies first as it's the parent BOM providing default dependency management,
-        spring-security-bom second as it may need to override Spring Framework versions for security purposes,
-        spring-framework-bom third as it provides core dependencies that can be safely overridden by the security BOM
-        os-core-common last as it provides the default dependencies for the project.dependency>
+      <!-- BOMs listed in import-order precedence (Maven's "first declared wins" rule for BOMs):
+        netty-bom first so it overrides Spring Boot's Netty 4.1.x with the 4.2.x line lettuce-core 7.5.2 requires (CVE-2025-58057 et al),
+        jackson-bom second so it overrides Spring Boot's Jackson line for High CVE remediations,
+        spring-boot-dependencies third as the parent BOM providing default dependency management,
+        spring-security-bom fourth as it may need to override Spring Framework versions for security purposes,
+        spring-framework-bom fifth as it provides core dependencies that can be safely overridden by the security BOM,
+        os-core-common last as it provides the default dependencies for the project.
       -->
 
       <!-- BOM Section Start-->
+      <!-- netty-bom first so it wins over Spring Boot's Netty 4.1.x (lettuce 7.x needs 4.2+) -->
+      <dependency>
+        <groupId>io.netty</groupId>
+        <artifactId>netty-bom</artifactId>
+        <version>${netty.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+      <dependency>
+        <groupId>com.fasterxml.jackson</groupId>
+        <artifactId>jackson-bom</artifactId>
+        <version>${jackson-bom.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
       <dependency>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-dependencies</artifactId>
@@ -73,19 +112,26 @@
         <type>pom</type>
         <scope>import</scope>
       </dependency>
-      <!-- Jackson override: Spring Boot 3.5.13 and other artifacts provide an older Jackson; we need 2.21.2 for GHSA-72hv-8253-57qq -->
-      <!-- Maybe remove this override when Spring Boot BOM updates to Jackson >= 2.21.2 -->
       <dependency>
-        <groupId>com.fasterxml.jackson</groupId>
-        <artifactId>jackson-bom</artifactId>
-        <version>${jackson.version}</version>
+        <groupId>org.springframework.security</groupId>
+        <artifactId>spring-security-bom</artifactId>
+        <version>${spring-security.version}</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
+      <dependency>
+        <groupId>org.springframework</groupId>
+        <artifactId>spring-framework-bom</artifactId>
+        <version>${spring-framework.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+      <!-- BOM Section End-->
+
       <!-- Align swagger-core.v3 across os-core-common and springdoc to avoid mixed versions.
-           os-core-common 6.0.0 pins swagger-annotations/core/models to 2.2.45, but
-           springdoc-openapi-starter-common 2.8.16 pulls swagger-core-jakarta 2.2.43 transitively.
-           The mismatch causes issues like the "##default" sentinel leaking into the generated OpenAPI spec. -->
+           Without this, providers pull swagger-core 2.2.43 transitively from springdoc /
+           os-core-common, which causes the "##default" sentinel to leak into the generated
+           OpenAPI spec. Pins must come after BOM imports (legal-service pattern). -->
       <dependency>
         <groupId>io.swagger.core.v3</groupId>
         <artifactId>swagger-annotations-jakarta</artifactId>
@@ -101,19 +147,36 @@
         <artifactId>swagger-models-jakarta</artifactId>
         <version>${swagger-core.version}</version>
       </dependency>
+
+      <!-- Tomcat override: BOM import does not propagate tomcat.version -->
       <dependency>
-        <groupId>org.springframework.security</groupId>
-        <artifactId>spring-security-bom</artifactId>
-        <version>${spring-security.version}</version>
-        <type>pom</type>
-        <scope>import</scope>
+        <groupId>org.apache.tomcat.embed</groupId>
+        <artifactId>tomcat-embed-core</artifactId>
+        <version>${tomcat.version}</version>
       </dependency>
       <dependency>
-        <groupId>org.springframework</groupId>
-        <artifactId>spring-framework-bom</artifactId>
-        <version>${spring-framework-version}</version>
-        <type>pom</type>
-        <scope>import</scope>
+        <groupId>org.apache.tomcat.embed</groupId>
+        <artifactId>tomcat-embed-el</artifactId>
+        <version>${tomcat.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.tomcat.embed</groupId>
+        <artifactId>tomcat-embed-websocket</artifactId>
+        <version>${tomcat.version}</version>
+      </dependency>
+
+      <!-- PostgreSQL override for CVE-2026-42198 (explicit pin wins over Boot BOM) -->
+      <dependency>
+        <groupId>org.postgresql</groupId>
+        <artifactId>postgresql</artifactId>
+        <version>${postgresql.version}</version>
+      </dependency>
+
+      <!-- os-core-common jar version managed here so child modules need no explicit version -->
+      <dependency>
+        <groupId>org.opengroup.osdu</groupId>
+        <artifactId>os-core-common</artifactId>
+        <version>${os-core-common.version}</version>
       </dependency>
 
       <!-- Any dependencies here will be used by all projects. -->
@@ -147,6 +210,26 @@
         <version>${lombok.version}</version>
         <scope>provided</scope>
         <optional>true</optional>
+      </dependency>
+      <dependency>
+          <groupId>io.lettuce</groupId>
+          <artifactId>lettuce-core</artifactId>
+          <version>${lettuce.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.springdoc</groupId>
+        <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+        <version>${openapi.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.mockito</groupId>
+        <artifactId>mockito-core</artifactId>
+        <version>${mockito.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.mockito</groupId>
+        <artifactId>mockito-junit-jupiter</artifactId>
+        <version>${mockito.version}</version>
       </dependency>
     </dependencies>
   </dependencyManagement>
@@ -182,6 +265,16 @@
             </execution>
           </executions>
         </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-surefire-plugin</artifactId>
+          <version>${maven-surefire-plugin.version}</version>
+        </plugin>
+        <plugin>
+          <groupId>org.jacoco</groupId>
+          <artifactId>jacoco-maven-plugin</artifactId>
+          <version>${jacoco.version}</version>
+        </plugin>
       </plugins>
     </pluginManagement>
     <plugins>
@@ -204,6 +297,100 @@
             ${project.build.outputDirectory}/git.properties
           </generateGitPropertiesFilename>
         </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-enforcer-plugin</artifactId>
+        <version>3.6.2</version>
+        <dependencies>
+          <dependency>
+            <groupId>org.opengroup.osdu</groupId>
+            <artifactId>osdu-enforcer-rules</artifactId>
+            <version>2.0.3</version>
+          </dependency>
+        </dependencies>
+        <executions>
+          <execution>
+            <id>enforce-config-hygiene</id>
+            <phase>validate</phase>
+            <goals>
+              <goal>enforce</goal>
+            </goals>
+            <configuration>
+              <rules>
+                <requireMavenVersion>
+                  <version>[3.6.3,)</version>
+                </requireMavenVersion>
+                <requireJavaVersion>
+                  <version>[25,)</version>
+                </requireJavaVersion>
+                <banDuplicatePomDependencyVersions/>
+                <reactorModuleConvergence/>
+                <requireSameVersions>
+                  <plugins>
+                    <plugin>org.apache.maven.plugins:maven-compiler-plugin</plugin>
+                  </plugins>
+                </requireSameVersions>
+                <requireSameVersions>
+                  <plugins>
+                    <plugin>org.apache.maven.plugins:maven-surefire-plugin</plugin>
+                    <plugin>org.apache.maven.plugins:maven-failsafe-plugin</plugin>
+                    <plugin>org.apache.maven.plugins:maven-surefire-report-plugin</plugin>
+                  </plugins>
+                </requireSameVersions>
+                <requireReleaseDeps>
+                  <message>No Snapshots Allowed!</message>
+                  <excludes>
+                    <!-- Reactor / parent (version is 0.31.0-SNAPSHOT until release). -->
+                    <exclude>org.opengroup.osdu.entitlements.v2:entitlements-v2-service</exclude>
+                    <exclude>org.opengroup.osdu.entitlements.v2:entitlements-v2-core</exclude>
+                    <exclude>org.opengroup.osdu.entitlements.v2:entitlements-v2-core-plus</exclude>
+                    <exclude>org.opengroup.osdu.entitlements.v2:gremlin-shaded-fix</exclude>
+                    <exclude>org.opengroup.osdu.entitlements.v2:entitlements-v2-azure</exclude>
+                    <exclude>org.opengroup.osdu.entitlements.v2:entitlements-v2-ibm</exclude>
+                  </excludes>
+                </requireReleaseDeps>
+              </rules>
+            </configuration>
+          </execution>
+          <execution>
+            <id>enforce-test-execution</id>
+            <phase>verify</phase>
+            <goals>
+              <goal>enforce</goal>
+            </goals>
+            <configuration>
+              <rules>
+                <enforceTestExecution/>
+              </rules>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>flatten-maven-plugin</artifactId>
+        <version>1.8.0</version>
+        <configuration>
+          <updatePomFile>true</updatePomFile>
+          <flattenMode>resolveCiFriendliesOnly</flattenMode>
+        </configuration>
+        <executions>
+          <execution>
+            <id>flatten</id>
+            <phase>process-resources</phase>
+            <goals>
+              <goal>flatten</goal>
+            </goals>
+          </execution>
+          <execution>
+            <id>flatten.clean</id>
+            <phase>clean</phase>
+            <goals>
+              <goal>clean</goal>
+            </goals>
+          </execution>
+        </executions>
       </plugin>
     </plugins>
   </build>
@@ -238,12 +425,6 @@
       </modules>
     </profile>
     <profile>
-      <id>aws</id>
-      <modules>
-        <module>provider/entitlements-v2-aws</module>
-      </modules>
-    </profile>
-    <profile>
       <id>azure</id>
       <modules>
         <module>gremlin-shaded-fix</module>
@@ -256,12 +437,6 @@
         <module>provider/entitlements-v2-ibm</module>
       </modules>
     </profile>
-    <profile>
-      <id>gc</id>
-      <modules>
-        <module>provider/entitlements-v2-jdbc</module>
-      </modules>
-    </profile>
   </profiles>
 
   <repositories>
@@ -271,6 +446,14 @@
       <url>${repo.releases.url}</url>
     </repository>
   </repositories>
+
+  <pluginRepositories>
+    <pluginRepository>
+      <id>${repo.releases.id}</id>
+      <!--suppress UnresolvedMavenProperty -->
+      <url>${repo.releases.url}</url>
+    </pluginRepository>
+  </pluginRepositories>
 
   <distributionManagement>
     <repository>

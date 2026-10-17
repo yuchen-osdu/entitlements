@@ -34,7 +34,7 @@ import org.opengroup.osdu.entitlements.v2.service.featureflag.FeatureFlag;
 import org.opengroup.osdu.entitlements.v2.service.featureflag.PartitionFeatureFlagService;
 import org.opengroup.osdu.entitlements.v2.spi.creategroup.CreateGroupRepo;
 import org.opengroup.osdu.entitlements.v2.spi.retrievegroup.RetrieveGroupRepo;
-import org.powermock.reflect.Whitebox;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -75,7 +75,7 @@ public class CreateGroupServiceTests {
 
     @Before
     public void setup() {
-        Whitebox.setInternalState(createGroupService, "dataRootGroupQuota", 5000);
+        ReflectionTestUtils.setField(createGroupService, "dataRootGroupQuota", 5000);
     }
 
     @Test

@@ -6,11 +6,13 @@ The Entitlements Service is a Maven multi-module project with each cloud impleme
 
     Running these services locally are quite difficult and this information may be outdated. [AdminCLI](https://osdu.pages.opengroup.org/ui/admincli/) has some functionality to make this a little [easier](https://osdu.pages.opengroup.org/ui/admincli/aws/#partial-steps-to-setup-a-hybrid-development-environment).
 
+## Google Cloud
+
+The Google Cloud implementation has been moved to [gc-osdu-services](https://community.opengroup.org/osdu/platform/deployment-and-operations/base-containers-gcp/gc-osdu-services).
+
 ## AWS
 
-Instructions for running and testing this service can be found [https://community.opengroup.org/osdu/platform/security-and-compliance/entitlements/-/tree/master/provider/entitlements-v2-aws?ref_type=heads](https://community.opengroup.org/osdu/platform/security-and-compliance/entitlements/-/tree/master/provider/entitlements-v2-aws?ref_type=heads)
+The AWS provider has been removed from this repository.
 
 ### Integration tests
 - Instructions for running the Azure integration tests in local environment can be found [https://community.opengroup.org/osdu/platform/security-and-compliance/entitlements/-/tree/master/provider/entitlements-v2-azure?ref_type=heads](https://community.opengroup.org/osdu/platform/security-and-compliance/entitlements/-/tree/master/provider/entitlements-v2-azure?ref_type=heads)
-
-- Instructions for running the JDBC integration tests can be found [https://community.opengroup.org/osdu/platform/security-and-compliance/entitlements/-/tree/master/provider/entitlements-v2-jdbc?ref_type=heads](https://community.opengroup.org/osdu/platform/security-and-compliance/entitlements/-/tree/master/provider/entitlements-v2-jdbc?ref_type=heads).

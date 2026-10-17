@@ -884,6 +884,17 @@ users.x@dp.domain.com  users.y@dp.domain.com    member2@xxx.com -----------
     }
 
     @Test
+    public void shouldThrowAppExceptionWithBadRequest_whenCursorIsNegative() {
+        createGroupsForPartition("dp");
+
+        AppException appException = assertThrows(AppException.class, () ->
+                retrieveGroupRepo.getGroupsInPartition("dp", GroupType.NONE, "-58800", 6));
+
+        assertEquals(HttpStatus.BAD_REQUEST.value(), appException.getError().getCode());
+        assertEquals("Malformed cursor, must be integer value", appException.getError().getMessage());
+    }
+
+    @Test
     public void shouldReturnAllGroupsForPartitionAndValidCursor_WhenTotalCountIsGreaterThanLimit() {
         createGroupsForPartition("dp");
         String cursor = "0";

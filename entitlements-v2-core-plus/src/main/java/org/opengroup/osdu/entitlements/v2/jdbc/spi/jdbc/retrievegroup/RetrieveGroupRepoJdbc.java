@@ -23,7 +23,6 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.ArrayList;
@@ -32,12 +31,12 @@ import java.util.stream.Stream;
 import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.opengroup.osdu.core.common.logging.JaxRsDpsLog;
-import org.opengroup.osdu.core.common.model.http.AppException;
 import org.opengroup.osdu.entitlements.v2.jdbc.JdbcAppProperties;
 import org.opengroup.osdu.entitlements.v2.jdbc.exception.DatabaseAccessException;
 import org.opengroup.osdu.entitlements.v2.jdbc.model.GroupInfoEntity;
 import org.opengroup.osdu.entitlements.v2.jdbc.model.GroupInfoEntityList;
 import org.opengroup.osdu.entitlements.v2.jdbc.model.MemberInfoEntity;
+import org.opengroup.osdu.entitlements.v2.validation.ApiInputValidation;
 import org.opengroup.osdu.entitlements.v2.jdbc.spi.jdbc.repository.GroupRepository;
 import org.opengroup.osdu.entitlements.v2.jdbc.spi.jdbc.repository.JdbcTemplateRunner;
 import org.opengroup.osdu.entitlements.v2.jdbc.spi.jdbc.repository.MemberRepository;
@@ -157,22 +156,20 @@ public class RetrieveGroupRepoJdbc implements RetrieveGroupRepo {
     return EntityNode.createNodeFromGroupEmail(memberId);
   }
 
-  //Left without implementation as not necessary for provider
   @Override
   public Set<EntityNode> getEntityNodes(String partitionId, List<String> nodeIds) {
-    return Collections.emptySet();
+    throw new UnsupportedOperationException("getEntityNodes is not supported by the JDBC (core-plus) provider");
   }
 
-  //Left without implementation as not necessary for provider
   @Override
   public Map<String, Set<String>> getUserPartitionAssociations(Set<String> userIds) {
-    return Collections.emptyMap();
+    throw new UnsupportedOperationException(
+        "getUserPartitionAssociations is not supported by the JDBC (core-plus) provider");
   }
 
-  //Left without implementation as not necessary for provider
   @Override
   public Set<EntityNode> getAllGroupNodes(String partitionId, String partitionGroupId) {
-    return Collections.emptySet();
+    throw new UnsupportedOperationException("getAllGroupNodes is not supported by the JDBC (core-plus) provider");
   }
 
   @Override
@@ -194,7 +191,7 @@ public class RetrieveGroupRepoJdbc implements RetrieveGroupRepo {
               .map(MemberInfoEntity::getId)
               .toList();
 
-          Stream<GroupInfoEntity> parentGroupInfo = Stream.<GroupInfoEntity>empty();
+          Stream<GroupInfoEntity> parentGroupInfo = Stream.empty();
 
           // It's a member - query member table for parent groups
           if (!nodeMemberIds.isEmpty()) {
@@ -247,16 +244,17 @@ public class RetrieveGroupRepoJdbc implements RetrieveGroupRepo {
 
   @Override
   public List<ChildrenReference> loadDirectChildren(String partitionId, String... nodeId) {
-    //The method is not used in JDBC module and does not provide a solution
-    // to identify the type of the node.
-    //Should be reworked later
     List<Long> parentIds = groupRepository.findByEmail(nodeId[0]).stream()
         .map(GroupInfoEntity::getId)
         .toList();
 
+    if (parentIds.isEmpty()) {
+      return new ArrayList<>();
+    }
+
     List<ChildrenReference> children = groupRepository.findDirectChildren(parentIds).stream()
         .map(GroupInfoEntity::toChildrenReference)
-        .toList();
+        .collect(Collectors.toCollection(ArrayList::new));
     List<ChildrenReference> members = parentIds.stream()
         .flatMap(id -> memberRepository.findMembersByGroup(id).stream())
         .map(MemberInfoEntity::toChildrenReference)
@@ -279,36 +277,26 @@ public class RetrieveGroupRepoJdbc implements RetrieveGroupRepo {
         .collect(Collectors.toSet());
   }
 
-  //Left without implementation as not necessary for provider
   @Override
   public Set<String> getGroupOwners(String partitionId, String nodeId) {
-    return Collections.emptySet();
+    throw new UnsupportedOperationException("getGroupOwners is not supported by the JDBC (core-plus) provider");
   }
 
-  //Left without implementation as not necessary for provider
   @Override
   public Map<String, Integer> getAssociationCount(List<String> userIds) {
-    return Collections.emptyMap();
+    throw new UnsupportedOperationException("getAssociationCount is not supported by the JDBC (core-plus) provider");
   }
 
-  //Left without implementation as not necessary for provider
   @Override
   public Map<String, Integer> getAllUserPartitionAssociations() {
-    return Collections.emptyMap();
+    throw new UnsupportedOperationException(
+        "getAllUserPartitionAssociations is not supported by the JDBC (core-plus) provider");
   }
 
   @Override
   public ListGroupsOfPartitionDto getGroupsInPartition(String dataPartitionId, GroupType groupType,
       String cursor, Integer limit) {
-    int offsetValue = 0;
-    if (Objects.nonNull(cursor) && !cursor.isEmpty()) {
-      try {
-        offsetValue = Integer.parseInt(cursor);
-      } catch (NumberFormatException e) {
-        throw new AppException(HttpStatus.BAD_REQUEST.value(),
-            HttpStatus.BAD_REQUEST.getReasonPhrase(), "Malformed cursor, must be integer value");
-      }
-    }
+    int offsetValue = ApiInputValidation.parseNonNegativeCursorOffset(cursor);
     GroupInfoEntityList groupsByPartition = jdbcTemplateRunner.getGroupsInPartition(dataPartitionId,
         groupType, offsetValue, limit);
     List<GroupInfoEntity> groupInfoEntities = groupsByPartition.getGroupInfoEntities();
