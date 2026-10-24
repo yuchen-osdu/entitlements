@@ -41,7 +41,7 @@ public class CreateGroupTest extends BaseEntitlementsAcceptanceTest {
     void shouldAddDataRootAsMemberOfNewDataGroup() throws Exception {
         String groupName = "data.groupName-" + currentTime;
 
-        HttpResponse<Group> response = entitlementsClient.createGroup(groupName, "desc", DEFAULT_USER);
+        HttpResponse<Group> response = entitlementsClient.createGroup(groupName, "desc");
         assertEquals(HttpStatus.SC_CREATED, response.statusCode());
         Group createdGroup = response.body();
         assertEquals(groupName.toLowerCase(), createdGroup.name());
@@ -55,7 +55,7 @@ public class CreateGroupTest extends BaseEntitlementsAcceptanceTest {
     void shouldCreateGroupOnlyOneTimeSuccessfully() throws Exception {
         String groupName = "groupName-" + currentTime;
 
-        HttpResponse<Group> response = entitlementsClient.createGroup(groupName, "desc", DEFAULT_USER);
+        HttpResponse<Group> response = entitlementsClient.createGroup(groupName, "desc");
         assertEquals(HttpStatus.SC_CREATED, response.statusCode());
         Group createdGroup = response.body();
         assertEquals(groupName.toLowerCase(), createdGroup.name());
@@ -67,7 +67,7 @@ public class CreateGroupTest extends BaseEntitlementsAcceptanceTest {
 
     private void verifyConflictException(String groupName) {
         ClientException exception = assertThrows(ClientException.class,
-            () -> entitlementsClient.createGroup(new CreateGroupRequest(groupName, "desc"), DEFAULT_USER));
+            () -> entitlementsClient.createGroup(new CreateGroupRequest(groupName, "desc")));
         assertEquals(HttpStatus.SC_CONFLICT, exception.getStatusCode());
         // os-core-test 0.1.6 stores the raw error body in AppError.message and uses a generic
         // reason, so assert on status + message content rather than the parsed reason field.
@@ -99,7 +99,7 @@ public class CreateGroupTest extends BaseEntitlementsAcceptanceTest {
 
     private boolean isSecondGroupMemberOfFirst(String firstEmail, String secondEmail) {
         HttpResponse<org.opengroup.osdu.core.test.client.model.entitlements.GroupMembersResponse> response =
-            entitlementsClient.listGroupMembers(firstEmail, DEFAULT_USER);
+            entitlementsClient.listGroupMembers(firstEmail);
         for (GroupMember member : response.body().members()) {
             if (member.email().equalsIgnoreCase(secondEmail)) {
                 return true;

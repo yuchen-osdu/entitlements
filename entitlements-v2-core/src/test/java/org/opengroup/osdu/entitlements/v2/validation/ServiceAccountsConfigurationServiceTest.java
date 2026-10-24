@@ -12,7 +12,7 @@ import org.opengroup.osdu.core.common.model.tenant.TenantInfo;
 import org.opengroup.osdu.entitlements.v2.AppProperties;
 import org.opengroup.osdu.entitlements.v2.model.EntityNode;
 import org.opengroup.osdu.entitlements.v2.util.FileReaderService;
-import org.powermock.reflect.Whitebox;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -47,7 +47,7 @@ public class ServiceAccountsConfigurationServiceTest {
         tenantInfo = mock(TenantInfo.class);
         when(tenantInfo.getServiceAccount()).thenReturn(SERVICE_P_ID);
         when(requestInfo.getTenantInfo()).thenReturn(tenantInfo);
-        Whitebox.invokeMethod(serviceAccountsConfigurationService, "init");
+        ReflectionTestUtils.invokeMethod(serviceAccountsConfigurationService, "init");
         verify(fileReaderService).readFile("/test_groups_of_service_principal.json");
     }
 
