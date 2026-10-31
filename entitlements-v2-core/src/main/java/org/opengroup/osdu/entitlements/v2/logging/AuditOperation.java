@@ -53,11 +53,6 @@ public enum AuditOperation {
     // List groups - not currently audited in ListGroupService
     LIST_GROUP(Arrays.asList(AppProperties.OPS, AppProperties.ADMIN, AppProperties.USERS)),
 
-    // Redis backup operations (IBM provider specific) - may not be actively used
-    REDIS_BACKUP(Arrays.asList(AppProperties.OPS, AppProperties.ADMIN)),
-    REDIS_BACKUP_VERSIONS(Arrays.asList(AppProperties.OPS, AppProperties.ADMIN)),
-    REDIS_RESTORE(Arrays.asList(AppProperties.OPS, AppProperties.ADMIN)),
-
     // Cache operations - not currently audited
     UPDATE_CACHE(Arrays.asList(AppProperties.OPS, AppProperties.ADMIN));
 

@@ -50,7 +50,7 @@ public class JdbcAppProperties extends AppProperties {
 
 		if (Objects.nonNull(initServiceDto) && !CollectionUtils.isEmpty(initServiceDto.getAliasMappings())) {
 			initServiceDto.getAliasMappings().forEach(
-					(e) -> groupsOfInitialUsers.add(String.format("/provisioning/accounts/groups_of_%s.json", e.getAliasId().toLowerCase()))
+					e -> groupsOfInitialUsers.add(String.format("/provisioning/accounts/groups_of_%s.json", e.getAliasId().toLowerCase()))
 			);
 		}
 

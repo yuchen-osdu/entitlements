@@ -63,7 +63,7 @@ public class ListGroupOnBehalfOfApiTest {
         tenantInfo.setDataPartitionId("dp");
         tenantInfo.setServiceAccount("internal-service-account");
         when(tenantFactory.getTenantInfo("dp")).thenReturn(tenantInfo);
-        when(authService.isCurrentUserAuthorized(any(), any())).thenReturn(true);
+        when(authService.isCurrentUserAuthorized(any(), any(String[].class))).thenReturn(true);
     }
 
     @Test

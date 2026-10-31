@@ -33,12 +33,16 @@
 
   <springProfile name="!local">
     <appender name="stdout" class="ch.qos.logback.core.ConsoleAppender">
-      <encoder class="ch.qos.logback.core.encoder.LayoutWrappingEncoder">
-        <layout class="ch.qos.logback.contrib.json.classic.JsonLayout">
-          <timestampFormat>yyyy-MM-dd HH:mm:ss.SSS</timestampFormat>
-          <timestampFormatTimezoneId>Etc/UTC</timestampFormatTimezoneId>
-          <appendLineSeparator>true</appendLineSeparator>
-        </layout>
+      <encoder class="net.logstash.logback.encoder.LogstashEncoder">
+        <timestampPattern>yyyy-MM-dd HH:mm:ss.SSS</timestampPattern>
+        <timeZone>UTC</timeZone>
+        <fieldNames>
+          <timestamp>timestamp</timestamp>
+          <version>[ignore]</version>
+          <levelValue>[ignore]</levelValue>
+          <logger>logger</logger>
+          <thread>thread</thread>
+        </fieldNames>
       </encoder>
     </appender>
 

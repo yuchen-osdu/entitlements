@@ -17,8 +17,10 @@ package org.opengroup.osdu.entitlements.v2.service;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.opengroup.osdu.core.common.logging.JaxRsDpsLog;
 import org.opengroup.osdu.core.common.model.http.AppException;
 import org.opengroup.osdu.core.common.model.http.DpsHeaders;
@@ -42,9 +44,6 @@ import org.opengroup.osdu.entitlements.v2.model.removemember.RemoveMemberService
 import org.opengroup.osdu.entitlements.v2.spi.removemember.RemoveMemberRepo;
 import org.opengroup.osdu.entitlements.v2.spi.retrievegroup.RetrieveGroupRepo;
 import org.opengroup.osdu.entitlements.v2.util.RequestInfoUtilService;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.util.Collections;
 import java.util.Map;
@@ -53,11 +52,12 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
-@RunWith(PowerMockRunner.class)
-@PrepareForTest({RemoveMemberService.class, System.class})
+@RunWith(MockitoJUnitRunner.Silent.class)
 public class RemoveMemberServiceTests {
+
     @Mock
     private RetrieveGroupRepo retrieveGroupRepo;
     @Mock
@@ -95,17 +95,16 @@ public class RemoveMemberServiceTests {
 
     @Before
     public void setup() {
-        PowerMockito.mockStatic(System.class);
         TenantInfo tenantInfo = new TenantInfo();
         tenantInfo.setServiceAccount("datafier@evd-ddl-us-common.iam.gserviceaccount.com");
         when(requestInfo.getTenantInfo()).thenReturn(tenantInfo);
         when(appProperties.getDomain()).thenReturn("contoso.com");
         when(requestInfo.getHeaders()).thenReturn(headers);
         when(headers.getHeaders()).thenReturn(headersMap);
-        PowerMockito.when(System.currentTimeMillis()).thenReturn(1291371330000L);
         ReflectionTestUtil.setFieldValueForClass(removeMemberService, "eventPublisher", publisher);
         ReflectionTestUtil.setFieldValueForClass(removeMemberService, "eventPublishingEnabled", true);
     }
+
 
     @Test
     public void shouldSuccessfullyRemoveMemberAndPublishRemoveMemberEntitlementsChangeEventWhenMemberExists() {
@@ -167,7 +166,12 @@ public class RemoveMemberServiceTests {
         verify(removeMemberRepo).removeMember(groupNode, memberNode, removeMemberServiceDto);
         verify(groupCacheService).refreshListGroupCache(Collections.emptySet(), "common");
         verify(memberCacheService).flushListMemberCacheForGroup("data.x@common.contoso.com", "common");
-        verify(publisher).publish(event, headersMap);
+        ArgumentCaptor<EntitlementsChangeEvent[]> publishedEvents = ArgumentCaptor.forClass(EntitlementsChangeEvent[].class);
+        verify(publisher).publish(publishedEvents.capture(), eq(headersMap));
+        assertThat(publishedEvents.getValue())
+                .usingRecursiveComparison()
+                .ignoringFields("modifiedOn")
+                .isEqualTo(event);
     }
 
     @Test
@@ -221,7 +225,12 @@ public class RemoveMemberServiceTests {
         verify(groupCacheService).refreshListGroupCache(Collections.emptySet(), "common");
         verify(memberCacheService).flushListMemberCacheForGroup("data.x@common.contoso.com", "common");
         verify(removeMemberRepo).removeMember(groupNode, memberNode, removeMemberServiceDto);
-        verify(publisher).publish(event, headersMap);
+        ArgumentCaptor<EntitlementsChangeEvent[]> publishedEvents = ArgumentCaptor.forClass(EntitlementsChangeEvent[].class);
+        verify(publisher).publish(publishedEvents.capture(), eq(headersMap));
+        assertThat(publishedEvents.getValue())
+                .usingRecursiveComparison()
+                .ignoringFields("modifiedOn")
+                .isEqualTo(event);
     }
 
     @Test
@@ -570,7 +579,12 @@ public class RemoveMemberServiceTests {
                         .modifiedBy("requesterid")
                         .modifiedOn(1291371330000L).build()
         };
-        verify(publisher).publish(event, headersMap);
+        ArgumentCaptor<EntitlementsChangeEvent[]> publishedEvents = ArgumentCaptor.forClass(EntitlementsChangeEvent[].class);
+        verify(publisher).publish(publishedEvents.capture(), eq(headersMap));
+        assertThat(publishedEvents.getValue())
+                .usingRecursiveComparison()
+                .ignoringFields("modifiedOn")
+                .isEqualTo(event);
     }
 
     @Test

@@ -49,7 +49,8 @@ public class DeleteGroupApi {
     })
     @DeleteMapping("/groups/{group_email}")
     @PreAuthorize("@authorizationFilter.hasAnyPermission('" + AppProperties.OPS + "', '" + AppProperties.ADMIN + "')")
-    public ResponseEntity<Void> deleteGroup(@Parameter(description = "Group Email") @PathVariable("group_email") String groupEmail) {
+    public ResponseEntity<Void> deleteGroup(@Parameter(description = "Group Email")
+                                            @PathVariable("group_email") String groupEmail) {
         String partitionId = requestInfo.getHeaders().getPartitionId();
         partitionHeaderValidationService.validateSinglePartitionProvided(partitionId);
         String partitionDomain = requestInfoUtilService.getDomain(partitionId);

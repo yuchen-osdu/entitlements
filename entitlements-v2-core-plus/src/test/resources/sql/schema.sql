@@ -24,5 +24,12 @@ CREATE TABLE member
     id bigint,
     email varchar,
     partition_id varchar
+);
+
+CREATE TABLE app_id
+(
+    id bigint,
+    "group_id" bigint,
+    "app_id" varchar
 )
 
