@@ -51,7 +51,9 @@ public class MembersCountApi {
     })
     @GetMapping("/groups/{group_email}/membersCount")
     @PreAuthorize("@authorizationFilter.hasAnyPermission('" + AppProperties.OPS + "', '" + AppProperties.ADMIN + "', '" + AppProperties.USERS + "')")
-    public ResponseEntity<MembersCountResponseDto> getMembersCount(@Parameter(description = "Group Email") @PathVariable("group_email") String groupEmail, @RequestParam(value = "role", required = false) Role role) {
+    public ResponseEntity<MembersCountResponseDto> getMembersCount(@Parameter(description = "Group Email")
+                                                                   @PathVariable("group_email") String groupEmail,
+                                                                   @RequestParam(value = "role", required = false) Role role) {
         //generic validation for data partition and user belonging to the group_email provided
         String partitionId = requestInfo.getHeaders().getPartitionId();
         partitionHeaderValidationService.validateSinglePartitionProvided(partitionId);

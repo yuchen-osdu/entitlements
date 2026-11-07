@@ -12,7 +12,7 @@ import org.opengroup.osdu.entitlements.v2.AppProperties;
 import org.opengroup.osdu.entitlements.v2.model.EntityNode;
 import org.opengroup.osdu.entitlements.v2.model.NodeType;
 import org.opengroup.osdu.entitlements.v2.util.FileReaderService;
-import org.powermock.reflect.Whitebox;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.Collections;
 
@@ -33,7 +33,7 @@ public class BootstrapGroupsConfigurationServiceTest {
     @Before
     public void setup() throws Exception {
         when(appProperties.getProtectedMembers()).thenReturn(Collections.singletonList("/test_groups.json"));
-        Whitebox.invokeMethod(bootstrapGroupsConfigurationService, "init");
+        ReflectionTestUtils.invokeMethod(bootstrapGroupsConfigurationService, "init");
         verify(fileReaderService).readFile("/test_groups.json");
     }
 

@@ -38,18 +38,18 @@ public class AddMemberTest extends BaseEntitlementsAcceptanceTest {
         String groupName = "groupName-" + currentTime;
         String childGroupName = "child-groupName-" + currentTime;
 
-        Group group = entitlementsClient.createGroup(groupName, "desc", DEFAULT_USER).body();
+        Group group = entitlementsClient.createGroup(groupName, "desc").body();
 
-        entitlementsClient.addMemberToGroup(group.email(), OWNER_EMAIL, "OWNER", DEFAULT_USER);
-        entitlementsClient.addMemberToGroup(group.email(), MEMBER_EMAIL, "MEMBER", DEFAULT_USER);
+        entitlementsClient.addMemberToGroup(group.email(), OWNER_EMAIL, "OWNER");
+        entitlementsClient.addMemberToGroup(group.email(), MEMBER_EMAIL, "MEMBER");
 
         verifyConflictError(group.email(), MEMBER_EMAIL, "MEMBER");
 
-        Group childGroup = entitlementsClient.createGroup(childGroupName, "desc", DEFAULT_USER).body();
-        entitlementsClient.addMemberToGroup(group.email(), childGroup.email(), "MEMBER", DEFAULT_USER);
+        Group childGroup = entitlementsClient.createGroup(childGroupName, "desc").body();
+        entitlementsClient.addMemberToGroup(group.email(), childGroup.email(), "MEMBER");
 
         HttpResponse<GroupMembersResponse> response =
-            entitlementsClient.listGroupMembers(group.email(), DEFAULT_USER);
+            entitlementsClient.listGroupMembers(group.email());
         assertEquals(HttpStatus.SC_OK, response.statusCode());
         GroupMembersResponse members = response.body();
 
@@ -62,7 +62,7 @@ public class AddMemberTest extends BaseEntitlementsAcceptanceTest {
     }
 
     private String getCallerEmail() {
-        return entitlementsClient.listGroups(DEFAULT_USER).body().principal()
+        return entitlementsClient.listGroups().body().principal()
             .orElseThrow(() -> new IllegalStateException("Could not resolve caller identity"))
             .toLowerCase();
     }
@@ -80,7 +80,7 @@ public class AddMemberTest extends BaseEntitlementsAcceptanceTest {
 
     private void verifyConflictError(String groupEmail, String memberEmail, String role) {
         ClientException exception = assertThrows(ClientException.class,
-            () -> entitlementsClient.addMemberToGroup(groupEmail, new AddMemberRequest(memberEmail, role), DEFAULT_USER));
+            () -> entitlementsClient.addMemberToGroup(groupEmail, new AddMemberRequest(memberEmail, role)));
         assertEquals(HttpStatus.SC_CONFLICT, exception.getStatusCode());
         String expectedMessage =
             String.format("%s is already a member of group %s", memberEmail.toLowerCase(), groupEmail);

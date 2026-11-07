@@ -26,6 +26,7 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.opengroup.osdu.core.common.model.http.AppException;
 import org.opengroup.osdu.core.common.partition.IPropertyResolver;
 import org.opengroup.osdu.entitlements.v2.jdbc.config.properties.EntConfigProperties;
@@ -37,7 +38,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 @SpringBootTest(classes = {SpiJdbcTestConfig.class, MultiTenantJdbcTestConfig.class})
-@ExtendWith(SpringExtension.class)
+@ExtendWith({SpringExtension.class, MockitoExtension.class})
 class DatabaseCheckTest {
 
   @Mock

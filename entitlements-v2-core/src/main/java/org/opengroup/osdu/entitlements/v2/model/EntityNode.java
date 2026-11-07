@@ -3,6 +3,7 @@ package org.opengroup.osdu.entitlements.v2.model;
 import com.dslplatform.json.CompiledJson;
 import com.dslplatform.json.JsonAttribute;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -179,6 +180,8 @@ public class EntityNode {
         return isGroup() && "users".equalsIgnoreCase(name);
     }
 
+    // Jackson 3 would name this property "DEPermissionGroup"; keep the Jackson 2 name.
+    @JsonProperty("depermissionGroup")
     public boolean isDEPermissionGroup() {
         return isGroup() && name.startsWith("users.datalake.");
     }

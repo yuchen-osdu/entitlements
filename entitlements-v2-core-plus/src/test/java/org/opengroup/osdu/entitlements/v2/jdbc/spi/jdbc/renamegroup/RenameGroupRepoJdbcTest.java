@@ -31,7 +31,7 @@ import org.opengroup.osdu.entitlements.v2.jdbc.spi.jdbc.repository.MemberReposit
 import org.opengroup.osdu.entitlements.v2.model.EntityNode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.junit4.SpringRunner;
 
 @SpringBootTest(classes = SpiJdbcTestConfig.class)
@@ -41,11 +41,11 @@ public class RenameGroupRepoJdbcTest {
     @Autowired
     private RenameGroupRepoJdbc sut;
 
-    @MockBean
+    @MockitoBean
     private GroupRepository groupRepository;
-    @MockBean
+    @MockitoBean
     private MemberRepository memberRepository;
-    @MockBean
+    @MockitoBean
     private JdbcTemplateRunner jdbcTemplateRunner;
     @Autowired
     private AddMemberRepoJdbc addMemberRepoJdbc;

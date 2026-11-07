@@ -4,6 +4,7 @@
 **/out
 **/*.iml
 **/dependency-reduced-pom.xml
+.flattened-pom.xml
 **/*.pyc
 /dist/
 **/.prefs
@@ -15,3 +16,10 @@
 *.env
 .envrc
 .github/copilot-instructions.md
+
+# Schemathesis
+schemathesis-tests/output/
+__pycache__
+
+schemathesis-tests/.token
+schemathesis-tests/.schemathesis/

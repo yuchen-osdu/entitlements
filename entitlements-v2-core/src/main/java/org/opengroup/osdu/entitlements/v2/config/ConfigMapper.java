@@ -1,21 +1,27 @@
 package org.opengroup.osdu.entitlements.v2.config;
 
-import com.fasterxml.jackson.databind.DeserializationFeature;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import com.fasterxml.jackson.databind.MapperFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.context.annotation.Primary;
+import tools.jackson.databind.DeserializationFeature;
+import tools.jackson.databind.MapperFeature;
+import tools.jackson.databind.json.JsonMapper;
 
 @Configuration
 public class ConfigMapper {
 
+    /**
+     * Declared as {@link JsonMapper} so it replaces Spring Boot's auto-configured mapper and is used for HTTP
+     * message conversion. The settings keep the request contract of the former Jackson 2 mapper.
+     */
     @Bean
     @Primary
-    public ObjectMapper objectMapper() {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true);
-        mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-        return mapper;
+    public JsonMapper objectMapper() {
+        return JsonMapper.builder()
+                .enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES)
+                .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+                // Jackson 2 read null for a primitive as its default value; Jackson 3 would reject it with a 400.
+                .disable(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)
+                .build();
     }
 }

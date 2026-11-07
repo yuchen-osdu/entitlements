@@ -1,21 +1,22 @@
 # Entitlement Service
 Official documentation can be found at [https://osdu.pages.opengroup.org/platform/security-and-compliance/entitlements/](https://osdu.pages.opengroup.org/platform/security-and-compliance/entitlements/)
 
+## Prerequisites
+
+- [Maven 3.9.16+](https://maven.apache.org/download.cgi)
+- [JDK 25](https://adoptium.net/)
+- [Lombok 1.18.40 or later](https://projectlombok.org/setup/maven)
+
 ## Running the Entitlements Service locally
 The Entitlements Service is a Maven multi-module project with each cloud implemention placed in its submodule.
 
+## Google Cloud
+
+The Google Cloud implementation has been moved to [gc-osdu-services](https://community.opengroup.org/osdu/platform/deployment-and-operations/base-containers-gcp/gc-osdu-services).
+
 ## AWS
 
-Instructions for running and testing this service can be found [here](./provider/entitlements-v2-aws/README.md)
-
-### Integration tests
-Instructions for running the Azure integration tests in local environment can be found [here][Azure documentation]
-
-Instructions for running the JDBC integration tests can be found [here][JDBC documentation].
-
-[Azure documentation]: testing/entitlements-v2-test-azure/README.md
-[JDBC documentation]: provider/entitlements-v2-jdbc/README.md
-
+The AWS provider has been removed from this repository.
 
 ### Open API 3.0 - Swagger
 - Swagger UI : https://host/context-path/swagger (will redirect to https://host/context-path/swagger-ui/index.html)
@@ -27,9 +28,9 @@ All the Swagger and OpenAPI related common properties are managed here [swagger.
 #### Server Url(full path vs relative path) configuration
 - `api.server.fullUrl.enabled=true` It will generate full server url in the OpenAPI swagger
 - `api.server.fullUrl.enabled=false` It will generate only the contextPath only
-- default value is false (Currently only in Azure it is enabled)
+- default value is false
 [Reference]:(https://springdoc.org/faq.html#_how_is_server_url_generated)
 
 ### AWS
 
-Instructions for running the AWS integration tests can be found [here](./provider/entitlements-v2-aws/README.md).
+The AWS provider has been removed from this repository.

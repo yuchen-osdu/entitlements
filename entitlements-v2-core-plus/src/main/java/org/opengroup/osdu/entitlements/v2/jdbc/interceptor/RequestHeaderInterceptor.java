@@ -36,6 +36,13 @@ public class RequestHeaderInterceptor implements HandlerInterceptor {
     private final JaxRsDpsLog log;
     private final IAuthenticator iAuthenticator;
 
+    /**
+     * Spring's {@link HandlerInterceptor#preHandle} contract requires a boolean return. This
+     * implementation returns {@code true} only on success paths; the failure paths throw
+     * {@link AppException} instead of returning, so the method is not truly invariant in its
+     * outcomes. S3516 (methods that always return the same value) is therefore suppressed.
+     */
+    @SuppressWarnings("java:S3516")
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
         if (!request.getMethod().equalsIgnoreCase("GET") && request.getHeader(DpsHeaders.ON_BEHALF_OF) != null) {

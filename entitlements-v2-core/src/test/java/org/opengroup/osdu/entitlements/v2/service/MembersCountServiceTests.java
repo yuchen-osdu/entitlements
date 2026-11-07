@@ -19,7 +19,7 @@ import org.opengroup.osdu.entitlements.v2.spi.memberscount.MembersCountRepo;
 import org.opengroup.osdu.entitlements.v2.spi.retrievegroup.RetrieveGroupRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.Optional;
@@ -35,17 +35,17 @@ import static org.mockito.Mockito.when;
 @RunWith(SpringRunner.class)
 public class MembersCountServiceTests {
 
-    @MockBean
+    @MockitoBean
     private RetrieveGroupRepo retrieveGroupRepo;
-    @MockBean
+    @MockitoBean
     private MembersCountRepo membersCountRepo;
-    @MockBean
+    @MockitoBean
     private JaxRsDpsLog logger;
-    @MockBean
+    @MockitoBean
     private RequestInfo requestInfo;
-    @MockBean
+    @MockitoBean
     private AppProperties appProperties;
-    @MockBean
+    @MockitoBean
     private AuthorizationService authorizationService;
 
     @Autowired

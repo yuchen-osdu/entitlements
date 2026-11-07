@@ -31,16 +31,16 @@ public class GetMembersCountTest extends BaseEntitlementsAcceptanceTest {
 
     @Test
     void shouldSuccessfullyCountMembers() {
-        Group group = entitlementsClient.createGroup("group-" + currentTime, "desc", DEFAULT_USER).body();
-        Group child1 = entitlementsClient.createGroup("child-group-name-1" + currentTime, "desc", DEFAULT_USER).body();
-        Group child2 = entitlementsClient.createGroup("child-group-name-2" + currentTime, "desc", DEFAULT_USER).body();
-        Group child3 = entitlementsClient.createGroup("child-group-name-3" + currentTime, "desc", DEFAULT_USER).body();
+        Group group = entitlementsClient.createGroup("group-" + currentTime, "desc").body();
+        Group child1 = entitlementsClient.createGroup("child-group-name-1" + currentTime, "desc").body();
+        Group child2 = entitlementsClient.createGroup("child-group-name-2" + currentTime, "desc").body();
+        Group child3 = entitlementsClient.createGroup("child-group-name-3" + currentTime, "desc").body();
 
-        entitlementsClient.addMemberToGroup(group.email(), child1.email(), "MEMBER", DEFAULT_USER);
-        entitlementsClient.addMemberToGroup(group.email(), child2.email(), "MEMBER", DEFAULT_USER);
-        entitlementsClient.addMemberToGroup(group.email(), child3.email(), "MEMBER", DEFAULT_USER);
+        entitlementsClient.addMemberToGroup(group.email(), child1.email(), "MEMBER");
+        entitlementsClient.addMemberToGroup(group.email(), child2.email(), "MEMBER");
+        entitlementsClient.addMemberToGroup(group.email(), child3.email(), "MEMBER");
 
-        MembersCountResponse count = entitlementsClient.getMembersCount(group.email(), DEFAULT_USER).body();
+        MembersCountResponse count = entitlementsClient.getMembersCount(group.email()).body();
         assertEquals(group.email(), count.groupEmail());
         // creator (OWNER) + 3 child groups
         assertEquals(4, count.membersCount());
@@ -49,7 +49,7 @@ public class GetMembersCountTest extends BaseEntitlementsAcceptanceTest {
     @Test
     void shouldReturnBadRequestWhenMakingHttpRequestWithInvalidUrl() {
         ClientException exception = assertThrows(ClientException.class,
-            () -> entitlementsClient.getMembersCount("%3B", DEFAULT_USER));
+            () -> entitlementsClient.getMembersCount("%3B"));
         assertEquals(HttpStatus.SC_BAD_REQUEST, exception.getStatusCode());
     }
 }

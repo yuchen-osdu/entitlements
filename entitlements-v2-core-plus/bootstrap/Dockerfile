@@ -1,8 +1,8 @@
-FROM alpine/curl:8.19.0
+FROM alpine/curl:8.22.0
 
 WORKDIR /opt
 
-RUN apk add --no-cache jq bash
+RUN apk upgrade --no-cache && apk add --no-cache jq bash
 
 COPY ./entitlements-v2-core-plus/bootstrap/ /opt/
 

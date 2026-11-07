@@ -38,9 +38,9 @@ import org.opengroup.osdu.entitlements.v2.model.ParentReference;
 import org.opengroup.osdu.entitlements.v2.model.ParentTreeDto;
 import org.opengroup.osdu.entitlements.v2.model.Role;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
+import org.springframework.boot.jdbc.test.autoconfigure.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.Sql.ExecutionPhase;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -65,13 +65,13 @@ class RetrieveGroupRepoJdbcDdTest {
   private static final String USER_ABSENT_NAME = "member";
   private static final String GROUP_EXISTS_NAME = "group4";
 
-  @MockBean
+  @MockitoBean
   private GroupRepository groupRepository;
-  @MockBean
+  @MockitoBean
   private JdbcAppProperties jdbcAppProperties;
-  @MockBean
+  @MockitoBean
   private MemberRepository memberRepository;
-  @MockBean
+  @MockitoBean
   private JdbcTemplateRunner jdbcTemplateRunner;
 
   @Autowired

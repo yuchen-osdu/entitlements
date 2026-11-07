@@ -14,8 +14,8 @@ import org.opengroup.osdu.entitlements.v2.model.NodeType;
 import org.opengroup.osdu.entitlements.v2.model.deletegroup.DeleteGroupServiceDto;
 import org.opengroup.osdu.entitlements.v2.service.DeleteGroupService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -37,13 +37,13 @@ public class DeleteGroupApiTest {
 
     @Autowired
     private MockMvc mockMvc;
-    @MockBean
+    @MockitoBean
     private DeleteGroupService service; //service used by api controller
-    @MockBean
+    @MockitoBean
     private JaxRsDpsLog logger;
-    @MockBean
+    @MockitoBean
     private ITenantFactory tenantFactory;
-    @MockBean
+    @MockitoBean
     private AuthorizationService authService;
 
     @Before
@@ -52,7 +52,7 @@ public class DeleteGroupApiTest {
         tenantInfo.setDataPartitionId("common");
         tenantInfo.setServiceAccount("internal-service-account");
         when(tenantFactory.getTenantInfo("common")).thenReturn(tenantInfo);
-        when(authService.isCurrentUserAuthorized(any(),any())).thenReturn(true);
+        when(authService.isCurrentUserAuthorized(any(), any(String[].class))).thenReturn(true);
     }
 
     @Test
