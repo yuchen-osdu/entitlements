@@ -21,7 +21,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.opengroup.osdu.entitlements.v2.jdbc.spi.jdbc.util.JdbcTestDataProvider.DATA_PARTITION_ID;
 import static org.opengroup.osdu.entitlements.v2.jdbc.spi.jdbc.util.JdbcTestDataProvider.getDataGroupNode;
-import static org.powermock.api.mockito.PowerMockito.when;
+import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -40,7 +40,7 @@ import org.opengroup.osdu.entitlements.v2.model.EntityNode;
 import org.opengroup.osdu.entitlements.v2.model.ParentReference;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.test.context.junit4.SpringRunner;
 
@@ -48,19 +48,19 @@ import org.springframework.test.context.junit4.SpringRunner;
 @RunWith(SpringRunner.class)
 public class UpdateAppIdsJdbcTest {
 
-    @MockBean
+    @MockitoBean
     private AuditLogger auditLogger;
 
     @Autowired
     private UpdateAppIdsRepoJdbc sut;
 
-    @MockBean
+    @MockitoBean
     private GroupRepository groupRepository;
-    @MockBean
+    @MockitoBean
     private JdbcTemplateRunner jdbcTemplateRunner;
-    @MockBean
+    @MockitoBean
     private MemberRepository memberRepository;
-    @MockBean
+    @MockitoBean
     private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
     @Autowired

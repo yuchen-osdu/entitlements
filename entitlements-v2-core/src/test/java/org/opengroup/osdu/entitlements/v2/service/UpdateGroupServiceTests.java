@@ -14,13 +14,17 @@
 
 package org.opengroup.osdu.entitlements.v2.service;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import org.apache.http.HttpStatus;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.mockito.Mockito;
 import org.opengroup.osdu.core.common.model.http.AppException;
 import org.opengroup.osdu.core.common.model.http.DpsHeaders;
@@ -39,18 +43,15 @@ import org.opengroup.osdu.entitlements.v2.service.util.ReflectionTestUtil;
 import org.opengroup.osdu.entitlements.v2.spi.renamegroup.RenameGroupRepo;
 import org.opengroup.osdu.entitlements.v2.spi.retrievegroup.RetrieveGroupRepo;
 import org.opengroup.osdu.entitlements.v2.spi.updateappids.UpdateAppIdsRepo;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.util.*;
 
-import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
-@RunWith(PowerMockRunner.class)
-@PrepareForTest({UpdateGroupService.class, System.class})
+@RunWith(MockitoJUnitRunner.Silent.class)
 public class UpdateGroupServiceTests {
+
 
     private static final String RENAME_PATH = "/name";
     private static final String APP_IDS_PATH = "/appIds";
@@ -93,13 +94,12 @@ public class UpdateGroupServiceTests {
 
     @Before
     public void setup() {
-        PowerMockito.mockStatic(System.class);
         when(requestInfo.getHeaders()).thenReturn(headers);
-        PowerMockito.when(System.currentTimeMillis()).thenReturn(1291371330000L);
         when(headers.getHeaders()).thenReturn(headersMap);
         ReflectionTestUtil.setFieldValueForClass(updateGroupService, "eventPublishingEnabled", true);
         ReflectionTestUtil.setFieldValueForClass(updateGroupService, "eventPublisher", publisher);
     }
+
 
     @Test
     public void shouldRenameGroupSuccessfullyAndPublishEntitlementsChangeEventWhenUserGroupExists() {
@@ -129,7 +129,12 @@ public class UpdateGroupServiceTests {
         Assert.assertEquals("users.test.x", responseDto.getName());
         Mockito.verify(groupCacheService).refreshListGroupCache(Collections.emptySet(), "dp");
         Mockito.verify(memberCacheService).flushListMemberCacheForGroup(TEST_EXISTING_USER_GROUP_EMAIL, "dp");
-        verify(publisher).publish(event, headersMap);
+        ArgumentCaptor<EntitlementsChangeEvent[]> publishedEvents = ArgumentCaptor.forClass(EntitlementsChangeEvent[].class);
+        verify(publisher).publish(publishedEvents.capture(), eq(headersMap));
+        assertThat(publishedEvents.getValue())
+                .usingRecursiveComparison()
+                .ignoringFields("modifiedOn")
+                .isEqualTo(event);
     }
 
     @Test
@@ -287,7 +292,12 @@ public class UpdateGroupServiceTests {
         Assert.assertEquals("users.test.x", responseDto.getName());
         Mockito.verify(groupCacheService).refreshListGroupCache(impactedUsers, "dp");
         Mockito.verify(memberCacheService).flushListMemberCacheForGroup(TEST_EXISTING_USER_GROUP_EMAIL, "dp");
-        verify(publisher).publish(event, headersMap);
+        ArgumentCaptor<EntitlementsChangeEvent[]> publishedEvents = ArgumentCaptor.forClass(EntitlementsChangeEvent[].class);
+        verify(publisher).publish(publishedEvents.capture(), eq(headersMap));
+        assertThat(publishedEvents.getValue())
+                .usingRecursiveComparison()
+                .ignoringFields("modifiedOn")
+                .isEqualTo(event);
     }
 
     @Test

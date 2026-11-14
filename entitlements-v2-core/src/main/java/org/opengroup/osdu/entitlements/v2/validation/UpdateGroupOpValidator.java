@@ -13,7 +13,7 @@ public class UpdateGroupOpValidator implements ConstraintValidator<ValidUpdateGr
     public boolean isValid(String operation, ConstraintValidatorContext context) {
         context.disableDefaultConstraintViolation();
 
-        if (!operation.equalsIgnoreCase("replace")) {
+        if (operation == null || !operation.equalsIgnoreCase("replace")) {
             context.buildConstraintViolationWithTemplate("Invalid Update Group Op Provided.")
                     .addConstraintViolation();
             return false;

@@ -168,32 +168,6 @@ public class AuditLogger {
         this.writeLog(this.getEvents().getUpdateGroupsInCacheForKeysFailureEvent(keys, AuditOperation.UPDATE_CACHE.getRequiredGroups()));
     }
 
-    // ==================== Redis Backup Operations (IBM provider specific) ====================
-
-    public void redisInstanceBackupSuccess() {
-        this.writeLog(this.getEvents().getRedisBackupSuccessEvent(AuditOperation.REDIS_BACKUP.getRequiredGroups()));
-    }
-
-    public void redisInstanceBackupFailure() {
-        this.writeLog(this.getEvents().getRedisBackupFailureEvent(AuditOperation.REDIS_BACKUP.getRequiredGroups()));
-    }
-
-    public void redisInstanceBackupVersionsSuccess() {
-        this.writeLog(this.getEvents().getRedisBackupVersionSuccessEvent(AuditOperation.REDIS_BACKUP_VERSIONS.getRequiredGroups()));
-    }
-
-    public void redisInstanceBackupVersionsFailure() {
-        this.writeLog(this.getEvents().getRedisBackupVersionFailureEvent(AuditOperation.REDIS_BACKUP_VERSIONS.getRequiredGroups()));
-    }
-
-    public void redisInstanceRestoreSuccess(String version) {
-        this.writeLog(this.getEvents().getRedisRestoreSuccessEvent(version, AuditOperation.REDIS_RESTORE.getRequiredGroups()));
-    }
-
-    public void redisInstanceRestoreFailure(String version) {
-        this.writeLog(this.getEvents().getRedisRestoreFailureEvent(version, AuditOperation.REDIS_RESTORE.getRequiredGroups()));
-    }
-
     private void writeLog(AuditPayload log) {
         this.logger.audit(log);
     }

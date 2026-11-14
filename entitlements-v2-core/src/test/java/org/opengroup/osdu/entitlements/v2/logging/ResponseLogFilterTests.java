@@ -182,6 +182,10 @@ public class ResponseLogFilterTests {
             }
 
             @Override
+            public void sendRedirect(String s, int sc, boolean clearBuffer) {
+            }
+
+            @Override
             public void setDateHeader(String s, long l) {
             }
 

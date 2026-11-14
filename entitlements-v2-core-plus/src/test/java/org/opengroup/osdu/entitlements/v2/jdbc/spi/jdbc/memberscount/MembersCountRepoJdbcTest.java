@@ -19,7 +19,7 @@ package org.opengroup.osdu.entitlements.v2.jdbc.spi.jdbc.memberscount;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.powermock.api.mockito.PowerMockito.when;
+import static org.mockito.Mockito.when;
 
 import java.util.List;
 import java.util.stream.Stream;
@@ -35,7 +35,7 @@ import org.opengroup.osdu.entitlements.v2.model.memberscount.MembersCountRespons
 import org.opengroup.osdu.entitlements.v2.model.memberscount.MembersCountServiceDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 @SpringBootTest(classes = SpiJdbcTestConfig.class)
@@ -49,7 +49,7 @@ class MembersCountRepoJdbcTest {
   public static final int TOTAL_MEMBERS_COUNT = 3;
   public static final Role NO_ROLE = null;
 
-  @MockBean
+  @MockitoBean
   private GroupRepository groupRepository;
   @Autowired
   private MembersCountRepoJdbc service;

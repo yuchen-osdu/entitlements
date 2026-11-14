@@ -17,9 +17,9 @@
 
 package org.opengroup.osdu.entitlements.v2.jdbc.mapper;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.ObjectMapper;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Collections;
@@ -52,7 +52,7 @@ public class GroupInfoEntityListMapper implements RowMapper<GroupInfoEntityList>
                 entityListBuilder.groupInfoEntities(Collections.emptyList());
             }
             entityListBuilder.totalCount(rs.getLong("totalCount")).build();
-        } catch (JsonProcessingException e) {
+        } catch (JacksonException e) {
             throw new AppException(HttpStatus.INTERNAL_SERVER_ERROR.value(), HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase(),
                 "Unable to parse group info from database", e);
         } catch (SQLException e) {
