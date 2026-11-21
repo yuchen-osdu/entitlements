@@ -1,5 +1,5 @@
 # THIS ASAP manual BUILD jar ent v2
-FROM azul/zulu-openjdk:17
+FROM azul/zulu-openjdk:25.0.4.1-jre
 WORKDIR /app
 ARG PROVIDER_NAME
 ENV PROVIDER_NAME core-plus

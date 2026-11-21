@@ -48,8 +48,10 @@ public class RemoveMemberApi {
     })
     @DeleteMapping("/groups/{group_email}/members/{member_email}")
     @PreAuthorize("@authorizationFilter.hasAnyPermission('" + AppProperties.OPS + "','" + AppProperties.ADMIN + "','" + AppProperties.USERS + "')")
-    public ResponseEntity<String> deleteMember(@Parameter(description = "Group Email") @PathVariable("group_email") String groupEmail,
-                                               @Parameter(description = "Member Email") @PathVariable("member_email") String memberEmail) {
+    public ResponseEntity<String> deleteMember(@Parameter(description = "Group Email")
+                                               @PathVariable("group_email") String groupEmail,
+                                               @Parameter(description = "Member Email")
+                                               @PathVariable("member_email") String memberEmail) {
         String partitionId = requestInfo.getHeaders().getPartitionId();
         partitionHeaderValidationService.validateSinglePartitionProvided(partitionId);
         String partitionDomain = requestInfoUtilService.getDomain(partitionId);

@@ -1,7 +1,7 @@
 package org.opengroup.osdu.entitlements.v2.errors;
 
 import io.swagger.v3.oas.annotations.Hidden;
-import org.springframework.boot.web.servlet.error.ErrorController;
+import org.springframework.boot.webmvc.error.ErrorController;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.DeleteMapping;

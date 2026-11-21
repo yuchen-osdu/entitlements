@@ -28,7 +28,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.opengroup.osdu.core.common.logging.JaxRsDpsLog;
+import org.mockito.MockitoAnnotations;
 import org.opengroup.osdu.core.common.model.http.AppException;
 import org.opengroup.osdu.core.common.model.http.DpsHeaders;
 import org.opengroup.osdu.entitlements.v2.jdbc.Utils;
@@ -38,7 +38,7 @@ import org.opengroup.osdu.entitlements.v2.jdbc.config.IDTokenValidatorFactory;
 import org.opengroup.osdu.entitlements.v2.jdbc.config.properties.EntConfigProperties;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.test.context.junit4.SpringRunner;
 
@@ -66,18 +66,19 @@ public class ExternalAuthTest {
   @Mock private Object handler;
   @Mock private HttpServletRequest request;
   @Mock private HttpServletResponse response;
-  @MockBean private JaxRsDpsLog jaxRsDpsLog;
-  @MockBean private EntOpenIDProviderConfig entOpenIDProviderConfig;
-  @MockBean private IDTokenValidatorFactory tokenValidatorFactory;
+  @MockitoBean private EntOpenIDProviderConfig entOpenIDProviderConfig;
+  @MockitoBean private IDTokenValidatorFactory tokenValidatorFactory;
   @Autowired private EntConfigProperties entConfigProperties;
   @Autowired public RequestHeaderInterceptor interceptor;
   @Autowired private ApplicationContext applicationContext;
 
-  @MockBean private DatabaseCheck databaseCheck;
+  @MockitoBean private DatabaseCheck databaseCheck;
   private String correctToken;
+  private AutoCloseable mocks;
 
   @Before
   public void setUp() {
+    mocks = MockitoAnnotations.openMocks(this);
     when(request.getContextPath()).thenReturn("");
     when(request.getRequestURI()).thenReturn("");
     when(request.getMethod()).thenReturn("GET");
@@ -91,7 +92,9 @@ public class ExternalAuthTest {
   }
 
   @After
-  public void tearDown() {}
+  public void tearDown() throws Exception {
+    mocks.close();
+  }
 
   @Test
   public void shouldAuthenticateWhenOnlyUserIdHeaderPresent() {

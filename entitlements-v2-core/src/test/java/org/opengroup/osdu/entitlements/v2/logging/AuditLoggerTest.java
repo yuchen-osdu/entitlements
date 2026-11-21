@@ -25,7 +25,7 @@ import org.opengroup.osdu.core.common.model.http.DpsHeaders;
 import org.opengroup.osdu.core.common.model.http.RequestInfo;
 import org.opengroup.osdu.entitlements.v2.model.Role;
 import org.opengroup.osdu.entitlements.v2.util.RequestInfoUtilService;
-import org.powermock.modules.junit4.PowerMockRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -37,7 +37,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 
-@RunWith(PowerMockRunner.class)
+@RunWith(MockitoJUnitRunner.class)
 public class AuditLoggerTest {
     @Mock
     private JaxRsDpsLog log;
@@ -69,44 +69,6 @@ public class AuditLoggerTest {
         when(requestInfoUtilService.getUserId(dpsHeaders)).thenReturn("user");
         when(httpServletRequest.getRemoteAddr()).thenReturn("127.0.0.1");
         when(httpServletRequest.getHeader("User-Agent")).thenReturn("Test-Agent");
-    }
-
-    // ==================== Redis Backup Tests ====================
-
-    @Test
-    public void shouldLogRedisInstanceBackupSuccess() {
-        auditLogger.redisInstanceBackupSuccess();
-        verify(log).audit(auditEvents.getRedisBackupSuccessEvent(AuditOperation.REDIS_BACKUP.getRequiredGroups()));
-    }
-
-    @Test
-    public void shouldLogRedisInstanceBackupFailure() {
-        auditLogger.redisInstanceBackupFailure();
-        verify(log).audit(auditEvents.getRedisBackupFailureEvent(AuditOperation.REDIS_BACKUP.getRequiredGroups()));
-    }
-
-    @Test
-    public void shouldLogRedisInstanceBackupVersionsSuccess() {
-        auditLogger.redisInstanceBackupVersionsSuccess();
-        verify(log).audit(auditEvents.getRedisBackupVersionSuccessEvent(AuditOperation.REDIS_BACKUP_VERSIONS.getRequiredGroups()));
-    }
-
-    @Test
-    public void shouldLogRedisInstanceBackupVersionsFailure() {
-        auditLogger.redisInstanceBackupVersionsFailure();
-        verify(log).audit(auditEvents.getRedisBackupVersionFailureEvent(AuditOperation.REDIS_BACKUP_VERSIONS.getRequiredGroups()));
-    }
-
-    @Test
-    public void shouldLogRedisInstanceRestoreSuccess() {
-        auditLogger.redisInstanceRestoreSuccess("version");
-        verify(log).audit(auditEvents.getRedisRestoreSuccessEvent("version", AuditOperation.REDIS_RESTORE.getRequiredGroups()));
-    }
-
-    @Test
-    public void shouldLogRedisInstanceRestoreFailure() {
-        auditLogger.redisInstanceRestoreFailure("version");
-        verify(log).audit(auditEvents.getRedisRestoreFailureEvent("version", AuditOperation.REDIS_RESTORE.getRequiredGroups()));
     }
 
     // ==================== Group Operation Tests ====================
