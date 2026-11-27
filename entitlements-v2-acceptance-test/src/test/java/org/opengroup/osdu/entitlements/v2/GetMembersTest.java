@@ -33,16 +33,16 @@ public class GetMembersTest extends BaseEntitlementsAcceptanceTest {
 
     @Test
     void shouldSuccessfullyListMember() {
-        Group group = entitlementsClient.createGroup("group-" + currentTime, "desc", DEFAULT_USER).body();
-        Group c1 = entitlementsClient.createGroup("child-group-name-1" + currentTime, "desc", DEFAULT_USER).body();
-        Group c2 = entitlementsClient.createGroup("child-group-name-2" + currentTime, "desc", DEFAULT_USER).body();
-        Group c3 = entitlementsClient.createGroup("child-group-name-3" + currentTime, "desc", DEFAULT_USER).body();
+        Group group = entitlementsClient.createGroup("group-" + currentTime, "desc").body();
+        Group c1 = entitlementsClient.createGroup("child-group-name-1" + currentTime, "desc").body();
+        Group c2 = entitlementsClient.createGroup("child-group-name-2" + currentTime, "desc").body();
+        Group c3 = entitlementsClient.createGroup("child-group-name-3" + currentTime, "desc").body();
 
-        entitlementsClient.addMemberToGroup(group.email(), c1.email(), "MEMBER", DEFAULT_USER);
-        entitlementsClient.addMemberToGroup(group.email(), c2.email(), "MEMBER", DEFAULT_USER);
-        entitlementsClient.addMemberToGroup(group.email(), c3.email(), "MEMBER", DEFAULT_USER);
+        entitlementsClient.addMemberToGroup(group.email(), c1.email(), "MEMBER");
+        entitlementsClient.addMemberToGroup(group.email(), c2.email(), "MEMBER");
+        entitlementsClient.addMemberToGroup(group.email(), c3.email(), "MEMBER");
 
-        GroupMember[] members = entitlementsClient.listGroupMembers(group.email(), DEFAULT_USER).body().members();
+        GroupMember[] members = entitlementsClient.listGroupMembers(group.email()).body().members();
         assertTrue(contains(members, c1.email()));
         assertTrue(contains(members, c2.email()));
         assertTrue(contains(members, c3.email()));
@@ -51,7 +51,7 @@ public class GetMembersTest extends BaseEntitlementsAcceptanceTest {
     @Test
     void shouldReturnBadRequestWhenMakingHttpRequestWithInvalidUrl() {
         ClientException exception = assertThrows(ClientException.class,
-            () -> entitlementsClient.listGroupMembers("%3B", DEFAULT_USER));
+            () -> entitlementsClient.listGroupMembers("%3B"));
         assertEquals(HttpStatus.SC_BAD_REQUEST, exception.getStatusCode());
     }
 

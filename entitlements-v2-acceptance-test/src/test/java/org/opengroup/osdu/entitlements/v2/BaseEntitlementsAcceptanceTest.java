@@ -24,98 +24,75 @@ import java.util.Map;
 import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.hc.core5.http.HttpStatus;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.opengroup.osdu.core.test.auth.UserType;
 import org.opengroup.osdu.core.test.base.BaseAcceptanceTests;
 import org.opengroup.osdu.core.test.client.ClientException;
 import org.opengroup.osdu.core.test.client.EntitlementsClient;
+import org.opengroup.osdu.core.test.client.PartitionClient;
 import org.opengroup.osdu.core.test.config.EnvLoader;
 import org.opengroup.osdu.core.test.service.ServiceType;
 
 /**
  * Base class for Entitlements v2 acceptance tests.
  *
- * <p>Replaces the legacy {@code AcceptanceBaseTest} / {@code HttpClientService} /
- * {@code EntitlementsV2Service} / {@code TokenTestUtils} stack with the shared os-core-test
- * infrastructure. It wires a typed {@link EntitlementsClient} backed by the shared
- * {@link #stringHttpClient} and exposes the default {@link UserType} plus the entitlements-specific
- * group-email naming helpers that os-core-test does not provide.
- *
- * <p>Groups created through {@link #entitlementsClient} are tracked and removed in
- * {@link #teardown()}. Subclasses that create extra client instances must call their
- * {@code teardown()} too.
+ * <p>Provides a privileged {@link EntitlementsClient} for setup and assertions, a
+ * {@link #noAccessEntitlementsClient} for authorization-negative scenarios, and a
+ * {@link PartitionClient} for partition metadata lookups.
  */
 public abstract class BaseEntitlementsAcceptanceTest extends BaseAcceptanceTests {
 
-    /** Privileged user used by the happy-path tests. */
-    protected static final UserType DEFAULT_USER = UserType.PRIVILEGED_USER;
-
-    // Domain-only test data (no os-core-test equivalent).
     protected static final String MEMBER_EMAIL = "testMember@test.com";
     protected static final String OWNER_EMAIL = "testmMemberOwner@test.com";
 
-    /** Typed client for the Entitlements v2 API. */
-    protected EntitlementsClient entitlementsClient;
+    protected final EntitlementsClient entitlementsClient;
+    protected final EntitlementsClient noAccessEntitlementsClient;
+    protected final PartitionClient partitionClient;
 
     protected BaseEntitlementsAcceptanceTest() {
-        super(List.of(UserType.PRIVILEGED_USER), List.of(ServiceType.ENTITLEMENTS_V2));
+        super(List.of(UserType.PRIVILEGED_USER, UserType.NO_ACCESS_USER),
+            List.of(ServiceType.ENTITLEMENTS_V2, ServiceType.PARTITION_V1));
+        this.entitlementsClient =
+            new EntitlementsClient(this.stringHttpClient, UserType.PRIVILEGED_USER);
+        this.noAccessEntitlementsClient =
+            new EntitlementsClient(this.stringHttpClient, UserType.NO_ACCESS_USER);
+        this.partitionClient = new PartitionClient(this.stringHttpClient, UserType.PRIVILEGED_USER);
     }
 
-    @BeforeEach
     @Override
     protected void setup() throws Exception {
-        this.entitlementsClient = new EntitlementsClient(stringHttpClient);
+        // Shared infrastructure is initialized in the BaseAcceptanceTests constructor.
     }
 
-    @AfterEach
     @Override
-    protected void teardown() throws Exception {
-        if (entitlementsClient != null) {
-            entitlementsClient.teardown();
-        }
+    @AfterEach
+    protected void teardown() {
+        this.entitlementsClient.teardown();
+        this.noAccessEntitlementsClient.teardown();
     }
 
-    /**
-     * Shared contract test: a request without valid credentials must be rejected.
-     *
-     * <p>os-core-test always authenticates with a {@link UserType}; to exercise the unauthenticated
-     * path the {@code Authorization} header is overridden with an empty value via the client's
-     * custom-header support. Because the header is present-but-invalid (rather than absent), the
-     * gateway answers with {@code 401 Unauthorized} or {@code 403 Forbidden}; both are accepted as
-     * "rejected without valid credentials".
-     */
     @Test
     void shouldReturn401WhenMakingHttpRequestWithoutToken() {
         ClientException exception = assertThrows(ClientException.class,
-            () -> entitlementsClient.listGroups(getDefaultUser(), Map.of(),
-                Map.of(HttpHeaders.AUTHORIZATION, "")));
+            () -> entitlementsClient.listGroups(Map.of(), Map.of(HttpHeaders.AUTHORIZATION, "")));
         int statusCode = exception.getStatusCode();
         assertTrue(statusCode == HttpStatus.SC_UNAUTHORIZED || statusCode == HttpStatus.SC_FORBIDDEN,
             "Expected 401 or 403 for a request without valid credentials but was " + statusCode);
     }
 
-    // ---------------------------------------------------------------------
-    // Entitlements group-email naming helpers (no os-core-test equivalent)
-    // ---------------------------------------------------------------------
-
-    /** Data partition id from the shared os-core-test configuration. */
     protected String partitionId() {
         return servicesConfig.getDataPartitionId();
     }
 
-    /** Entitlements group domain ({@code ENTITLEMENTS_DOMAIN}, default {@code group}). */
     protected String entitlementsDomain() {
         String domain = EnvLoader.get("ENTITLEMENTS_DOMAIN");
         return (domain == null || domain.isBlank()) ? "group" : domain;
     }
 
-    /** Builds the well-known group email for a group name: {@code name@partition.domain}. */
     protected String groupEmail(String groupName) {
         return groupName.toLowerCase() + "@" + partitionId() + "." + entitlementsDomain();
     }
 
-    /** A unique member email used by delete-member scenarios. */
     protected String memberToBeDeleted(long timestamp) {
         return String.format("testMember-%s@test.com", timestamp);
     }

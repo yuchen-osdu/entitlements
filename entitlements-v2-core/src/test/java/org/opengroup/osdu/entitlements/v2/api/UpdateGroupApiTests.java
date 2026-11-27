@@ -1,6 +1,6 @@
 package org.opengroup.osdu.entitlements.v2.api;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectMapper;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -15,8 +15,8 @@ import org.opengroup.osdu.entitlements.v2.model.updategroup.UpdateGroupResponseD
 import org.opengroup.osdu.entitlements.v2.model.updategroup.UpdateGroupServiceDto;
 import org.opengroup.osdu.entitlements.v2.service.UpdateGroupService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -42,15 +42,15 @@ public class UpdateGroupApiTests {
 
     @Autowired
     private MockMvc mockMvc;
-    @MockBean
+    @MockitoBean
     private UpdateGroupService service; //service used by api controller
-    @MockBean
+    @MockitoBean
     private JaxRsDpsLog logger;
-    @MockBean
+    @MockitoBean
     private ITenantFactory tenantFactory;
     @Autowired
     private ObjectMapper objectMapper;
-    @MockBean
+    @MockitoBean
     private AuthorizationService authService;
 
     @Before
@@ -60,7 +60,7 @@ public class UpdateGroupApiTests {
         tenantInfo.setServiceAccount("a@desid.com");
         when(tenantFactory.listTenantInfo()).thenReturn(Collections.singletonList(tenantInfo));
         when(tenantFactory.getTenantInfo("common")).thenReturn(tenantInfo);
-        when(authService.isCurrentUserAuthorized(any(),any())).thenReturn(true);
+        when(authService.isCurrentUserAuthorized(any(), any(String[].class))).thenReturn(true);
     }
 
     @Test
@@ -133,6 +133,12 @@ public class UpdateGroupApiTests {
     }
 
     @Test
+    public void shouldThrowBadRequestWhenOperationElementIsNull() throws Exception {
+        String groupEmail = "users.common.test@common.contoso.com";
+        performRequestRaw("[null]", groupEmail).andExpect(status().isBadRequest());
+    }
+
+    @Test
     public void should_callService_withExpectedInputs() throws Exception {
         String groupEmail = "users.COMMON.test@common.contoso.com";
         String newGroupName = "users.TEST";
@@ -146,13 +152,17 @@ public class UpdateGroupApiTests {
     }
 
     private ResultActions performRequest(List<UpdateGroupOperation> updateGroupRequest, String groupEmail) throws Exception {
+        return performRequestRaw(objectMapper.writeValueAsString(updateGroupRequest), groupEmail);
+    }
+
+    private ResultActions performRequestRaw(String body, String groupEmail) throws Exception {
         return mockMvc.perform(patch("/groups/{group_email}", groupEmail)
                 .contentType(MediaType.APPLICATION_JSON)
                 .characterEncoding("UTF8")
                 .header(DpsHeaders.AUTHORIZATION, "Bearer token")
                 .header(DpsHeaders.DATA_PARTITION_ID, "common")
                 .header(DpsHeaders.USER_ID,"a@b.com")
-                .content(objectMapper.writeValueAsString(updateGroupRequest)));
+                .content(body));
     }
 
     private List<UpdateGroupOperation> getRequestBody(String operation, String path, String... value) {

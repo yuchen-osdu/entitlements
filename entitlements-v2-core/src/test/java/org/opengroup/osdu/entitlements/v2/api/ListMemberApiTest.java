@@ -1,6 +1,6 @@
 package org.opengroup.osdu.entitlements.v2.api;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectMapper;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -19,8 +19,8 @@ import org.opengroup.osdu.entitlements.v2.model.listmember.ListMemberServiceDto;
 import org.opengroup.osdu.entitlements.v2.model.listmember.MemberDto;
 import org.opengroup.osdu.entitlements.v2.service.ListMemberService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -49,13 +49,13 @@ public class ListMemberApiTest {
     private MockMvc mockMvc;
     @Autowired
     private ObjectMapper objectMapper;
-    @MockBean
+    @MockitoBean
     private ListMemberService service; //service used by api controller
-    @MockBean
+    @MockitoBean
     private JaxRsDpsLog logger;
-    @MockBean
+    @MockitoBean
     private ITenantFactory tenantFactory;
-    @MockBean
+    @MockitoBean
     private AuthorizationService authService;
 
     @Before
@@ -70,7 +70,7 @@ public class ListMemberApiTest {
         tenantInfo.setDataPartitionId("common");
         tenantInfo.setServiceAccount("internal-service-account");
         when(tenantFactory.getTenantInfo("common")).thenReturn(tenantInfo);
-        when(authService.isCurrentUserAuthorized(any(),any())).thenReturn(true);
+        when(authService.isCurrentUserAuthorized(any(), any(String[].class))).thenReturn(true);
     }
 
     @Test
@@ -109,6 +109,19 @@ public class ListMemberApiTest {
 
         assertThat(result)
                 .isEqualToIgnoringWhitespace(objectMapper.writeValueAsString(expectedResult));
+    }
+
+    @Test
+    public void shouldUseDefaultIncludeTypeWhenQueryParameterIsOmitted() throws Exception {
+        String group = "service.viewers.users@common.contoso.com";
+        ListMemberRequestArgs args = ListMemberRequestArgs.builder().build();
+
+        String withoutIncludeType = performListMemberRequest(group, args, false).andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString();
+        String withDefaultIncludeType = performListMemberRequest(group, args).andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString();
+
+        assertThat(withoutIncludeType).isEqualToIgnoringWhitespace(withDefaultIncludeType);
     }
 
     @Test
@@ -212,8 +225,14 @@ public class ListMemberApiTest {
     }
 
     private ResultActions performListMemberRequest(String groupEmail, ListMemberRequestArgs args) throws Exception {
+        return performListMemberRequest(groupEmail, args, true);
+    }
+
+    private ResultActions performListMemberRequest(String groupEmail, ListMemberRequestArgs args, boolean includeTypeQueryParameter) throws Exception {
         MultiValueMap<String, String> queryParams = new LinkedMultiValueMap<>();
-        queryParams.add("includeType", args.getIncludeType().toString());
+        if (includeTypeQueryParameter) {
+            queryParams.add("includeType", args.getIncludeType().toString());
+        }
         if (args.getRole() != null) {
             queryParams.add("role", args.getRole().toString());
         }

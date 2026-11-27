@@ -9,7 +9,7 @@ import org.opengroup.osdu.core.common.util.IServiceAccountJwtClient;
 import org.opengroup.osdu.entitlements.v2.config.PartitionFeatureFlagConfig;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.HashMap;
@@ -22,21 +22,21 @@ import static org.mockito.Mockito.*;
 @SpringBootTest
 @RunWith(SpringRunner.class)
 public class PartitionFeatureFlagServiceImplTests {
-    @MockBean
+    @MockitoBean
     private IPartitionFactory factory;
-    @MockBean
+    @MockitoBean
     private IServiceAccountJwtClient tokenService;
-    @MockBean
+    @MockitoBean
     private JaxRsDpsLog log;
-    @MockBean
+    @MockitoBean
     private FeatureFlagCache featureFlagCache;
-    @MockBean
+    @MockitoBean
     private DpsHeaders headers;
-    @MockBean
+    @MockitoBean
     private IPartitionProvider partitionProvider;
-    @MockBean
+    @MockitoBean
     private PartitionInfo partitionInfo;
-    @MockBean
+    @MockitoBean
     private PartitionFeatureFlagConfig partitionFeatureFlagConfig;
 
     @Autowired

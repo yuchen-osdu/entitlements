@@ -47,4 +47,38 @@ public class ApiInputValidationTest {
             Assert.fail();
         }
     }
+
+    @Test
+    public void shouldParseNullOrEmptyCursorAsZero() {
+        Assert.assertEquals(0, ApiInputValidation.parseNonNegativeCursorOffset(null));
+        Assert.assertEquals(0, ApiInputValidation.parseNonNegativeCursorOffset(""));
+    }
+
+    @Test
+    public void shouldParseNonNegativeCursor() {
+        Assert.assertEquals(0, ApiInputValidation.parseNonNegativeCursorOffset("0"));
+        Assert.assertEquals(58800, ApiInputValidation.parseNonNegativeCursorOffset("58800"));
+    }
+
+    @Test
+    public void shouldRejectNegativeCursor() {
+        try {
+            ApiInputValidation.parseNonNegativeCursorOffset("-58800");
+            Assert.fail();
+        } catch (AppException e) {
+            Assert.assertEquals("Malformed cursor, must be integer value", e.getError().getMessage());
+            Assert.assertEquals(400, e.getError().getCode());
+        }
+    }
+
+    @Test
+    public void shouldRejectNonIntegerCursor() {
+        try {
+            ApiInputValidation.parseNonNegativeCursorOffset("not-a-number");
+            Assert.fail();
+        } catch (AppException e) {
+            Assert.assertEquals("Malformed cursor, must be integer value", e.getError().getMessage());
+            Assert.assertEquals(400, e.getError().getCode());
+        }
+    }
 }

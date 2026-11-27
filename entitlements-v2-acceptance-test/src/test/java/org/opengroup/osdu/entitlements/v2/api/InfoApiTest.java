@@ -16,25 +16,24 @@
 
 package org.opengroup.osdu.entitlements.v2.api;
 
-import static org.opengroup.osdu.core.test.base.GetInfoAssertions.assertInfoResponse;
-
 import java.util.List;
-import org.apache.hc.core5.http.Method;
-import org.junit.jupiter.api.Test;
 import org.opengroup.osdu.core.test.auth.UserType;
 import org.opengroup.osdu.core.test.base.BaseGetInfoAcceptanceTests;
 import org.opengroup.osdu.core.test.service.ServiceType;
 
 /**
  * Validates the Entitlements {@code /info} endpoint via the shared os-core-test base.
- *
- * <p>The inherited {@code should_returnInfo} test covers the canonical {@code /info} path.
- * Entitlements exposes no feature flags through {@code /info}, so the expected feature-flag list is
- * empty (it is only consulted when {@code EXPOSE_FEATUREFLAG_ENABLED} is set).
  */
 public class InfoApiTest extends BaseGetInfoAcceptanceTests {
 
-    private static final List<String> EXPECTED_FEATURE_FLAGS = List.of();
+    static {
+        System.setProperty("expose_featureflag.enabled", "true");
+    }
+
+    private static final List<String> EXPECTED_FEATURE_FLAGS = List.of(
+        "disable-data-root-group-hierarchy",
+        "group-size-limit-enabled"
+    );
 
     public InfoApiTest() {
         super(UserType.PRIVILEGED_USER, ServiceType.ENTITLEMENTS_V2, EXPECTED_FEATURE_FLAGS);

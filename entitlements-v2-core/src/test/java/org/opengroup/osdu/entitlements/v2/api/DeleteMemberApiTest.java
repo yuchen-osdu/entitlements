@@ -12,8 +12,8 @@ import org.opengroup.osdu.entitlements.v2.auth.AuthorizationFilter;
 import org.opengroup.osdu.entitlements.v2.model.deletemember.DeleteMemberDto;
 import org.opengroup.osdu.entitlements.v2.service.DeleteMemberService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -39,15 +39,15 @@ public class DeleteMemberApiTest {
     private static final String DATA_PARTITION_ID = "common";
     @Autowired
     private MockMvc mockMvc;
-    @MockBean
+    @MockitoBean
     private JaxRsDpsLog log;
-    @MockBean
+    @MockitoBean
     private TenantInfo tenantInfo;
-    @MockBean
+    @MockitoBean
     private ITenantFactory tenantFactory;
-    @MockBean
+    @MockitoBean
     private AuthorizationFilter authorizationFilter;
-    @MockBean
+    @MockitoBean
     private DeleteMemberService deleteMemberService;
 
     @Before

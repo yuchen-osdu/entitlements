@@ -14,12 +14,16 @@
 
 package org.opengroup.osdu.entitlements.v2.service;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import org.apache.http.HttpStatus;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.opengroup.osdu.core.common.logging.JaxRsDpsLog;
 import org.opengroup.osdu.core.common.model.http.AppException;
 import org.opengroup.osdu.core.common.model.http.DpsHeaders;
@@ -38,19 +42,17 @@ import org.opengroup.osdu.entitlements.v2.service.util.ReflectionTestUtil;
 import org.opengroup.osdu.entitlements.v2.spi.deletegroup.DeleteGroupRepo;
 import org.opengroup.osdu.entitlements.v2.spi.retrievegroup.RetrieveGroupRepo;
 import org.opengroup.osdu.entitlements.v2.util.RequestInfoUtilService;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.util.*;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
-@RunWith(PowerMockRunner.class)
-@PrepareForTest({DeleteGroupService.class, System.class})
+@RunWith(MockitoJUnitRunner.Silent.class)
 public class DeleteGroupServiceTests {
+
 
     @Mock
     private DeleteGroupRepo deleteGroupRepo;
@@ -83,14 +85,13 @@ public class DeleteGroupServiceTests {
 
     @Before
     public void setup() {
-        PowerMockito.mockStatic(System.class);
         when(requestInfo.getTenantInfo()).thenReturn(new TenantInfo());
         when(requestInfo.getHeaders()).thenReturn(headers);
         when(headers.getHeaders()).thenReturn(headersMap);
-        PowerMockito.when(System.currentTimeMillis()).thenReturn(1291371330000L);
         ReflectionTestUtil.setFieldValueForClass(service, "eventPublisher", publisher);
         ReflectionTestUtil.setFieldValueForClass(service, "eventPublishingEnabled", true);
     }
+
 
     @Test
     public void shouldSuccessfullyDeleteGroupEmailAndPublishDeleteGroupEntitlementsChangeEvent() {
@@ -121,7 +122,12 @@ public class DeleteGroupServiceTests {
         verify(deleteGroupRepo).deleteGroup(groupNode);
         verify(groupCacheService).refreshListGroupCache(impactedUsers, "common");
         verify(memberCacheService).flushListMemberCacheForGroup("data.x.viewers@common.contoso.com", "common");
-        verify(publisher).publish(event, headersMap);
+        ArgumentCaptor<EntitlementsChangeEvent[]> publishedEvents = ArgumentCaptor.forClass(EntitlementsChangeEvent[].class);
+        verify(publisher).publish(publishedEvents.capture(), eq(headersMap));
+        assertThat(publishedEvents.getValue())
+                .usingRecursiveComparison()
+                .ignoringFields("modifiedOn")
+                .isEqualTo(event);
     }
 
     @Test
@@ -172,7 +178,12 @@ public class DeleteGroupServiceTests {
             e.printStackTrace();
             fail(String.format("should not throw exception: %s", e));
         }
-        verify(publisher).publish(event, headersMap);
+        ArgumentCaptor<EntitlementsChangeEvent[]> publishedEvents = ArgumentCaptor.forClass(EntitlementsChangeEvent[].class);
+        verify(publisher).publish(publishedEvents.capture(), eq(headersMap));
+        assertThat(publishedEvents.getValue())
+                .usingRecursiveComparison()
+                .ignoringFields("modifiedOn")
+                .isEqualTo(event);
     }
 
     @Test

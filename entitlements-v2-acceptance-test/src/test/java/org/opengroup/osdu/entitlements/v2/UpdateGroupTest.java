@@ -38,25 +38,25 @@ public class UpdateGroupTest extends BaseEntitlementsAcceptanceTest {
     void shouldRenameGroupSuccessfully() {
         String oldGroupName = "oldGroupName-" + currentTime;
         String newGroupName = "newGroupName-" + currentTime;
-        Group created = entitlementsClient.createGroup(oldGroupName, "desc", DEFAULT_USER).body();
+        Group created = entitlementsClient.createGroup(oldGroupName, "desc").body();
 
         UpdateGroupResponse updated = entitlementsClient.updateGroupAttributes(created.email(),
-            List.of(new UpdateGroupOperation("replace", "/name", List.of(newGroupName))), DEFAULT_USER).body();
+            List.of(new UpdateGroupOperation("replace", "/name", List.of(newGroupName)))).body();
 
         assertEquals(newGroupName.toLowerCase(), updated.name());
         assertEquals(groupEmail(newGroupName).toLowerCase(), updated.email());
         // the rename produces a new group email; track the new one for teardown
-        entitlementsClient.deleteGroup(updated.email(), DEFAULT_USER);
+        entitlementsClient.deleteGroup(updated.email());
     }
 
     @Test
     void shouldUpdateAppIdsSuccessfully() {
         String groupName = "groupName-" + currentTime;
         Set<String> newAppIds = new HashSet<>(List.of("app1", "app2"));
-        Group created = entitlementsClient.createGroup(groupName, "desc", DEFAULT_USER).body();
+        Group created = entitlementsClient.createGroup(groupName, "desc").body();
 
         UpdateGroupResponse updated = entitlementsClient.updateGroupAttributes(created.email(),
-            List.of(new UpdateGroupOperation("replace", "/appIds", new ArrayList<>(newAppIds))), DEFAULT_USER).body();
+            List.of(new UpdateGroupOperation("replace", "/appIds", new ArrayList<>(newAppIds)))).body();
 
         assertEquals(groupName.toLowerCase(), updated.name());
         assertEquals(groupEmail(groupName).toLowerCase(), updated.email());
@@ -67,7 +67,7 @@ public class UpdateGroupTest extends BaseEntitlementsAcceptanceTest {
     void shouldReturnBadRequestWhenMakingHttpRequestWithoutValidUrl() {
         ClientException exception = assertThrows(ClientException.class,
             () -> entitlementsClient.updateGroupAttributes("%25",
-                List.of(new UpdateGroupOperation("replace", "/name", List.of("newGroupName"))), DEFAULT_USER));
+                List.of(new UpdateGroupOperation("replace", "/name", List.of("newGroupName")))));
         assertEquals(HttpStatus.SC_BAD_REQUEST, exception.getStatusCode());
     }
 }

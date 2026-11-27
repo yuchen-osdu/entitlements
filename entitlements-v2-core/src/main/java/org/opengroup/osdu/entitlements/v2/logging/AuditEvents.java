@@ -30,19 +30,11 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static java.util.Collections.singletonList;
-
 class AuditEvents {
 
     private static final String UNKNOWN = "unknown";
     private static final String UNKNOWN_IP = "0.0.0.0";
 
-    private static final String REDIS_BACKUP_ACTION_ID = "ET201";
-    private static final String REDIS_BACKUP_MESSAGE = "Back up redis instance";
-    private static final String REDIS_LIST_BACKUP_VERSIONS_ACTION_ID = "ET202";
-    private static final String REDIS_LIST_BACKUP_VERSIONS_MESSAGE = "List backup version of the redis instance";
-    private static final String REDIS_RESTORE_ACTION_ID = "ET203";
-    private static final String REDIS_RESTORE_MESSAGE = "Restore redis instance from version %s";
     private static final String REDIS_CREATE_GROUP_TRANSACTION_ACTION_ID = "ET210";
     private static final String REDIS_CREATE_GROUP_TRANSACTION_MESSAGE = "Create group %s";
     private static final String REDIS_DELETE_GROUP_TRANSACTION_ACTION_ID = "ET211";
@@ -90,55 +82,6 @@ class AuditEvents {
                 .userIpAddress(this.userIpAddress)
                 .userAgent(this.userAgent)
                 .userAuthorizedGroupName(this.userAuthorizedGroupName);
-    }
-
-    // Redis backup operations - Success/Failure paired methods
-    AuditPayload getRedisBackupSuccessEvent(List<String> requiredGroupsForAction) {
-        return buildRedisBackupEvent(AuditStatus.SUCCESS, requiredGroupsForAction);
-    }
-
-    AuditPayload getRedisBackupFailureEvent(List<String> requiredGroupsForAction) {
-        return buildRedisBackupEvent(AuditStatus.FAILURE, requiredGroupsForAction);
-    }
-
-    private AuditPayload buildRedisBackupEvent(AuditStatus auditStatus, List<String> requiredGroupsForAction) {
-        return createAuditPayloadBuilder(requiredGroupsForAction, auditStatus, REDIS_BACKUP_ACTION_ID)
-                .action(AuditAction.JOB_RUN)
-                .message(REDIS_BACKUP_MESSAGE)
-                .resources(singletonList(dataPartitionId))
-                .build();
-    }
-
-    AuditPayload getRedisBackupVersionSuccessEvent(List<String> requiredGroupsForAction) {
-        return buildRedisBackupVersionEvent(AuditStatus.SUCCESS, requiredGroupsForAction);
-    }
-
-    AuditPayload getRedisBackupVersionFailureEvent(List<String> requiredGroupsForAction) {
-        return buildRedisBackupVersionEvent(AuditStatus.FAILURE, requiredGroupsForAction);
-    }
-
-    private AuditPayload buildRedisBackupVersionEvent(AuditStatus auditStatus, List<String> requiredGroupsForAction) {
-        return createAuditPayloadBuilder(requiredGroupsForAction, auditStatus, REDIS_LIST_BACKUP_VERSIONS_ACTION_ID)
-                .action(AuditAction.READ)
-                .message(REDIS_LIST_BACKUP_VERSIONS_MESSAGE)
-                .resources(singletonList(dataPartitionId))
-                .build();
-    }
-
-    AuditPayload getRedisRestoreSuccessEvent(String version, List<String> requiredGroupsForAction) {
-        return buildRedisRestoreEvent(AuditStatus.SUCCESS, version, requiredGroupsForAction);
-    }
-
-    AuditPayload getRedisRestoreFailureEvent(String version, List<String> requiredGroupsForAction) {
-        return buildRedisRestoreEvent(AuditStatus.FAILURE, version, requiredGroupsForAction);
-    }
-
-    private AuditPayload buildRedisRestoreEvent(AuditStatus auditStatus, String version, List<String> requiredGroupsForAction) {
-        return createAuditPayloadBuilder(requiredGroupsForAction, auditStatus, REDIS_RESTORE_ACTION_ID)
-                .action(AuditAction.UPDATE)
-                .message(String.format(REDIS_RESTORE_MESSAGE, version))
-                .resources(singletonList(dataPartitionId))
-                .build();
     }
 
     // Group operations - Success/Failure paired methods

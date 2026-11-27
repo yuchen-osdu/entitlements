@@ -26,7 +26,7 @@ import org.opengroup.osdu.entitlements.v2.model.EntityNode;
 import org.opengroup.osdu.entitlements.v2.util.RequestInfoUtilService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.Collections;
@@ -42,15 +42,15 @@ import static org.opengroup.osdu.entitlements.v2.jdbc.spi.jdbc.util.JdbcTestData
 @RunWith(SpringRunner.class)
 public class DeleteGroupRepoJdbcTest {
 
-    @MockBean
+    @MockitoBean
     private RequestInfoUtilService requestInfoUtilService;
     @Autowired
     private DeleteGroupRepoJdbc sut;
-    @MockBean
+    @MockitoBean
     private GroupRepository groupRepository;
-    @MockBean
+    @MockitoBean
     private MemberRepository memberRepository;
-    @MockBean
+    @MockitoBean
     private JdbcTemplateRunner jdbcTemplateRunner;
 
     @Test

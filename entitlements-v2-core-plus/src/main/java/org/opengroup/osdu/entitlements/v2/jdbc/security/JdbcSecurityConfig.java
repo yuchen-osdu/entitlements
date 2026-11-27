@@ -47,10 +47,11 @@ public class JdbcSecurityConfig {
 
 	@Bean
 	public WebSecurityCustomizer webSecurityCustomizer() {
-		return (web) -> web.httpFirewall(allowUrlEncodedSlashHttpFirewall());
+		return web -> web.httpFirewall(allowUrlEncodedSlashHttpFirewall());
 	}
 
-	//	TODO temporary fix, should be removed later
+	// Allow URL-encoded slashes and double-slashes so entitlements group identifiers
+	// containing encoded '/' are not rejected by Spring Security's StrictHttpFirewall.
 	@Bean
 	public HttpFirewall allowUrlEncodedSlashHttpFirewall() {
 		StrictHttpFirewall firewall = new StrictHttpFirewall();

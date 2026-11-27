@@ -5,7 +5,7 @@ import org.opengroup.osdu.entitlements.v2.util.FileReaderService;
 import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
-import org.powermock.reflect.Whitebox;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.Collections;
 
@@ -40,7 +40,7 @@ public class DefaultGroupsServiceTest {
         Mockito.when(fileReaderService.readFile("/provisioning/groups/groups.json"))
                 .thenReturn(GROUPS);
         DefaultGroupsService defaultGroupsService = new DefaultGroupsService(fileReaderService, appProperties);
-        Whitebox.invokeMethod(defaultGroupsService, "init");
+        ReflectionTestUtils.invokeMethod(defaultGroupsService, "init");
         Assert.assertTrue(defaultGroupsService.isDefaultGroupName("group1"));
         Assert.assertTrue(defaultGroupsService.isNotDefaultGroupName("group3"));
     }
